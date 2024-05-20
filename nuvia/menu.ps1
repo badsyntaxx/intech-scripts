@@ -1,9 +1,9 @@
 function menu {
     try {
         clear-host
-        write-welcome -Title "Chased s Menu" -Description "Select an action to take." -Command "menu"
+        write-welcome -Title "Nuvia Menu" -Description "Select an action to take." -Command "menu"
 
-        $url = "https://raw.githubusercontent.com/badsyntaxx/chased-scripts-intech/main"
+        $url = "https://raw.githubusercontent.com/badsyntaxx/chased-intech-scripts/main"
         $subPath = "framework"
 
         write-text -Type "header" -Text "Selection" -LineAfter -LineBefore
