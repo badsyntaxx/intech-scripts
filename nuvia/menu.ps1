@@ -14,11 +14,11 @@ function menu {
                 "ISR Add Bookmarks" = "Add ISR bookmarks to Chrome."
             }) -LineAfter
 
-        if ($choice -eq 0) { $command = "install tscan" }
-        if ($choice -eq 1) { $command = "isr onboard" }
-        if ($choice -eq 2) { $command = "isr install apps" }
-        if ($choice -eq 3) { $command = "isr install ninja" }
-        if ($choice -eq 4) { $command = "isr add bookmarks" }
+        if ($choice -eq 0) { $command = "nuvia install tscan" }
+        if ($choice -eq 1) { $command = "nuvia isr onboard" }
+        if ($choice -eq 2) { $command = "nuvia isr install apps" }
+        if ($choice -eq 3) { $command = "nuvia isr install ninja" }
+        if ($choice -eq 4) { $command = "nuvia isr add bookmarks" }
 
         get-cscommand -command $command
     } catch {
