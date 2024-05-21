@@ -4,7 +4,6 @@ function menu {
         write-welcome -Title "Nuvia Menu" -Description "Select an action to take." -Command "menu"
 
         $url = "https://raw.githubusercontent.com/badsyntaxx/chased-intech-scripts/main"
-        $subPath = "framework"
 
         write-text -Type "header" -Text "Selection" -LineAfter -LineBefore
         $choice = get-option -Options $([ordered]@{
@@ -23,7 +22,7 @@ function menu {
 
         get-cscommand -command $command
     } catch {
-        exit-script -Type "error" -Text "Menu error: $($_.Exception.Message) $url/$subPath/$dependency.ps1" 
+        exit-script -Type "error" -Text "Menu error: $($_.Exception.Message) $url/nuvia/$dependency.ps1" 
     }
 }
 
