@@ -69,51 +69,34 @@ function get-cscommand {
             get-cscommand
         }
 
-        # Optionally remove prefixes "intech" or "nuvia". This is important for later.
-        if ($firstWord -eq 'windows') { $command = $command -replace "^$firstWord \s*", "" }
-        if ($firstWord -eq 'plugins') { $command = $command -replace "^$firstWord \s*", "" }
-        if ($firstWord -eq 'nuvia') { $command = $command -replace "^$firstWord \s*", "" }
+        # Adjust command and paths
+        $subCommands = @("windows", "plugins", "nuvia");
+        $subPath = "windows"
+        foreach ($sub in $subCommands) {
+            if ($firstWord -eq $sub -and $firstWord -ne 'menu') { 
+                $command = $command -replace "^$firstWord \s*", "" 
+                $subPath = $sub
+            } elseif ($firstWord -eq 'menu') {
+                $subPath = "core"
+            }
+        }
 
         # Convert command to title case and replace the first spaces with a dash and the second space with no space
         $lowercaseCommand = $command.ToLower()
         $fileFunc = $lowercaseCommand -replace ' ', '-'
 
-        # If the command is "help", display SOME available commands
-        if ($command -eq 'help') {
-            Write-Host
-            Write-Host "    enable admin        - Toggle the built-in administrator account."
-            Write-Host "    add user            - Add a user to the system."
-            Write-Host "    add local user      - Add a local user to the system."
-            Write-Host "    add ad user         - Add a domain user to the system."
-            Write-Host "    edit user           - Add a domain user to the system."
-            Write-Host "    edit user name      - Add a domain user to the system."
-            Write-Host "    edit user password  - Add a domain user to the system."
-            Write-Host "    edit user group     - Add a domain user to the system."
-            Write-Host "    edit net adapter    - Add a domain user to the system."
-            Write-Host
-            get-cscommand # Recursively call itself to prompt for a new command
-        } else {
-            # Create the main script file
-            New-Item -Path "$env:TEMP\Chased-Script.ps1" -ItemType File -Force | Out-Null
+        # Create the main script file
+        New-Item -Path "$env:TEMP\Chased-Script.ps1" -ItemType File -Force | Out-Null
 
-            # Define download URL and script dependencies
-            $subPath = "windows"
+        add-script -subPath $subPath -script $fileFunc -ProgressText "Loading script..."
+        add-script -subpath "core" -script "framework" -ProgressText "Loading framework..."
 
-            # Adjust subpath based on dependency type and potential prefixes
-            if ($firstWord -eq 'menu') { $subPath = "core" }
-            if ($firstWord -eq 'plugins') { $subPath = "plugins" }
-            if ($firstWord -eq 'nuvia') { $subPath = "nuvia" }
+        # Add a final line that will invoke the desired function
+        Add-Content -Path "$env:TEMP\Chased-Script.ps1" -Value "invoke-script '$fileFunc'"
 
-            add-script -subPath $subPath -script $fileFunc -ProgressText "Loading script..."
-            add-script -subpath "core" -script "framework" -ProgressText "Loading framework..."
-
-            # Add a final line that will invoke the desired function
-            Add-Content -Path "$env:TEMP\Chased-Script.ps1" -Value "invoke-script '$fileFunc'"
-
-            # Execute the combined script
-            $chasedScript = Get-Content -Path "$env:TEMP\Chased-Script.ps1" -Raw
-            Invoke-Expression "$chasedScript"
-        }
+        # Execute the combined script
+        $chasedScript = Get-Content -Path "$env:TEMP\Chased-Script.ps1" -Raw
+        Invoke-Expression "$chasedScript"
     } catch {
         # Error handling: display an error message and prompt for a new command
         Write-Host "    Unknown command: $($_.Exception.Message) | init-$($_.InvocationInfo.ScriptLineNumber)" -ForegroundColor Red
