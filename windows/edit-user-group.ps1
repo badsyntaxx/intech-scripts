@@ -86,7 +86,7 @@ function Edit-LocalUserGroup {
         write-text -Type "header" -Text "YOU'RE ABOUT TO CHANGE THIS USERS GROUP MEMBERSHIP." -LineBefore -LineAfter
         get-closing -Script "Edit-LocalUserGroup"
 
-        #
+        # Apply the group changes
         foreach ($group in $selectedGroups) {
             if ($addOrRemove -eq "Add") {
                 Add-LocalGroupMember -Group $group -Member $User["Name"] -ErrorAction SilentlyContinue | Out-Null 
@@ -95,7 +95,10 @@ function Edit-LocalUserGroup {
             }
         }
 
+        # Display the user data so the scripts user knows the changes were applied
         write-text -Type "list" -List $User -LineAfter
+
+        # Display success and exit the script
         exit-script -Type "success" -Text "The group membership for $($User["Name"]) has been changed to $group." -LineAfter
     } catch {
         # Display error message and end the script
