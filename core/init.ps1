@@ -61,7 +61,7 @@ function get-cscommand {
         }
 
         # Adjust command and paths
-        $subCommands = @("windows", "plugins", "nuvia");
+        $subCommands = @("windows", "plugins", "intech", "nuvia");
         $subPath = "windows"
         foreach ($sub in $subCommands) {
             if ($firstWord -eq $sub -and $firstWord -ne 'menu') { 
