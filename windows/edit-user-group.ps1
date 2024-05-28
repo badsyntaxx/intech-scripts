@@ -2,7 +2,7 @@ function edit-user-group {
     try {
         write-welcome -Title "Edit User Group" -Description "Edit an existing users group membership." -Command "edit user group"
 
-        # Call the select-user function to get a user to edit
+        # Prompt user to select a user
         $user = select-user
 
         # Check if user is local or domain user and call appropriate function
