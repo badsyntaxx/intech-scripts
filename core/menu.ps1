@@ -9,11 +9,13 @@ function menu {
         write-text -Type "header" -Text "Select a sub menu" -LineAfter -LineBefore
         $choice = get-option -Options $([ordered]@{
                 "Windows" = "General Windows functions."
+                "InTech"  = "InTech global functions"
                 "Nuvia"   = "Nuvia specific functions."
             }) -LineAfter
 
         if ($choice -eq 0) { $command = "windows menu" }
-        if ($choice -eq 1) { $command = "nuvia menu" }
+        if ($choice -eq 1) { $command = "intech menu" }
+        if ($choice -eq 2) { $command = "nuvia menu" }
 
         get-cscommand -command $command
     } catch {
