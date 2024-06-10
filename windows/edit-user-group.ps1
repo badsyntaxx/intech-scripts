@@ -1,112 +1,105 @@
 function edit-user-group {
     try {
-        write-welcome -Title "Edit User Group" -Description "Edit an existing users group membership." -Command "edit user group"
-
-        # Prompt user to select a user
         $user = select-user
 
-        # Check if user is local or domain user and call appropriate function
         if ($user["Source"] -eq "Local") { Edit-LocalUserGroup -User $user } else { Edit-ADUserGroup }
     } catch {
-        # Display error message and end the script
-        exit-script -Type "error" -Text "Error | edit-user-group-$($_.InvocationInfo.ScriptLineNumber)"
+        # Display error message and exit this script
+        exit-script -type "error" -text "edit-user-group-$($_.InvocationInfo.ScriptLineNumber) | $($_.Exception.Message)" -lineAfter
     }
 } 
 
 function Edit-LocalUserGroup {
     param (
         [Parameter(Mandatory)]
-        [System.Collections.Specialized.OrderedDictionary]$User # OrderedDic = Associative array of user information.
+        [System.Collections.Specialized.OrderedDictionary]$user
     )
 
     try {
-        # Choose to add or remove user from groups
-        write-text -Type "header" -Text "Add or Remove user from groups" -LineAfter
-        $addOrRemove = get-option -Options $([ordered]@{
+        $addOrRemove = read-option -options $([ordered]@{
                 "Add"    = "Add this user to more groups"
                 "Remove" = "Remove this user from certain groups"
-            }) -ReturnKey
+            }) -returnKey
 
-        # Display a group selection prompt
-        write-text -Type "header" -Text "Select user group" -LineBefore -LineAfter
-
-        # Create a list of groups
-        $groups = Get-LocalGroup | ForEach-Object {
+        $default = Get-LocalGroup | ForEach-Object {
             $description = $_.Description
-            if ($description.Length -gt 72) { $description = $description.Substring(0, 72) + "..." }
+            # if ($description.Length -gt 72) { $description = $description.Substring(0, 72) + "..." }
             @{ $_.Name = $description }
         } | Sort-Object -Property Name
     
-        # Prep an empty array for groups and their descriptions
-        $moreGroups = [ordered]@{}
+        $groups = [ordered]@{}
 
-        # Add the groups and their descriptions to the array
-        foreach ($group in $groups) { 
-            $moreGroups += $group
+        # Shorten group descriptions by manually creating shorter ones.
+        foreach ($group in $default) { 
+            # $groups += $group
             switch ($group.Keys) {
-                "Performance Monitor Users" { $moreGroups["$($group.Keys)"] = "Access local performance counter data." }
-                "Power Users" { $moreGroups["$($group.Keys)"] = "Limited administrative privileges." }
-                "Network Configuration Operators" { $moreGroups["$($group.Keys)"] = "Privileges for managing network configuration." }
-                "Performance Log Users" { $moreGroups["$($group.Keys)"] = "Schedule performance counter logging." }
-                "Remote Desktop Users" { $moreGroups["$($group.Keys)"] = "Log on remotely." }
-                "System Managed Accounts Group" { $moreGroups["$($group.Keys)"] = "Managed by the system." }
-                "Users" { $moreGroups["$($group.Keys)"] = "Prevented from making system-wide changes." }
-                "Remote Management Users" { $moreGroups["$($group.Keys)"] = "Access WMI resources over management protocols." }
-                "Replicator" { $moreGroups["$($group.Keys)"] = "Supports file replication in a domain." }
-                "IIS_IUSRS" { $moreGroups["$($group.Keys)"] = "Used by Internet Information Services (IIS)." }
-                "Backup Operators" { $moreGroups["$($group.Keys)"] = "Override security restrictions for backup purposes." }
-                "Cryptographic Operators" { $moreGroups["$($group.Keys)"] = "Perform cryptographic operations." }
-                "Access Control Assistance Operators" { $moreGroups["$($group.Keys)"] = "Remotely query authorization attributes and permissions." }
-                "Administrators" { $moreGroups["$($group.Keys)"] = "Complete, unrestricted access to the computer/domain." }
-                "Device Owners" { $moreGroups["$($group.Keys)"] = "Can change system-wide settings." }
-                "Guests" { $moreGroups["$($group.Keys)"] = "Similar access to members of the Users group by default." }
-                "Hyper-V Administrators" { $moreGroups["$($group.Keys)"] = "Complete and unrestricted access to all Hyper-V features." }
-                "Distributed COM Users" { $moreGroups["$($group.Keys)"] = "Authorized for Distributed Component Object Model (DCOM) operations." }
+                "Performance Monitor Users" { $groups["$($group.Keys)"] = "Access local performance counter data." }
+                "Power Users" { $groups["$($group.Keys)"] = "Limited administrative privileges." }
+                "Network Configuration Operators" { $groups["$($group.Keys)"] = "Privileges for managing network configuration." }
+                "Performance Log Users" { $groups["$($group.Keys)"] = "Schedule performance counter logging." }
+                "Remote Desktop Users" { $groups["$($group.Keys)"] = "Log on remotely." }
+                "System Managed Accounts Group" { $groups["$($group.Keys)"] = "Managed by the system." }
+                "Users" { $groups["$($group.Keys)"] = "Prevented from making system-wide changes." }
+                "Remote Management Users" { $groups["$($group.Keys)"] = "Access WMI resources over management protocols." }
+                "Replicator" { $groups["$($group.Keys)"] = "Supports file replication in a domain." }
+                "IIS_IUSRS" { $groups["$($group.Keys)"] = "Used by Internet Information Services (IIS)." }
+                "Backup Operators" { $groups["$($group.Keys)"] = "Override security restrictions for backup purposes." }
+                "Cryptographic Operators" { $groups["$($group.Keys)"] = "Perform cryptographic operations." }
+                "Access Control Assistance Operators" { $groups["$($group.Keys)"] = "Remotely query authorization attributes and permissions." }
+                "Administrators" { $groups["$($group.Keys)"] = "Complete, unrestricted access to the computer/domain." }
+                "Device Owners" { $groups["$($group.Keys)"] = "Can change system-wide settings." }
+                "Guests" { $groups["$($group.Keys)"] = "Similar access to members of the Users group by default." }
+                "Hyper-V Administrators" { $groups["$($group.Keys)"] = "Complete and unrestricted access to all Hyper-V features." }
+                "Distributed COM Users" { $groups["$($group.Keys)"] = "Authorized for Distributed Component Object Model (DCOM) operations." }
             }
         }
     
-        # Create an array of groups that have been selected by the user
         $selectedGroups = @()
-        $selectedGroups += get-option -Options $moreGroups -ReturnKey
+        $selectedGroups += read-option -options $groups -returnKey
 
-        # Allow users to see groups they've selected and to stop selecting
-        $moreGroupsDone = [ordered]@{}
-        $moreGroupsDone["Done"] = "Stop selecting groups and move to the next step."
-        $moreGroupsDone += $moreGroups
-        $previewString = ""
+        $groupsList = [ordered]@{}
+        $groupsList["Done"] = "Stop selecting groups and move to the next step."
+        $groupsList += $groups
 
-        # Loop to allow user to select more than one group at a time.
         while ($selectedGroups -notcontains 'Done') {
-            $previewString = $selectedGroups -join ","
-            write-text -Type "header" -Text "$previewString" -LineBefore -LineAfter
-            $selectedGroups += get-option -Options $moreGroupsDone -ReturnKey 
+            $availableGroups = [ordered]@{}
+
+            write-text -text "    Selected groups:" -lineBefore
+            foreach ($selectedGroup in $selectedGroups) {
+                Write-Host "            $selectedGroup" -ForegroundColor "DarkGray"
+            }
+
+            # Iterate through the keys in the hashtable
+            foreach ($key in $groupsList.Keys) {
+                if ($selectedGroups -notcontains $key) {
+                    # Add the key-value pair to the filtered groups
+                    $availableGroups[$key] = $groupsList[$key]
+                }
+            }
+
+            # $availableGroups
+            $selectedGroups += read-option -options $availableGroups -ReturnKey
         }
 
-        # Warn and confirm
-        write-text -Type "header" -Text "YOU'RE ABOUT TO CHANGE THIS USERS GROUP MEMBERSHIP." -LineBefore -LineAfter
         get-closing -Script "Edit-LocalUserGroup"
 
-        # Apply the group changes
         foreach ($group in $selectedGroups) {
-            if ($addOrRemove -eq "Add") {
-                Add-LocalGroupMember -Group $group -Member $User["Name"] -ErrorAction SilentlyContinue | Out-Null 
+            if ($addOrRemove -eq "Add" -and $group -ne "Done") {
+                Add-LocalGroupMember -Group $group -Member $user["Name"] -ErrorAction SilentlyContinue | Out-Null 
             } else {
-                Remove-LocalGroupMember -Group $group -Member $User["Name"] -ErrorAction SilentlyContinue
+                Remove-LocalGroupMember -Group $group -Member $user["Name"] -ErrorAction SilentlyContinue
             }
         }
 
-        # Display the user data so the scripts user knows the changes were applied
-        write-text -Type "list" -List $User -LineAfter
-
-        # Display success and exit the script
-        exit-script -Type "success" -Text "The group membership for $($User["Name"]) has been changed to $group." -LineAfter
+        $updatedUser = get-userdata -username $user["Name"]
+        write-text -type "list" -list $updatedUser -lineAfter
+        exit-script -type "success" -text "The group membership for $($user["Name"]) has been changed to $group." -lineAfter
     } catch {
-        # Display error message and end the script
-        exit-script -Type "error" -Text "edit-user-group-$($_.InvocationInfo.ScriptLineNumber) | $($_.Exception.Message)" -LineAfter
+        # Display error message and exit this script
+        exit-script -type "error" -text "Edit-LocalUserGroup-$($_.InvocationInfo.ScriptLineNumber) | $($_.Exception.Message)" -lineAfter
     }
 }
 
 function Edit-ADUserGroup {
-    write-text -Type "fail" -Text "Editing domain users doesn't work yet."
+    write-text -type "fail" -text "Editing domain users doesn't work yet."
 }
-

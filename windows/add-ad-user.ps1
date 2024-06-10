@@ -1,34 +1,34 @@
 function add-ad-user {
     try {
-        write-text -Type "fail" -Text "Editing domain users doesn't work yet."
+        write-text -type "fail" -text "Editing domain users doesn't work yet."
         exit-script
-        write-welcome -Title "Add AD User v0315241122" -Description "Add domain users to the system." -Command "add ad user"
+
         Get-Item -ErrorAction SilentlyContinue "$path\add-ad-user.ps1" | Remove-Item -ErrorAction SilentlyContinue
         Write-Host " Chased Scripts: Add Domain User v0321240710"
         Write-Host "$des" -ForegroundColor DarkGray
 
-        write-text -Type "header" -Text "Enter name" -LineBefore -LineAfter
-        $name = get-input -Prompt "" -Validate "^([a-zA-Z0-9 _\-]{1,64})$"  -CheckExistingUser
+        write-text -type "label" -text "Enter name"  -lineAfter
+        $name = read-input -prompt "" -Validate "^([a-zA-Z0-9 _\-]{1,64})$"  -CheckExistingUser
 
-        write-text -Type "header" -Text "Enter sam name" -LineBefore -LineAfter
-        $samAccountName = get-input -Prompt "" -Validate "^([a-zA-Z0-9 _\-]{1,20})$"  -CheckExistingUser
+        write-text -type "label" -text "Enter sam name"  -lineAfter
+        $samAccountName = read-input -prompt "" -Validate "^([a-zA-Z0-9 _\-]{1,20})$"  -CheckExistingUser
 
-        write-text -Type "header" -Text "Enter password" -LineBefore -LineAfter
-        $password = get-input -Prompt "" -IsSecure
+        write-text -type "label" -text "Enter password"  -lineAfter
+        $password = read-input -prompt "" -IsSecure
         
-        write-text -Type "header" -Text "Set group membership" -LineBefore -LineAfter
-        $choice = get-option -Options @("Administrator", "Standard user")
+        write-text -type "label" -text "Set group membership"  -lineAfter
+        $choice = read-option -options @("Administrator", "Standard user")
         
         if ($choice -eq 0) { $group = 'Administrators' } else { $group = "Users" }
         if ($group -eq 'Administrators') { $groupDisplay = 'Administrator' } else { $groupDisplay = 'Standard user' }
 
-        write-text -Type "header" -Text "YOU'RE ABOUT TO CREATE A NEW AD USER!" -LineBefore -LineAfter
+        write-text -type "label" -text "YOU'RE ABOUT TO CREATE A NEW AD USER!"  -lineAfter
 
-        $choice = get-option -Options @(
+        $choice = read-option -options @(
             "Submit  - Confirm and apply." 
             "Reset   - Start over at the beginning."
             "Exit    - Run a different command."
-        ) -LineAfter
+        ) -lineAfter
 
         if ($choice -ne 0 -and $choice -ne 2) { invoke-script -script "add-ad-user" }
         if ($choice -eq 2) { throw "This function is under construction." }
@@ -45,11 +45,12 @@ function add-ad-user {
 
         $data = get-userdata -Username $name
 
-        write-text -Type "list" -List $data -LineAfter
+        write-text -type "list" -List $data -lineAfter
 
-        exit-script -Type "success" -Text "The user account was created."
+        exit-script -type "success" -text "The user account was created."
     } catch {
-        exit-script -Type "error" -Text "Add user error: $($_.Exception.Message)"
+        # Display error message and exit this script
+        exit-script -type "error" -text "add-domain-user-$($_.InvocationInfo.ScriptLineNumber) | $($_.Exception.Message)" -lineAfter
     }
 }
 

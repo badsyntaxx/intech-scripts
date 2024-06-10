@@ -1,12 +1,9 @@
 function add-task {
     # Begin try/catch block for error handling
     try {
-        # Display a welcome message with title, description, and command
-        write-welcome -Title "New Scheduled Task" -Description "Add a new local user to the system." -Command "new task"
-
         # Prompt for group membership with options and return key
-        write-text -Type "header" -Text "Pick a time" -LineBefore -LineAfter
-        $time = get-input -Validate "^(0[0-9]|1[0-2]):[0-5][0-9]\s?(?i)(am|pm)$"
+        write-text -type "label" -text "Pick a time"  -lineAfter
+        $time = read-input -Validate "^(0[0-9]|1[0-2]):[0-5][0-9]\s?(?i)(am|pm)$"
 
         $trigger = New-ScheduledTaskTrigger -At $time -Daily
         $User = "NT AUTHORITY\SYSTEM"
@@ -14,7 +11,7 @@ function add-task {
 
         Register-ScheduledTask -TaskName "RebootTask" -Trigger $trigger -User $User -Action $action -RunLevel Highest -Force
     } catch {
-        # Display error message and end the script
-        exit-script -Type "error" -Text "add-task-$($_.InvocationInfo.ScriptLineNumber) | $($_.Exception.Message)" -LineAfter
+        # Display error message and exit this script
+        exit-script -type "error" -text "add-task-$($_.InvocationInfo.ScriptLineNumber) | $($_.Exception.Message)" -lineAfter
     }
 }

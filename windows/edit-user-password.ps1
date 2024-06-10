@@ -1,49 +1,37 @@
 function edit-user-password {
     try {
-        write-welcome -Title "Edit User Password" -Description "Edit an existing users Password." -Command "edit user password"
-
-        # Prompt user to select a user
         $user = select-user
 
-        # Check if user is local or domain-based
-        if ($user["Source"] -eq "Local") { Edit-LocalUserPassword -Username $user["Name"] } else { Edit-ADUserPassword }
+        if ($user["Source"] -eq "Local") { Edit-LocalUserPassword -username $user["Name"] } else { Edit-ADUserPassword }
     } catch {
-        # Display error message and end the script
-        exit-script -Type "error" -Text "edit-user-password-$($_.InvocationInfo.ScriptLineNumber) | $($_.Exception.Message)" -LineAfter
+        # Display error message and exit this script
+        exit-script -type "error" -text "edit-user-password-$($_.InvocationInfo.ScriptLineNumber) | $($_.Exception.Message)" -lineAfter
     }
 }
 
 function Edit-LocalUserPassword {
     param (
         [Parameter(Mandatory)]
-        [string]$Username
+        [string]$username
     )
 
     try {
-        # Prompt user to enter a new password securely (blank removes password)
-        write-text -Type "header" -Text "Enter password or leave blank" -LineAfter
-        $password = get-input -Prompt "" -IsSecure $true
+        $password = read-input -prompt "Enter password or leave blank:" -IsSecure $true -lineBefore
 
-        # Craft warning message based on user input
-        if ($password.Length -eq 0) { $alert = "YOU'RE ABOUT TO REMOVE THIS USERS PASSWORD!" } 
-        else { $alert = "YOU'RE ABOUT TO CHANGE THIS USERS PASSWORD" }
+        if ($password.Length -eq 0) { $alert = "Removing password. Are you sure?" } 
+        else { $alert = "Changing password. Are you sure?" }
 
-        # Confirm the change
-        write-text -Type "header" -Text $alert -LineBefore -LineAfter
-        get-closing -Script "edit-user-password"
+        get-closing -script "edit-user-password" -customText $alert
 
-        # Apply the change
-        Get-LocalUser -Name $Username | Set-LocalUser -Password $password
+        Get-LocalUser -Name $username | Set-LocalUser -Password $password
 
-        # Display success and exit script
-        exit-script -Type "success" -Text "The password for this account has been changed." -LineAfter
+        exit-script -Type "success" -text "Password settings for $username successfully updated." -lineAfter
     } catch {
-        # Display error message and end the script
-        exit-script -Type "error" -Text "Edit-LocalUserPassword-$($_.InvocationInfo.ScriptLineNumber) | $($_.Exception.Message)" -LineAfter
+        # Display error message and exit this script
+        exit-script -type "error" -text "Edit-LocalUserPassword-$($_.InvocationInfo.ScriptLineNumber) | $($_.Exception.Message)" -lineAfter
     }
 }
 
 function Edit-ADUserPassword {
-    exit-script -Type "fail" -Text "Editing domain users doesn't work yet."
+    exit-script -Type "fail" -text "Editing domain users doesn't work yet."
 }
-

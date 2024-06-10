@@ -1,30 +1,20 @@
 function edit-net-adapter {
     try {
-        write-welcome -Title "Edit Network Adapter" -Description "Edit the network adapters on this PC." -Command "edit net adapter"
-
-        write-text -Type "header" -Text "Edit a network adapter" -LineBefore -LineAfter
-        $choice = get-option -Options $([ordered]@{
-                "Display adapters"       = "Display all non hidden network adapters."
-                "Select network adapter" = "Select the network adapter you want to edit."
-            }) -LineAfter
-
-        if (0 -eq $choice) { show-adapters }
-        if (1 -eq $choice) { select-adapter }
-        if (3 -eq $choice) { Exit }
+        select-adapter
     } catch {
-        exit-script -Type "error" -Text "Edit net adapter error: $($_.Exception)"
+        # Display error message and exit this script
+        exit-script -type "error" -text "edit-net-adapter-$($_.InvocationInfo.ScriptLineNumber) | $($_.Exception.Message)" -lineAfter
     }
     
 }
 
 function select-adapter {
     try {
-        write-text -Type "header" -Text "Select an adapter" -LineAfter
         $adapters = [ordered]@{}
         Get-NetAdapter | ForEach-Object { $adapters[$_.Name] = $_.MediaConnectionState }
         $adapterList = [ordered]@{}
         foreach ($al in $adapters) { $adapterList = $al }
-        $choice = get-option -Options $adapterList -LineAfter -ReturnKey
+        $choice = read-option -options $adapterList -lineAfter -returnKey
         $netAdapter = Get-NetAdapter -Name $choice
         $adapterIndex = $netAdapter.InterfaceIndex
         $ipData = Get-NetIPAddress -InterfaceIndex $adapterIndex -AddressFamily IPv4 | Where-Object { $_.PrefixOrigin -ne "WellKnown" -and $_.SuffixOrigin -ne "Link" -and ($_.AddressState -eq "Preferred" -or $_.AddressState -eq "Tentative") } | Select-Object -First 1
@@ -45,7 +35,8 @@ function select-adapter {
 
         get-desiredsettings -Adapter $adapter
     } catch {
-        exit-script -Type "error" -Text "Select adapter error: $($_.Exception)"
+        # Display error message and exit this script
+        exit-script -type "error" -text "select-adapter-$($_.InvocationInfo.ScriptLineNumber) | $($_.Exception.Message)" -lineAfter
     }
 }
 
@@ -66,36 +57,35 @@ function get-desiredsettings {
         $Original = $binaryFormatter.Deserialize($memoryStream)
         $memoryStream.Close()
 
-        $Adapter = get-ipsettings -Adapter $Adapter
-        $Adapter = get-dnssettings -Adapter $Adapter
+        $Adapter = read-ipsettings -Adapter $Adapter
+        $Adapter = read-dnssettings -Adapter $Adapter
 
         confirm-edits -Adapter $Adapter -Original $Original
     } catch {
-        exit-script -Type "error" -Text "Get desired net adapter settings error: $($_.Exception)"
+        # Display error message and exit this script
+        exit-script -type "error" -text "get-desired-user-$($_.InvocationInfo.ScriptLineNumber) | $($_.Exception.Message)" -lineAfter
     }
 }
 
-function get-ipsettings {
+function read-ipsettings {
     param (
         [parameter(Mandatory = $true)]
         [System.Collections.Specialized.OrderedDictionary]$Adapter
     )
 
     try {
-        write-text -Type "header" -Text "Enter adapter settings" -LineAfter
-
-        $choice = get-option -Options $([ordered]@{
-                "Static IP addressing" = "Set this adapter to static and enter IP data manually."
-                "DHCP IP addressing"   = "Set this adapter to DHCP."
-                "Back"                 = "Go back to network adapter selection."
-            }) -LineAfter
+        $choice = read-option -options $([ordered]@{
+                "Set IP to static" = "Set this adapter to static and enter IP data manually."
+                "Set IP to DHCP"   = "Set this adapter to DHCP."
+                "Back"             = "Go back to network adapter selection."
+            }) -lineAfter
 
         $desiredSettings = $Adapter
 
         if ($choice -eq 0) { 
-            $ip = get-input -Prompt "IPv4:" -Validate $ipv4Regex -Value $Adapter["ip"]
-            $subnet = get-input -Prompt "Subnet mask:" -Validate $ipv4Regex -Value $Adapter["subnet"]  
-            $gateway = get-input -Prompt "Gateway:" -Validate $ipv4Regex -Value $Adapter["gateway"] -LineAfter
+            $ip = read-input -prompt "IPv4:" -Validate $ipv4Regex -Value $Adapter["ip"]
+            $subnet = read-input -prompt "Subnet mask:" -Validate $ipv4Regex -Value $Adapter["subnet"]  
+            $gateway = read-input -prompt "Gateway:" -Validate $ipv4Regex -Value $Adapter["gateway"] -lineAfter
         
             if ($ip -eq "") { $ip = $Adapter["ip"] }
             if ($subnet -eq "") { $subnet = $Adapter["subnet"] }
@@ -112,40 +102,42 @@ function get-ipsettings {
 
         return $desiredSettings 
     } catch {
-        exit-script -Type "error" -Text "Get IP settings error: $($_.Exception)"
+        # Display error message and exit this script
+        exit-script -type "error" -text "read-ipsettings-$($_.InvocationInfo.ScriptLineNumber) | $($_.Exception.Message)" -lineAfter
     }
 }
 
-function get-dnssettings {
+function read-dnssettings {
     param (
         [parameter(Mandatory = $true)]
         [System.Collections.Specialized.OrderedDictionary]$Adapter
     )
 
     try {
-        $choice = get-option -Options $([ordered]@{
-                "Static DNS addressing" = "Set this adapter to static and enter DNS data manually."
-                "DHCP DNS addressing"   = "Set this adapter to DHCP."
-                "Back"                  = "Go back to network adapter selection."
-            }) -LineAfter
+        $choice = read-option -options $([ordered]@{
+                "Set DNS to static"  = "Set this adapter to static and enter DNS data manually."
+                "Set DNS to dynamic" = "Set this adapter to DHCP."
+                "Back"               = "Go back to network adapter selection."
+            }) -lineAfter
 
         $dns = @()
 
         if ($choice -eq 0) { 
-            $prompt = get-input -Prompt "Enter a DNS (Leave blank to skip)" -Validate $ipv4Regex
+            $prompt = read-input -prompt "Enter a DNS (Leave blank to skip)" -Validate $ipv4Regex
             $dns += $prompt
             while ($prompt.Length -gt 0) {
-                $prompt = get-input -Prompt "Enter another DNS (Leave blank to skip)" -Validate $ipv4Regex
+                $prompt = read-input -prompt "Enter another DNS (Leave blank to skip)" -Validate $ipv4Regex
                 if ($prompt -ne "") { $dns += $prompt }
             }
             $Adapter["dns"] = $dns
         }
         if (1 -eq $choice) { $Adapter["DNSDHCP"] = $true }
-        if (2 -eq $choice) { get-ipsettings }
+        if (2 -eq $choice) { read-ipsettings }
 
         return $Adapter
     } catch {
-        exit-script -Type "error" -Text "Get DNS error: $($_.Exception)"
+        # Display error message and exit this script
+        exit-script -type "error" -text "read-dnssettings-$($_.InvocationInfo.ScriptLineNumber) | $($_.Exception.Message)" -lineAfter
     }
 }
 
@@ -158,7 +150,7 @@ function confirm-edits {
     )
 
     try {
-        write-text -Type "header" -Text "Confirm your changes" -LineBefore -LineAfter
+        write-text -type "label" -text "Confirm your changes"  -lineAfter
 
         $status = Get-NetAdapter -Name $Adapter["name"] | Select-Object -ExpandProperty Status
         if ($status -eq "Up") {
@@ -170,13 +162,13 @@ function confirm-edits {
         }
 
         if ($Adapter["IPDHCP"]) {
-            write-text -Type "compare" -OldData "IPv4 Address. . . : $($Original["ip"])" -NewData "Dynamic"
-            write-text -Type "compare" -OldData "Subnet Mask . . . : $($Original["subnet"])" -NewData "Dynamic"
-            write-text -Type "compare" -OldData "Default Gateway . : $($Original["gateway"])" -NewData "Dynamic"
+            write-text -type "compare" -oldData "IPv4 Address. . . : $($Original["ip"])" -newData "Dynamic"
+            write-text -type "compare" -oldData "Subnet Mask . . . : $($Original["subnet"])" -newData "Dynamic"
+            write-text -type "compare" -oldData "Default Gateway . : $($Original["gateway"])" -newData "Dynamic"
         } else {
-            write-text -Type "compare" -OldData "IPv4 Address. . . : $($Original["ip"])" -NewData $($Adapter['ip'])
-            write-text -Type "compare" -OldData "Subnet Mask . . . : $($Original["subnet"])" -NewData $($Adapter['subnet'])
-            write-text -Type "compare" -OldData "Default Gateway . : $($Original["gateway"])" -NewData $($Adapter['gateway'])
+            write-text -type "compare" -oldData "IPv4 Address. . . : $($Original["ip"])" -newData $($Adapter['ip'])
+            write-text -type "compare" -oldData "Subnet Mask . . . : $($Original["subnet"])" -newData $($Adapter['subnet'])
+            write-text -type "compare" -oldData "Default Gateway . : $($Original["gateway"])" -newData $($Adapter['gateway'])
         }
 
         $originalDNS = $Original["dns"]
@@ -191,26 +183,26 @@ function confirm-edits {
         if ($Adapter["DNSDHCP"]) {
             for ($i = 0; $i -lt $count; $i++) {
                 if ($i -eq 0) {
-                    write-text -Type "compare" -OldData "DNS Servers . . . : $($originalDNS[$i])" -NewData "Dynamic"
+                    write-text -type "compare" -oldData "DNS Servers . . . : $($originalDNS[$i])" -newData "Dynamic"
                 } else {
-                    write-text -Type "compare" -OldData "                    $($originalDNS[$i])" -NewData "Dynamic"
+                    write-text -type "compare" -oldData "                    $($originalDNS[$i])" -newData "Dynamic"
                 }
             }
         } else {
             for ($i = 0; $i -lt $count; $i++) {
                 if ($i -eq 0) {
-                    write-text -Type "compare" -OldData "DNS Servers . . . : $($originalDNS[$i])" -NewData $($newDNS[$i])
+                    write-text -type "compare" -oldData "DNS Servers . . . : $($originalDNS[$i])" -newData $($newDNS[$i])
                 } else {
-                    write-text -Type "compare" -OldData "                    $($originalDNS[$i])" -NewData $($newDNS[$i])
+                    write-text -type "compare" -oldData "                    $($originalDNS[$i])" -newData $($newDNS[$i])
                 }
             }
         }
 
-        $choice = get-option -Options $([ordered]@{
+        $choice = read-option -options $([ordered]@{
                 "Submit & apply" = "Submit your changes and apply them to the system." 
                 "Start over"     = "Start this function over at the beginning."
                 "Other options"  = "Discard changes and do something else."
-            }) -LineBefore -LineAfter
+            })  -lineAfter
 
         if ($choice -ne 0 -and $choice -ne 2) { invoke-script -script "Edit-NetAdapter" }
         if ($choice -eq 2) { write-text }
@@ -226,33 +218,34 @@ function confirm-edits {
         Remove-NetRoute -InterfaceAlias $adapter["name"] -DestinationPrefix 0.0.0.0 / 0 -Confirm:$false -ErrorAction SilentlyContinue
 
         if ($Adapter["IPDHCP"]) {
-            write-text "Enabling DHCP for IPv4." -LineBefore
+            write-text "Enabling DHCP for IPv4." 
             Set-NetIPInterface -InterfaceIndex $adapterIndex -Dhcp Enabled  | Out-Null
             netsh interface ipv4 set address name = "$($adapter["name"])" source = dhcp | Out-Null
-            write-text -Type "done" -Text "The network adapters IP settings were set to dynamic"
+            write-text -type 'success' -text "The network adapters IP settings were set to dynamic"
         } else {
-            write-text "Disabling DHCP and applying static addresses." -LineBefore
+            write-text "Disabling DHCP and applying static addresses." 
             netsh interface ipv4 set address name = "$($adapter["name"])" static $Adapter["ip"] $Adapter["subnet"] $Adapter["gateway"] | Out-Null
-            write-text -Type "done" -Text "The network adapters IP, subnet, and gateway were set to static and your addresses were applied."
+            write-text -type 'success' -text "The network adapters IP, subnet, and gateway were set to static and your addresses were applied."
         }
 
         if ($Adapter["DNSDHCP"]) {
             write-text "Enabling DHCP for DNS."
             Set-DnsClientServerAddress -InterfaceAlias $Adapter["name"] -ResetServerAddresses | Out-Null
-            write-text -Type "done" -Text "The network adapters DNS settings were set to dynamic"
+            write-text -type 'success' -text "The network adapters DNS settings were set to dynamic"
         } else {
             write-text "Disabling DHCP and applying static addresses."
             Set-DnsClientServerAddress -InterfaceAlias $Adapter["name"] -ServerAddresses $dnsString
-            write-text -Type "done" -Text "The network adapters DNS was set to static and your addresses were applied."
+            write-text -type 'success' -text "The network adapters DNS was set to static and your addresses were applied."
         }
 
         Disable-NetAdapter -Name $Adapter["name"] -Confirm:$false
         Start-Sleep 1
         Enable-NetAdapter -Name $Adapter["name"] -Confirm:$false
 
-        exit-script -Type "success" -Text "Your settings have been applied."
+        exit-script -type "success" -text "Your settings have been applied."
     } catch {
-        exit-script -Type "error" -Text "Confirm Error: $($_.Exception)"
+        # Display error message and exit this script
+        exit-script -type "error" -text "confirm-edits-$($_.InvocationInfo.ScriptLineNumber) | $($_.Exception.Message)" -lineAfter
     }
 }
 
@@ -263,42 +256,45 @@ function get-adapter-info {
     )
     
     try {
-        $macAddress = Get-NetAdapter -Name $AdapterName | Select-Object -ExpandProperty MacAddress
-        $name = Get-NetAdapter -Name $AdapterName | Select-Object -ExpandProperty Name
         $status = Get-NetAdapter -Name $AdapterName | Select-Object -ExpandProperty Status
-        $index = Get-NetAdapter -Name $AdapterName | Select-Object -ExpandProperty InterfaceIndex
-        $gateway = Get-NetIPConfiguration -InterfaceAlias $adapterName | ForEach-Object { $_.IPv4DefaultGateway.NextHop }
-        # $gateway = Get-NetRoute -InterfaceAlias $AdapterName -DestinationPrefix "0.0.0.0/0" | Select-Object -ExpandProperty "NextHop"
-        $interface = Get-NetIPInterface -InterfaceIndex $index
-        $dhcp = $(if ($interface.Dhcp -eq "Enabled") { "DHCP" } else { "Static" })
-        $ipData = Get-NetIPAddress -InterfaceIndex $index -AddressFamily IPv4 | Where-Object { $_.PrefixOrigin -ne "WellKnown" -and $_.SuffixOrigin -ne "Link" -and ($_.AddressState -eq "Preferred" -or $_.AddressState -eq "Tentative") } | Select-Object -First 1
-        $ipAddress = $ipData.IPAddress
-        $subnet = convert-cidr-to-mask -CIDR $ipData.PrefixLength
-        $dnsServers = Get-DnsClientServerAddress -InterfaceIndex $index | Select-Object -ExpandProperty ServerAddresses
+        if ($status -ne "Disabled") {
+            $macAddress = Get-NetAdapter -Name $AdapterName | Select-Object -ExpandProperty MacAddress
+            $name = Get-NetAdapter -Name $AdapterName | Select-Object -ExpandProperty Name
+            $status = Get-NetAdapter -Name $AdapterName | Select-Object -ExpandProperty Status
+            $index = Get-NetAdapter -Name $AdapterName | Select-Object -ExpandProperty InterfaceIndex
+            $gateway = Get-NetIPConfiguration -InterfaceAlias $adapterName | ForEach-Object { $_.IPv4DefaultGateway.NextHop }
+            # $gateway = Get-NetRoute -InterfaceAlias $AdapterName -DestinationPrefix "0.0.0.0/0" | Select-Object -ExpandProperty "NextHop"
+            $interface = Get-NetIPInterface -InterfaceIndex $index 
+            $dhcp = $(if ($interface.Dhcp -eq "Enabled") { "DHCP" } else { "Static" })
+            $ipData = Get-NetIPAddress -InterfaceIndex $index -AddressFamily IPv4 | Where-Object { $_.PrefixOrigin -ne "WellKnown" -and $_.SuffixOrigin -ne "Link" -and ($_.AddressState -eq "Preferred" -or $_.AddressState -eq "Tentative") } | Select-Object -First 1
+            $ipAddress = $ipData.IPAddress
+            $subnet = convert-cidr-to-mask -CIDR $ipData.PrefixLength
+            $dnsServers = Get-DnsClientServerAddress -InterfaceIndex $index | Select-Object -ExpandProperty ServerAddresses
 
-        if ($status -eq "Up") {
-            Write-Host "  $([char]0x2022)" -ForegroundColor "Green" -NoNewline
-            Write-Host " $name($dhcp)" -ForegroundColor "Gray" 
-        } else {
-            Write-Host "  $([char]0x25BC)" -ForegroundColor "Red" -NoNewline
-            Write-Host " $name($dhcp)" -ForegroundColor "Gray"
-        }
-
-        write-text "MAC Address . . . : $macAddress" -Color "Gray"
-        write-text "IPv4 Address. . . : $ipAddress" -Color "Gray"
-        write-text "Subnet Mask . . . : $subnet" -Color "Gray"
-        write-text "Default Gateway . : $gateway" -Color "Gray"
-
-        for ($i = 0; $i -lt $dnsServers.Count; $i++) {
-            if ($i -eq 0) {
-                write-text "DNS Servers . . . : $($dnsServers[$i])" -Color "Gray"
+            if ($status -eq "Up") {
+                Write-Host "  $([char]0x2022)" -ForegroundColor "Green" -NoNewline
+                Write-Host " $name | $dhcp" -ForegroundColor "Gray" 
             } else {
-                write-text "                    $($dnsServers[$i])" -Color "Gray"
+                Write-Host "  $([char]0x25BC)" -ForegroundColor "Red" -NoNewline
+                Write-Host " $name | $dhcp" -ForegroundColor "Gray"
+            }
+
+            write-text "MAC Address . . . : $macAddress" -Color "Gray"
+            write-text "IPv4 Address. . . : $ipAddress" -Color "Gray"
+            write-text "Subnet Mask . . . : $subnet" -Color "Gray"
+            write-text "Default Gateway . : $gateway" -Color "Gray"
+
+            for ($i = 0; $i -lt $dnsServers.Count; $i++) {
+                if ($i -eq 0) {
+                    write-text "DNS Servers . . . : $($dnsServers[$i])" -Color "Gray"
+                } else {
+                    write-text "                    $($dnsServers[$i])" -Color "Gray"
+                }
             }
         }
-        Write-Host
     } catch {
-        exit-script -Type "error" -Text "Get adapter error: $($_.Exception)"
+        # Display error message and exit this script
+        exit-script -type "error" -text "get-adapter-info-$($_.InvocationInfo.ScriptLineNumber) | $($_.Exception.Message)" -lineAfter
     }
 }
 
@@ -340,10 +336,15 @@ function convert-cidr-to-mask {
 }
 
 function show-adapters {
-    $adapters = @()
-    foreach ($n in (Get-NetAdapter | Select-Object -ExpandProperty Name)) { $adapters += $n }
-    foreach ($a in $adapters) { get-adapter-info -AdapterName $a }
+    try {
+        $adapters = @()
+        foreach ($n in (Get-NetAdapter | Select-Object -ExpandProperty Name)) { $adapters += $n }
+        foreach ($a in $adapters) { get-adapter-info -AdapterName $a }
 
-    select-adapter
+        select-adapter
+    } catch {
+        # Display error message and exit this script
+        exit-script -type "error" -text "show-adapters-$($_.InvocationInfo.ScriptLineNumber) | $($_.Exception.Message)" -lineAfter
+    }
+    
 }
-

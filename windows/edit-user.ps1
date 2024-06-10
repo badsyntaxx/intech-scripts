@@ -1,22 +1,23 @@
 function edit-user {
     try {
-        write-welcome -Title "Edit User" -Description "Edit an existing users data." -Command "edit user"
-
-        write-text -Type "header" -Text "Local or domain user?" -LineAfter -LineBefore
-        $choice = get-option -Options $([ordered]@{
+        $choice = read-option -options $([ordered]@{
                 "Edit user name"     = "Edit an existing users name."
                 "Edit user password" = "Edit an existing users password."
                 "Edit user group"    = "Edit an existing users group membership."
-            }) -LineAfter
+            })
 
-        if ($choice -eq 0) { $command = "edit user name" }
-        if ($choice -eq 1) { $command = "edit user password" }
-        if ($choice -eq 2) { $command = "edit user group" }
+        switch ($choice) {
+            0 { $command = "edit user name" }
+            1 { $command = "edit user password" }
+            2 { $command = "edit user group" }
+        }
 
-        get-cscommand -command $command
+        write-welcome -command $command
+
+        read-command -command $command
     } catch {
-        # Display error message and end the script
-        exit-script -Type "error" -Text "edit-user-$($_.InvocationInfo.ScriptLineNumber) | $($_.Exception.Message)" -LineAfter
+        # Display error message and exit this script
+        exit-script -type "error" -text "edit-user-$($_.InvocationInfo.ScriptLineNumber) | $($_.Exception.Message)" -lineAfter
     }
 }
 

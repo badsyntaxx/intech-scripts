@@ -1,7 +1,9 @@
 function invoke-script {
     param (
+        [parameter(Mandatory = $true)]
+        [string]$script,
         [parameter(Mandatory = $false)]
-        [string]$script
+        [boolean]$initialize = $false
     ) 
 
     try {
@@ -10,7 +12,7 @@ function invoke-script {
             # If not, elevate privileges and restart function with current arguments
             Start-Process powershell.exe "-NoProfile -ExecutionPolicy Bypass -File `"$PSCommandPath`" $PSCommandArgs" -WorkingDirectory $pwd -Verb RunAs
             Exit
-        }
+        } 
 
         # Customize console appearance
         $console = $host.UI.RawUI
@@ -18,59 +20,57 @@ function invoke-script {
         $console.ForegroundColor = "Gray"
         $console.WindowTitle = "Chased Scripts"
 
-        # Clear the console and execute the provided script
-        Clear-Host
+        if ($initialize) {
+            # Display a stylized menu prompt
+            Clear-Host
+            Write-Host
+            Write-Host "  Welcome to Chased Scripts" -ForegroundColor DarkCyan
+            Write-Host "  Enter" -ForegroundColor DarkGray -NoNewLine
+            Write-Host " menu" -ForegroundColor Gray -NoNewLine
+            Write-Host " or" -ForegroundColor DarkGray -NoNewLine
+            Write-Host " help" -ForegroundColor Gray -NoNewLine
+            Write-Host " if you don't know commands." -ForegroundColor DarkGray
+            Write-Host
+        }
+
+        # Call the script specified by the parameter
         Invoke-Expression $script
     } catch {
-        exit-script -Type "error" -Text "Initialization Error: $($_.Exception.Message)"
+        # Display error message and exit this script
+        exit-script -type "error" -text "invoke-script-$($_.InvocationInfo.ScriptLineNumber) | $($_.Exception.Message)" -lineAfter
     }
 }
 
-function get-closing {
-    param (
-        [parameter(Mandatory = $false)]
-        [string]$script = ""
-    ) 
-
-    $choice = get-option -Options $([ordered]@{
-            "Submit" = "Submit and apply your changes." 
-            "Rest"   = "Discard changes and start this task over at the beginning."
-            "Exit"   = "Exit this task but remain in the Chased Scripts CLI." 
-        }) -LineAfter
-
-    if ($choice -eq 1) { 
-        if ($script -ne "") { invoke-script $script } 
-        else { get-cscommand }
-    }
-    if ($choice -eq 2) { exit-script }
-}
-
-function get-cscommand {
+function read-command {
     param (
         [Parameter(Mandatory = $false)]
         [string]$command = ""
     )
 
     try {
-        # Right carrot icon, this is a prompt for a command in Chased Scripts
-        Write-Host "  $([char]0x203A) " -NoNewline 
-
         # Get the command from the user
-        if ($command -eq "") { $command = Read-Host }
+        if ($command -eq "") { 
+            # Right carrot icon, this is a prompt for a command in CHASED Scripts
+            Write-Host "  $([char]0x203A) " -NoNewline 
+            $command = Read-Host 
+        }
+
+        # Convert the command to lowercase
         $command = $command.ToLower()
-         
+
+        # Trim leading and trailing spaces
+        $command = $command.Trim()
+
         # Extract the first word
         if ($command -ne "" -and $command -match "^(?-i)(\w+(-\w+)*)") { $firstWord = $matches[1] }
 
-        if (Get-Command $firstWord -ErrorAction SilentlyContinue) {
-            Write-Host
+        if (Get-command $firstWord -ErrorAction SilentlyContinue) {
             Invoke-Expression $command
-            Write-Host
-            get-cscommand
+            read-command
         }
 
         # Adjust command and paths
-        $subCommands = @("windows", "plugins", "intech", "nuvia");
+        $subCommands = @("windows", "plugins", "nuvia", "intech");
         $subPath = "windows"
         foreach ($sub in $subCommands) {
             if ($firstWord -eq $sub -and $firstWord -ne 'menu') { 
@@ -86,101 +86,151 @@ function get-cscommand {
         $fileFunc = $lowercaseCommand -replace ' ', '-'
 
         # Create the main script file
-        New-Item -Path "$env:TEMP\Chased-Script.ps1" -ItemType File -Force | Out-Null
+        New-Item -Path "$env:TEMP\CHASED-Script.ps1" -ItemType File -Force | Out-Null
 
-        add-script -subPath $subPath -script $fileFunc -ProgressText "Loading script..."
-        add-script -subpath "core" -script "framework" -ProgressText "Loading framework..."
+        add-script -subPath $subPath -script $fileFunc
+        add-script -subpath "core" -script "framework"
 
         # Add a final line that will invoke the desired function
-        Add-Content -Path "$env:TEMP\Chased-Script.ps1" -Value "invoke-script '$fileFunc'"
+        Add-Content -Path "$env:TEMP\CHASED-Script.ps1" -Value "invoke-script '$fileFunc'"
 
         # Execute the combined script
-        $chasedScript = Get-Content -Path "$env:TEMP\Chased-Script.ps1" -Raw
-        Invoke-Expression "$chasedScript"
+        $chasedScript = Get-Content -Path "$env:TEMP\CHASED-Script.ps1" -Raw
+        Invoke-Expression $chasedScript
     } catch {
         # Error handling: display an error message and prompt for a new command
-        Write-Host "    Unknown command: $($_.Exception.Message) | init-$($_.InvocationInfo.ScriptLineNumber)" -ForegroundColor Red
-        get-cscommand
+        Write-Host "    $($_.Exception.Message) | init-$($_.InvocationInfo.ScriptLineNumber)" -ForegroundColor Red
+        read-command
     }
+}
+
+function add-script {
+    param (
+        [Parameter(Mandatory)]
+        [string]$subPath,
+        [Parameter(Mandatory)]
+        [string]$script,
+        [Parameter(Mandatory = $false)]
+        [string]$progressText
+    )
+
+    $url = "https://raw.githubusercontent.com/badsyntaxx/chased-scripts/main"
+
+    # Download the script
+    $download = get-download -Url "$url/$subPath/$script.ps1" -Target "$env:TEMP\$script.ps1" -failText "Could not acquire components..."
+    if (!$download) { read-command }
+
+    # Append the script to the main script
+    $rawScript = Get-Content -Path "$env:TEMP\$script.ps1" -Raw -ErrorAction SilentlyContinue
+    Add-Content -Path "$env:TEMP\CHASED-Script.ps1" -Value $rawScript
+
+    # Remove the script file
+    Get-Item -ErrorAction SilentlyContinue "$env:TEMP\$script.ps1" | Remove-Item -ErrorAction SilentlyContinue
+}
+
+function get-help() {
+    write-text -type 'header' -text 'Commands'
+    Write-Host "    enable admin        - Toggle the built-in administrator account."
+    Write-Host "    add user            - Add a user to the system."
+    Write-Host "    add local user      - Add a local user to the system."
+    Write-Host "    add ad user         - Add a domain user to the system."
+    Write-Host "    edit user           - Add a domain user to the system."
+    Write-Host "    edit user name      - Add a domain user to the system."
+    Write-Host "    edit user password  - Add a domain user to the system."
+    Write-Host "    edit user group     - Add a domain user to the system."
+    Write-Host "    edit net adapter    - Add a domain user to the system."
+    Write-Host
+    read-command # Recursively call itself to prompt for a new command
 }
 
 function write-text {
     param (
         [parameter(Mandatory = $false)]
-        [string]$Text = "",
+        [string]$text = "",
         [parameter(Mandatory = $false)]
-        [string]$Type = "plain",
+        [string]$type = "plain",
         [parameter(Mandatory = $false)]
         [string]$Color = "Gray",
         [parameter(Mandatory = $false)]
-        [switch]$LineBefore = $false, # Add a new line before output if specified
+        [switch]$lineBefore = $false, # Add a new line before output if specified
         [parameter(Mandatory = $false)]
-        [switch]$LineAfter = $false, # Add a new line after output if specified
+        [switch]$lineAfter = $false, # Add a new line after output if specified
         [parameter(Mandatory = $false)]
         [System.Collections.Specialized.OrderedDictionary]$List,
         [parameter(Mandatory = $false)]
-        [System.Collections.Specialized.OrderedDictionary]$OldData,
+        [System.Collections.Specialized.OrderedDictionary]$oldData,
         [parameter(Mandatory = $false)]
-        [System.Collections.Specialized.OrderedDictionary]$NewData
+        [System.Collections.Specialized.OrderedDictionary]$newData
     )
 
-    # Add a new line before output if specified
-    if ($LineBefore) { Write-Host }
+    try {
+        # Add a new line before output if specified
+        if ($lineBefore) { Write-Host }
 
-    # Format output based on the specified Type
-    if ($Type -eq "header") { Write-Host " ## $Text" -ForegroundColor "DarkCyan" }
-    if ($Type -eq 'success') { Write-Host "  $([char]0x2713) $Text" -ForegroundColor "Green" }
-    if ($Type -eq 'error') { Write-Host "  X $Text" -ForegroundColor "Red" }
-    if ($Type -eq 'notice') { Write-Host " !! $Text" -ForegroundColor "Yellow" }
-    if ($Type -eq 'plain') { Write-Host "    $Text" -ForegroundColor $Color }
-    if ($Type -eq 'list') { foreach ($item in $List.Keys) { Write-Host "    $item`: $($List[$item])" -ForegroundColor "DarkGray" } }
-    if ($Type -eq 'done') { 
-        Write-Host "  $([char]0x2713)" -ForegroundColor "Green" -NoNewline
-        Write-Host " $Text" 
-    }
-    if ($Type -eq 'fail') { 
-        Write-Host "  X " -ForegroundColor "Red" -NoNewline
-        Write-Host "$Text" 
-    }
+        # Format output based on the specified Type
+        if ($type -eq "label") { Write-Host "    $text" -ForegroundColor "Yellow" }
+        if ($type -eq 'success') { Write-Host "    $text"  -ForegroundColor "Green" }
+        if ($type -eq 'error') { Write-Host "    $text" -ForegroundColor "Red" }
+        if ($type -eq 'notice') { Write-Host "    $text" -ForegroundColor "Yellow" }
+        if ($type -eq 'plain') { Write-Host "    $text" -ForegroundColor $Color }
+        if ($type -eq 'list') { 
+            # Get a list of keys from the options dictionary
+            $orderedKeys = $List.Keys | ForEach-Object { $_ }
 
-    # Format output for data comparison
-    if ($Type -eq 'compare') { 
-        foreach ($data in $OldData.Keys) {
-            if ($OldData["$data"] -ne $NewData["$data"]) {
-                Write-Host "    $($OldData["$data"])" -ForegroundColor "Gray" -NoNewline
-                Write-Host " $([char]0x2192) " -ForegroundColor "Magenta" -NoNewline
-                Write-Host "$($NewData["$data"])" -ForegroundColor "White"
+            # Find the length of the longest key for padding
+            $longestKeyLength = ($orderedKeys | Measure-Object -Property Length -Maximum).Maximum
+
+            # Display single option if only one exists
+            if ($orderedKeys.Count -eq 1) {
+                Write-Host " $($orderedKeys) $(" " * ($longestKeyLength - $orderedKeys.Length)) - $($List[$orderedKeys])"
             } else {
-                Write-Host "    $($OldData["$data"])"
+                # Loop through each option and display with padding and color
+                for ($i = 0; $i -lt $orderedKeys.Count; $i++) {
+                    $key = $orderedKeys[$i]
+                    $padding = " " * ($longestKeyLength - $key.Length)
+                    Write-Host "    $($key): $padding $($List[$key])" -ForegroundColor "DarkGray"
+                }
             }
         }
-    }
 
-    # Add a new line after output if specified
-    if ($LineAfter) { Write-Host }
+        if ($type -eq 'fail') { 
+            Write-Host "  X " -ForegroundColor "Red" -NoNewline
+            Write-Host "$text" 
+        }
+
+        # Format output for data comparison
+        if ($type -eq 'compare') { 
+            foreach ($data in $oldData.Keys) {
+                if ($oldData["$data"] -ne $newData["$data"]) {
+                    write-compare -oldData $oldData["$data"] -newData $newData["$data"]
+                } else {
+                    Write-Host "    $($oldData["$data"])"
+                }
+            }
+        }
+
+        # Add a new line after output if specified
+        if ($lineAfter) { Write-Host }
+    } catch {
+        # Display error message and exit this script
+        exit-script -type "error" -text "write-text-$($_.InvocationInfo.ScriptLineNumber) | $($_.Exception.Message)" -lineAfter
+    }
 }
 
-function exit-script {
+function write-compare() {
     param (
-        [parameter(Mandatory = $false)]
-        [string]$Text = "",
-        [parameter(Mandatory = $false)]
-        [string]$Type = "plain",
-        [parameter(Mandatory = $false)]
-        [switch]$LineBefore = $false, # Add a new line before output if specified
-        [parameter(Mandatory = $false)]
-        [switch]$LineAfter = $false # Add a new line after output if specified
+        [parameter(Mandatory)]
+        [string]$oldData,
+        [parameter(Mandatory)]
+        [string]$newData
     )
 
-    # Add a new line before output if specified
-    if ($LineBefore) { Write-Host }
-    write-text -Type $Type -Text $Text
-    # Add a new line after output if specified
-    if ($LineAfter) { Write-Host }
-    get-cscommand 
+    Write-Host "    $oldData" -ForegroundColor "DarkGray" -NoNewline
+    Write-Host " $([char]0x2192) " -ForegroundColor "Magenta" -NoNewline
+    Write-Host $newData -ForegroundColor "Gray"
 }
 
-function Write-Box {
+function write-box {
     param (
         [parameter(Mandatory = $false)]
         [array]$Text
@@ -199,11 +249,9 @@ function Write-Box {
 
     foreach ($line in $Text) {
         Write-Host " $verticalLine" -ForegroundColor Cyan -NoNewline
-        if ($line.Contains("http")) {
-            Write-Host " $($line.PadRight($count))" -ForegroundColor DarkCyan -NoNewline
-        } else {
-            Write-Host " $($line.PadRight($count))" -ForegroundColor White -NoNewline
-        }
+        
+        Write-Host " $($line.PadRight($count))" -ForegroundColor White -NoNewline
+        
         Write-Host " $verticalLine" -ForegroundColor Cyan
     }
 
@@ -212,20 +260,43 @@ function Write-Box {
 
 function write-welcome {
     param (
-        [parameter(Mandatory = $true)]
-        [string]$Title,
-        [parameter(Mandatory = $true)]
-        [string]$Description,
         [parameter(Mandatory = $false)]
-        [string]$Command
+        [string]$command,
+        [switch]$lineBefore = $false, # Add a new line before output if specified
+        [parameter(Mandatory = $false)]
+        [switch]$lineAfter = $false # Add a new line after output if specified
     )
 
-    # Get-Item -ErrorAction SilentlyContinue "$env:TEMP\Chased-Script.ps1" | Remove-Item -ErrorAction SilentlyContinue
+    # Add a new line before output if specified
+    if ($lineBefore) { Write-Host }
+
     Write-Host
-    Write-Host " Chased Scripts: $Title"
-    Write-Host " Command:"  -ForegroundColor DarkGray -NoNewline
-    Write-Host " $Command" -ForegroundColor DarkGreen -NoNewline
-    Write-Host " | $Description" -ForegroundColor DarkGray
+    Write-Host " ::"  -ForegroundColor "DarkCyan" -NoNewline
+    Write-Host " Running command:" -NoNewline -ForegroundColor "DarkGray"
+    Write-Host " $command" -ForegroundColor "Gray"
+
+    # Add a new line after output if specified
+    if ($lineAfter) { Write-Host }
+}
+
+function exit-script {
+    param (
+        [parameter(Mandatory = $false)]
+        [string]$text = "",
+        [parameter(Mandatory = $false)]
+        [string]$type = "plain",
+        [parameter(Mandatory = $false)]
+        [switch]$lineBefore = $false, # Add a new line before output if specified
+        [parameter(Mandatory = $false)]
+        [switch]$lineAfter = $false # Add a new line after output if specified
+    )
+
+    # Add a new line before output if specified
+    if ($lineBefore) { Write-Host }
+    write-text -type $Type -text $Text
+    # Add a new line after output if specified
+    if ($lineAfter) { Write-Host }
+    read-command 
 }
 
 function get-download {
@@ -235,11 +306,15 @@ function get-download {
         [Parameter(Mandatory)]
         [string]$Target,
         [Parameter(Mandatory = $false)]
-        [string]$ProgressText = 'Downloading',
+        [string]$ProgressText = 'Loading',
+        [Parameter(Mandatory = $false)]
+        [string]$failText = 'Download failed...',
         [parameter(Mandatory = $false)]
-        [int]$MaxRetries = 3,
+        [int]$MaxRetries = 2,
         [parameter(Mandatory = $false)]
-        [int]$Interval = 3
+        [int]$Interval = 1,
+        [parameter(Mandatory = $false)]
+        [switch]$visible = $false
     )
     Begin {
         function Show-Progress {
@@ -330,23 +405,27 @@ function get-download {
                     $total += $count
                     $totalMB = $total / 1024 / 1024
           
-                    if ($fullSize -gt 0) {
-                        Show-Progress -TotalValue $fullSizeMB -CurrentValue $totalMB -ProgressText $ProgressText -ValueSuffix "MB"
-                    }
+                    if ($visible) {
+                        if ($fullSize -gt 0) {
+                            Show-Progress -TotalValue $fullSizeMB -CurrentValue $totalMB -ProgressText $ProgressText -ValueSuffix "MB"
+                        }
 
-                    if ($total -eq $fullSize -and $count -eq 0 -and $finalBarCount -eq 0) {
-                        Show-Progress -TotalValue $fullSizeMB -CurrentValue $totalMB -ProgressText $ProgressText -ValueSuffix "MB" -Complete
-                        $finalBarCount++
+                        if ($total -eq $fullSize -and $count -eq 0 -and $finalBarCount -eq 0) {
+                            Show-Progress -TotalValue $fullSizeMB -CurrentValue $totalMB -ProgressText $ProgressText -ValueSuffix "MB" -Complete
+                            $finalBarCount++
+                        }
                     }
                 } while ($count -gt 0)
 
                 # Prevent the following output from appearing on the same line as the progress bar
-                Write-Host 
+                if ($visible) {
+                    Write-Host 
+                }
                 
                 if ($downloadComplete) { return $true } else { return $false }
             } catch {
-                # write-text -Type "fail" -Text "$($_.Exception.Message)"
-                write-text -Type "fail" -Text "Download failed..."
+                # write-text -type "fail" -text "$($_.Exception.Message)"
+                write-text -type "fail" -text $failText
                 
                 $downloadComplete = $false
             
@@ -354,7 +433,7 @@ function get-download {
                     write-text "Retrying..."
                     Start-Sleep -Seconds $Interval
                 } else {
-                    write-text -Type "error" -Text "Maximum retries reached. Download failed." -LineBefore
+                    write-text -type "error" -text "Maximum retries reached." 
                 }
             } finally {
                 # cleanup
@@ -368,12 +447,12 @@ function get-download {
     }
 }
 
-function get-input {
+function read-input {
     param (
         [parameter(Mandatory = $false)]
         [string]$Value = "", # A pre-fill value so the user can hit enter without typing command and get the current value if there is one
         [parameter(Mandatory = $false)]
-        [string]$Prompt, # Provide a specific prompt in necessary
+        [string]$prompt, # Provide a specific prompt in necessary
         [parameter(Mandatory = $false)]
         [regex]$Validate = $null,
         [parameter(Mandatory = $false)]
@@ -383,20 +462,20 @@ function get-input {
         [parameter(Mandatory = $false)]
         [switch]$CheckExistingUser = $false,
         [parameter(Mandatory = $false)]
-        [switch]$LineBefore = $false, # Add a new line before prompt if specified
+        [switch]$lineBefore = $false, # Add a new line before prompt if specified
         [parameter(Mandatory = $false)]
-        [switch]$LineAfter = $false # Add a new line after prompt if specified
+        [switch]$lineAfter = $false # Add a new line after prompt if specified
     )
 
     try {
         # Add a new line before prompt if specified
-        if ($LineBefore) { Write-Host }
+        if ($lineBefore) { Write-Host }
 
         # Get current cursor position
         $currPos = $host.UI.RawUI.CursorPosition
 
         # Display prompt with a diamond symbol (optional secure input for passwords)
-        Write-Host "  $([char]0x203A) $Prompt" -NoNewline 
+        Write-Host "  $([char]0x203A) $prompt" -NoNewline 
         if ($IsSecure) { $userInput = Read-Host -AsSecureString } 
         else { $userInput = Read-Host }
 
@@ -411,12 +490,12 @@ function get-input {
 
         # Display error message if encountered
         if ($ErrorMessage -ne "") {
-            write-text -Type "error" -Text $ErrorMessage
-            # Recursively call get-input if user exists
-            if ($CheckExistingUser) { return get-input -Prompt $Prompt -Validate $Validate -CheckExistingUser } 
+            write-text -type "error" -text $ErrorMessage
+            # Recursively call read-input if user exists
+            if ($CheckExistingUser) { return read-input -prompt $prompt -Validate $Validate -CheckExistingUser } 
 
             # Otherwise, simply call again without CheckExistingUser
-            else { return get-input -Prompt $Prompt -Validate $Validate }
+            else { return read-input -prompt $prompt -Validate $Validate }
         }
 
         # Use provided default value if user enters nothing for a non-secure input
@@ -427,59 +506,62 @@ function get-input {
         
         # Display checkmark symbol and user input (masked for secure input)
         Write-Host "  $([char]0x2713) " -ForegroundColor "Green" -NoNewline
-        if ($IsSecure -and ($userInput.Length -eq 0)) { Write-Host "$Prompt                                                       " } 
+        if ($IsSecure -and ($userInput.Length -eq 0)) { Write-Host "$prompt                                                       " } 
         else { Write-Host "$Prompt$userInput                                             " }
 
         # Add a new line after prompt if specified
-        if ($LineAfter) { Write-Host }
+        if ($lineAfter) { Write-Host }
     
         # Return the validated user input
         return $userInput
     } catch {
         # Handle errors during input
-        write-text -Type "error" -Text "Input Error: $($_.Exception.Message)"
+        write-text -type "error" -text "Input Error: $($_.Exception.Message)"
     }
 }
 
-function get-option {
+function read-option {
     param (
         [parameter(Mandatory = $true)]
-        [System.Collections.Specialized.OrderedDictionary]$Options,
+        [System.Collections.Specialized.OrderedDictionary]$options,
         [parameter(Mandatory = $false)]
-        [switch]$ReturnKey = $false,
+        [switch]$returnKey = $false,
         [parameter(Mandatory = $false)]
         [switch]$ReturnValue = $false,
         [parameter(Mandatory = $false)]
-        [switch]$LineBefore = $false,
+        [boolean]$lineBefore = $true,
         [parameter(Mandatory = $false)]
-        [switch]$LineAfter = $false
+        [switch]$lineAfter = $false
     )
 
     try {
-        # Add a line break before the menu if LineBefore is specified
-        if ($LineBefore) { Write-Host }
+        # Add a line break before the menu if lineBefore is specified
+        if ($lineBefore) { Write-Host }
 
         # Initialize variables for user input handling
         $vkeycode = 0
         $pos = 0
         $oldPos = 0
 
-        # Get a list of keys from the Options dictionary
-        $orderedKeys = $Options.Keys | ForEach-Object { $_ }
+        # Get a list of keys from the options dictionary
+        $orderedKeys = $options.Keys | ForEach-Object { $_ }
 
         # Find the length of the longest key for padding
         $longestKeyLength = ($orderedKeys | Measure-Object -Property Length -Maximum).Maximum
 
         # Display single option if only one exists
         if ($orderedKeys.Count -eq 1) {
-            Write-Host "  $([char]0x203A) $($orderedKeys) $(" " * ($longestKeyLength - $orderedKeys.Length)) - $($Options[$orderedKeys])" -ForegroundColor "Yellow"
+            Write-Host "  $([char]0x203A)" -ForegroundColor "Gray" -NoNewline
+            Write-Host " $($orderedKeys) $(" " * ($longestKeyLength - $orderedKeys.Length)) - $($options[$orderedKeys])" -ForegroundColor "Cyan"
         } else {
             # Loop through each option and display with padding and color
             for ($i = 0; $i -lt $orderedKeys.Count; $i++) {
                 $key = $orderedKeys[$i]
                 $padding = " " * ($longestKeyLength - $key.Length)
-                if ($i -eq $pos) { Write-Host "  $([char]0x203A) $key $padding - $($Options[$key])" -ForegroundColor "Yellow" } 
-                else { Write-Host "    $key $padding - $($Options[$key])" -ForegroundColor "White" }
+                if ($i -eq $pos) { 
+                    Write-Host "  $([char]0x203A)" -ForegroundColor "Gray" -NoNewline  
+                    Write-Host " $key $padding - $($options[$key])" -ForegroundColor "Cyan"
+                } else { Write-Host "    $key $padding - $($options[$key])" -ForegroundColor "Gray" }
             }
         }
 
@@ -507,43 +589,83 @@ function get-option {
             
                 # Re-draw the previously selected and newly selected options
                 $host.UI.RawUI.CursorPosition = $menuOldPos
-                Write-Host "    $($orderedKeys[$oldPos]) $(" " * ($longestKeyLength - $oldKey.Length)) - $($Options[$orderedKeys[$oldPos]])" -ForegroundColor "White"
+                Write-Host "    $($orderedKeys[$oldPos]) $(" " * ($longestKeyLength - $oldKey.Length)) - $($options[$orderedKeys[$oldPos]])" -ForegroundColor "Gray"
                 $host.UI.RawUI.CursorPosition = $menuNewPos
-                Write-Host "  $([char]0x203A) $($orderedKeys[$pos]) $(" " * ($longestKeyLength - $newKey.Length)) - $($Options[$orderedKeys[$pos]])" -ForegroundColor "Yellow"
+                Write-Host "  $([char]0x203A)" -ForegroundColor "Gray" -NoNewline
+                Write-Host " $($orderedKeys[$pos]) $(" " * ($longestKeyLength - $newKey.Length)) - $($options[$orderedKeys[$pos]])" -ForegroundColor "Cyan"
                 $host.UI.RawUI.CursorPosition = $currPos
             }
         }
 
-        # Add a line break after the menu if LineAfter is specified
-        if ($LineAfter) { Write-Host }
+        if ($orderedKeys.Count -ne 1) {
+            $host.UI.RawUI.CursorPosition = $menuNewPos
+        } else {
+            $host.UI.RawUI.CursorPosition = New-Object System.Management.Automation.Host.Coordinates(0, ($currPos.Y - ($menuLen + 1)))
+        }
+
+        if ($orderedKeys.Count -ne 1) {
+            Write-Host "  $([char]0x2713)" -ForegroundColor "Green" -NoNewline
+            Write-Host " $($orderedKeys[$pos]) $(" " * ($longestKeyLength - $newKey.Length)) - $($options[$orderedKeys[$pos]])" -ForegroundColor "Cyan"
+        } else {
+            Write-Host "  $([char]0x2713)" -ForegroundColor "Green" -NoNewline
+            Write-Host " $($orderedKeys[$pos])" -ForegroundColor "Cyan"
+        }
+        
+        $host.UI.RawUI.CursorPosition = $currPos
+
+        # Add a line break after the menu if lineAfter is specified
+        if ($lineAfter) { Write-Host }
 
         # Handle function return values (key, value, menu position) based on parameters
-        if ($ReturnKey) { if ($orderedKeys.Count -eq 1) { return $orderedKeys } else { return $orderedKeys[$pos] } } 
-        if ($ReturnValue) { if ($orderedKeys.Count -eq 1) { return $Options[$pos] } else { return $Options[$orderedKeys[$pos]] } }
+        if ($returnKey) { if ($orderedKeys.Count -eq 1) { return $orderedKeys } else { return $orderedKeys[$pos] } } 
+        if ($ReturnValue) { if ($orderedKeys.Count -eq 1) { return $options[$pos] } else { return $options[$orderedKeys[$pos]] } }
         else { return $pos }
     } catch {
-        # Display error message and end the script
-        write-text -Type "error" -Text "Error | get-option-$($_.InvocationInfo.ScriptLineNumber)"
+        # Display error message and exit this script
+        write-text -type "error" -text "Error | read-option-$($_.InvocationInfo.ScriptLineNumber)"
     }
+}
+
+function get-closing {
+    param (
+        [parameter(Mandatory = $false)]
+        [string]$script = "",
+        [parameter(Mandatory = $false)]
+        [string]$customText = "Are you sure?"
+    ) 
+
+    write-text -type "label" -text $customText -lineBefore
+
+    $choice = read-option -options $([ordered]@{
+            "Submit" = "Submit and apply your changes." 
+            "Rest"   = "Discard changes and start this task over at the beginning."
+            "Exit"   = "Exit this task but remain in the CHASED Scripts CLI." 
+        }) -lineAfter
+
+    if ($choice -eq 1) { 
+        if ($script -ne "") { invoke-script $script } 
+        else { read-command }
+    }
+    if ($choice -eq 2) { read-command }
 }
 
 function get-userdata {
     param (
         [parameter(Mandatory = $true)]
-        [string]$Username
+        [string]$username
     )
 
     try {
-        $user = Get-LocalUser -Name $Username
+        $user = Get-LocalUser -Name $username
         $groups = Get-LocalGroup | Where-Object { $user.SID -in ($_ | Get-LocalGroupMember | Select-Object -ExpandProperty "SID") } | Select-Object -ExpandProperty "Name"
         $userProfile = Get-CimInstance Win32_UserProfile -Filter "SID = '$($user.SID)'"
         $dir = $userProfile.LocalPath
         if ($null -ne $userProfile) { $dir = $userProfile.LocalPath } else { $dir = "Awaiting first sign in." }
 
-        $source = Get-LocalUser -Name $Username | Select-Object -ExpandProperty PrincipalSource
+        $source = Get-LocalUser -Name $username | Select-Object -ExpandProperty PrincipalSource
 
         $data = [ordered]@{
-            "Name"   = "$Username"
+            "Name"   = "$username"
             "Groups" = "$($groups -join ';')"
             "Path"   = "$dir"
             "Source" = "$source"
@@ -551,19 +673,12 @@ function get-userdata {
 
         return $data
     } catch {
-        write-text -Type "error" -Text "Error getting account info: $($_.Exception.Message)"
+        write-text -type "error" -text "Error getting account info: $($_.Exception.Message)"
     }
 }
 
 function select-user {
-    param (
-        [parameter(Mandatory = $false)]
-        [string]$CustomHeader = "Select a user"
-    )
-
     try {
-        write-text -Type "header" -Text $CustomHeader -LineBefore -LineAfter
-
         # Initialize empty array to store user names
         $userNames = @()
 
@@ -601,19 +716,18 @@ function select-user {
         }
 
         # Prompt user to select a user from the list and return the key (username)
-        $choice = get-option -Options $accounts -ReturnKey -LineAfter
+        $choice = read-option -options $accounts -returnKey -lineAfter
 
         # Get user data using the selected username
         $data = get-userdata -Username $choice
 
         # Display user data as a list
-        write-text -Type "list" -List $data -LineAfter
+        write-text -type "list" -List $data
 
         # Return the user data dictionary
         return $data
     } catch {
         # Handle errors during user selection
-        write-text -Type "error" -Text "Select user error: $($_.Exception.Message)"
+        write-text -type "error" -text "Select user error: $($_.Exception.Message)"
     }
 }
-

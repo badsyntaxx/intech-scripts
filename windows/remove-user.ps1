@@ -1,42 +1,40 @@
 function remove-user {
     try {
-        write-welcome  -Title "Remove User" -Description "Remove an existing user account from the system." -Command "remove user"
-
         $user = select-user
 
-        write-text -Type "header" -Text "Delete user data" -LineAfter
-        $choice = get-option -Options $([ordered]@{
+        $choice = read-option -options $([ordered]@{
                 "Delete" = "Also delete the users data."
                 "Keep"   = "Do not delete the users data."
-            })
+            }) -lineAfter
 
         if ($choice -eq 0) { $deleteData = $true }
         if ($choice -eq 1) { $deleteData = $false }
 
-        if ($deleteData) { write-text -Type "header" -Text "YOU'RE ABOUT TO DELETE THIS ACCOUNT AND ITS DATA!" -LineBefore -LineAfter } 
-        else { write-text -Type "header" -Text "YOU'RE ABOUT TO DELETE THIS ACCOUNT!" -LineBefore -LineAfter }
+        if ($deleteData) { $alert = "Delete this account and its data?" } 
+        else { $alert = "Delete this account?" }
         
-        get-closing -Script "remove-user"
+        get-closing -Script "remove-user" -customText $alert
 
         if ($deleteData) {
             $dir = (Get-CimInstance Win32_UserProfile -Filter "SID = '$((Get-LocalUser $user["Name"]).Sid)'").LocalPath
             if ($null -ne $dir -And (Test-Path -Path $dir)) { Remove-Item -Path $dir -Recurse -Force }
         }
 
-        if ($null -eq $dir) { write-text -Type "done" -Text "User data deleted." }
-
-        Remove-LocalUser -Name $user["Name"] | Out-Null
-
-        if (Get-LocalUser -Name $user["Name"] -ErrorAction SilentlyContinue | Out-Null) {
-            write-text -Type "fail" -Text "Could not remove user."
+        if ($null -eq $dir) { 
+            write-text -type 'success' -text "User data deleted." 
         } else {
-            write-text -Type "done" -Text "User removed."
+            write-text -type 'error' -text "Unable to delete user data."
         }
 
-        exit-script -Type "success" -Text "The user has been deleted." -LineAfter
+        Remove-LocalUser -Name $user["Name"] | Out-Null
+        if (Get-LocalUser -Name $user["Name"] -ErrorAction SilentlyContinue | Out-Null) {
+            exit-script -type "error" -text "Could not remove user."
+        } 
+
+        exit-script -type 'success' -text "User removed." -lineAfter
     } catch {
-        # Display error message and end the script
-        exit-script -Type "error" -Text "remove-user-$($_.InvocationInfo.ScriptLineNumber) | $($_.Exception.Message)" -LineAfter
+        # Display error message and exit this script
+        exit-script -type "error" -text "remove-user-$($_.InvocationInfo.ScriptLineNumber) | $($_.Exception.Message)" -lineAfter
     }
 }
 
