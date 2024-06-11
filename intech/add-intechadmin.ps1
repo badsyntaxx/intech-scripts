@@ -1,8 +1,6 @@
 function add-intechadmin {
     try {
-        write-welcome -Title "Add InTechAdmin Account" -Description "Add an InTech administrator account to this PC." -Command "intech add admin"
-
-        write-text -Type "header" -Text "Getting credentials" -LineBefore -LineAfter
+        write-text -type "header" -text "Getting credentials" -LineBefore -LineAfter
 
         $accountName = "InTechAdmin"
         $downloads = [ordered]@{
@@ -13,36 +11,50 @@ function add-intechadmin {
         foreach ($d in $downloads.Keys) { $download = get-download -Url $downloads[$d] -Target $d } 
         if (!$download) { throw "Unable to acquire credentials." }
 
+        if (Test-Path -Path "$env:TEMP\KEY.txt") {
+            write-text -type "success" -text "The key was acquired."
+        }
+
+        if (Test-Path -Path "$env:TEMP\PHRASE.txt") {
+            write-text -type "success" -text "The phrase was acquired."
+        } 
+
         $password = Get-Content -Path "$env:TEMP\PHRASE.txt" | ConvertTo-SecureString -Key (Get-Content -Path "$env:TEMP\KEY.txt")
 
-        write-text -Type "done" -Text "Credentials acquired."
+        write-text -type "done" -text "Phrase converted."
 
         $account = Get-LocalUser -Name $accountName -ErrorAction SilentlyContinue
 
         if ($null -eq $account) {
-            write-text -Type "header" -Text "Creating account" -LineBefore -LineAfter
             New-LocalUser -Name $accountName -Password $password -FullName "" -Description "InTech Administrator" -AccountNeverExpires -PasswordNeverExpires -ErrorAction stop | Out-Null
-            write-text -Type "done" -Text "Account created."
-            $finalMessage = "Success! The InTechAdmin account has been created."
+            write-text -type "success" -text "The InTechAdmin account has been created."
         } else {
-            write-text -Type "header" -Text "InTechAdmin account already exists!" -LineBefore -LineAfter
-            write-text -Text "Updating password..."
+            write-text -type "notice" -text "InTechAdmin account already exists!"
             $account | Set-LocalUser -Password $password
-
-            $finalMessage = "Success! The password was updated and the groups were applied."
+            write-text -type "success" -text "The InTechAdmin account password was updated."
         }
 
-        write-text -Text "Updating group membership..."
         Add-LocalGroupMember -Group "Administrators" -Member $accountName -ErrorAction SilentlyContinue
+        write-text -type "success" -text "The InTechAdmin account has been added to the 'Administrators' group."
         Add-LocalGroupMember -Group "Remote Desktop Users" -Member $accountName -ErrorAction SilentlyContinue
+        write-text -type "success" -text "The InTechAdmin account has been added to the 'Remote Desktop Users' group."
         Add-LocalGroupMember -Group "Users" -Member $accountName -ErrorAction SilentlyContinue
+        write-text -type "success" -text "The InTechAdmin account has been added to the 'Users' group."
 
         Remove-Item -Path "$env:TEMP\PHRASE.txt"
         Remove-Item -Path "$env:TEMP\KEY.txt"
 
-        exit-script -Type "success" -Text $finalMessage
+        if (!Test-Path -Path "$env:TEMP\KEY.txt") {
+            write-text -type "success" -text "Encryption key wiped clean."
+        }
+
+        if (!Test-Path -Path "$env:TEMP\PHRASE.txt") {
+            write-text -type "success" -text "Encryption phrase wiped clean."
+        }
+
+        read-command
     } catch {
         # Display error message and end the script
-        exit-script -Type "error" -Text "add-intechadmin-$($_.InvocationInfo.ScriptLineNumber) | $($_.Exception.Message)" -LineAfter
+        exit-script -type "error" -text "add-intechadmin-$($_.InvocationInfo.ScriptLineNumber) | $($_.Exception.Message)" -LineAfter
     }
 }
