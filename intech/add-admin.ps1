@@ -1,4 +1,4 @@
-function add-intechadmin {
+function add-admin {
     try {
         write-text -type "header" -text "Getting credentials" -LineBefore -LineAfter
 
