@@ -8,7 +8,7 @@ function isr-install-ninja {
 
         if ($null -ne $service -and $service.Status -eq "Running") {
             write-text -Type "done" -Text "NinjaRMMAgent is already installed and running."
-            get-cscommand
+            read-command
         } 
 
         $download = get-download -Url $Url -Target "$env:TEMP\NinjaOne.msi"

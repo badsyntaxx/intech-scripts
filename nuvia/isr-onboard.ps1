@@ -125,7 +125,7 @@ function isr-onboard {
             write-text -Type "notice" -Text "RUNNING AS SYSTEM: Changes wont apply until reboot. Run as logged user for instant results." -LineBefore
         }
 
-        $choice = get-option -Options $([ordered]@{
+        $choice = read-option -options $([ordered]@{
                 "Default" = "Generic install with no background and customizations by Chase."
                 "Nuvia"   = "Customized BGInfo with Nuvia flavor profile."
             }) -LineBefore -LineAfter
@@ -239,11 +239,11 @@ function isr-onboard {
 
         # END RECLAIM ----------------------------------------------------------------------------------------------------
 
-        get-cscommand
+        read-command
     } catch {
         # Error handling: display an error message and prompt for a new command
         Write-Host "    Unknown command: $($_.Exception.Message)" -ForegroundColor Red
-        get-cscommand
+        read-command
     }
 }
 
@@ -275,7 +275,7 @@ function Add-ChromeBookmarks {
         }
     }
 
-    $choice = get-option -Options $profiles -LineAfter -ReturnKey
+    $choice = read-option -options $profiles -LineAfter -ReturnKey
     $account = $profiles["$choice"]
     $boomarksUrl = "https://drive.google.com/uc?export=download&id=1WmvSnxtDSLOt0rgys947sOWW-v9rzj9U"
 

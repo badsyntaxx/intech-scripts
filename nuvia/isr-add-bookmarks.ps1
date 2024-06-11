@@ -15,7 +15,7 @@ function isr-add-bookmarks {
             }
         }
 
-        $choice = get-option -Options $profiles -LineAfter -ReturnKey
+        $choice = read-option -options $profiles -LineAfter -ReturnKey
         $account = $profiles["$choice"]
         $boomarksUrl = "https://drive.google.com/uc?export=download&id=1WmvSnxtDSLOt0rgys947sOWW-v9rzj9U"
 

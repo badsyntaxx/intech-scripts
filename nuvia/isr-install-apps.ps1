@@ -4,7 +4,7 @@ function isr-install-apps {
 
         write-text -Type "header" -Text "Select app to install." -LineBefore -LineAfter
 
-        $installChoice = get-option -Options $([ordered]@{
+        $installChoice = read-option -options $([ordered]@{
                 "All"              = "Install all the apps that an ISR will need."
                 "Chrome"           = "Install Google Chrome."
                 "Cliq"             = "Install Zoho Cliq."
@@ -67,7 +67,7 @@ function Add-ChromeBookmarks {
         }
     }
 
-    $choice = get-option -Options $profiles -LineAfter -ReturnKey
+    $choice = read-option -options $profiles -LineAfter -ReturnKey
     $account = $profiles["$choice"]
     $boomarksUrl = "https://drive.google.com/uc?export=download&id=1WmvSnxtDSLOt0rgys947sOWW-v9rzj9U"
 

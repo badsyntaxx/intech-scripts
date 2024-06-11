@@ -6,7 +6,7 @@ function menu {
         $url = "https://raw.githubusercontent.com/badsyntaxx/chased-intech-scripts/main"
 
         write-text -Type "header" -Text "Selection" -LineAfter -LineBefore
-        $choice = get-option -Options $([ordered]@{
+        $choice = read-option -options $([ordered]@{
                 "Install TScan"     = "Install TScan software."
                 "ISR Onboard"       = "Collection of functions to onboard and ISR computer."
                 "ISR Install Apps"  = "Install all the apps an ISR needs to work."
@@ -20,7 +20,7 @@ function menu {
         if ($choice -eq 3) { $command = "nuvia isr install ninja" }
         if ($choice -eq 4) { $command = "nuvia isr add bookmarks" }
 
-        get-cscommand -command $command
+        read-command -command $command
     } catch {
         exit-script -Type "error" -Text "Menu error: $($_.Exception.Message) $url/nuvia/$dependency.ps1" 
     }
