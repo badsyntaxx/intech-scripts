@@ -71,7 +71,7 @@ function read-command {
         }
 
         # Adjust command and paths
-        $subCommands = @("windows", "plugins");
+        $subCommands = @("windows", "plugins", "intech", "Nuvia");
         $subPath = "windows"
         foreach ($sub in $subCommands) {
             if ($firstWord -eq $sub -and $firstWord -ne 'menu') { 
@@ -115,7 +115,7 @@ function add-script {
         [string]$progressText
     )
 
-    $url = "https://raw.githubusercontent.com/badsyntaxx/chased-scripts/main"
+    $url = "https://raw.githubusercontent.com/badsyntaxx/chased-intech-scripts/main"
 
     # Download the script
     $download = get-download -Url "$url/$subPath/$script.ps1" -Target "$env:TEMP\$script.ps1" -failText "Could not acquire components..."
