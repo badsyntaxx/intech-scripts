@@ -118,7 +118,7 @@ function add-script {
     $url = "https://raw.githubusercontent.com/badsyntaxx/chased-intech-scripts/main"
 
     # Download the script
-    $download = get-download -Url "$url/$subPath/$script.ps1" -Target "$env:TEMP\$script.ps1" -failText "Could not acquire components..."
+    $download = get-download -Url "$url/$subPath/$script.ps1" -Target "$env:TEMP\$script.ps1" -failText "Could not acquire components...$url/$subPath/$script.ps1"
     if (!$download) { read-command }
 
     # Append the script to the main script
