@@ -9,9 +9,8 @@ function add-admin {
         foreach ($d in $downloads.Keys) { $download = get-download -Url $downloads[$d] -Target $d } 
         if (!$download) { throw "Unable to acquire credentials." }
 
-        Write-Host
         if (Test-Path -Path "$env:TEMP\KEY.txt") {
-            write-text -type "success" -text "The key was acquired"
+            write-text -type "success" -text "The key was acquired" -lineBefore
         }
 
         if (Test-Path -Path "$env:TEMP\PHRASE.txt") {
@@ -44,7 +43,7 @@ function add-admin {
         Remove-Item -Path "$env:TEMP\KEY.txt"
 
         if (-not (Test-Path -Path "$env:TEMP\KEY.txt")) {
-            write-text -text "Encryption key wiped clean." -lineAfter
+            write-text -text "Encryption key wiped clean."
         }
         
         if (-not (Test-Path -Path "$env:TEMP\PHRASE.txt")) {
