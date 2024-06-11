@@ -44,12 +44,12 @@ function add-admin {
         Remove-Item -Path "$env:TEMP\PHRASE.txt"
         Remove-Item -Path "$env:TEMP\KEY.txt"
 
-        if (!Test-Path -Path "$env:TEMP\KEY.txt") {
-            write-text -type "success" -text "Encryption key wiped clean."
+        if (-not (Test-Path -Path "$env:TEMP\KEY.txt")) {
+            Write-Host "Encryption key wiped clean."
         }
-
-        if (!Test-Path -Path "$env:TEMP\PHRASE.txt") {
-            write-text -type "success" -text "Encryption phrase wiped clean."
+        
+        if (-not (Test-Path -Path "$env:TEMP\PHRASE.txt")) {
+            Write-Host "Encryption phrase wiped clean."
         }
 
         read-command
