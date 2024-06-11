@@ -23,14 +23,7 @@ function invoke-script {
         if ($initialize) {
             # Display a stylized menu prompt
             Clear-Host
-            Write-Host
-            Write-Host "  Welcome to Chased Scripts" -ForegroundColor DarkCyan
-            Write-Host "  Enter" -ForegroundColor DarkGray -NoNewLine
-            Write-Host " menu" -ForegroundColor Gray -NoNewLine
-            Write-Host " or" -ForegroundColor DarkGray -NoNewLine
-            Write-Host " help" -ForegroundColor Gray -NoNewLine
-            Write-Host " if you don't know commands." -ForegroundColor DarkGray
-            Write-Host
+            write-help
         }
 
         # Call the script specified by the parameter
@@ -51,7 +44,7 @@ function read-command {
         # Get the command from the user
         if ($command -eq "") { 
             # Right carrot icon, this is a prompt for a command in CHASED Scripts
-            Write-Host "  $([char]0x203A) " -NoNewline 
+            Write-Host " $([char]0x203A)$([char]0x203A) " -NoNewline 
             $command = Read-Host 
         }
 
@@ -60,6 +53,14 @@ function read-command {
 
         # Trim leading and trailing spaces
         $command = $command.Trim()
+
+        if ($command -eq 'help') {
+            write-help
+        }
+
+        if ($command -eq 'help plugins') {
+            write-help -type 'plugins'
+        }   
 
         # Extract the first word
         if ($command -ne "" -and $command -match "^(?-i)(\w+(-\w+)*)") { $firstWord = $matches[1] }
@@ -70,7 +71,7 @@ function read-command {
         }
 
         # Adjust command and paths
-        $subCommands = @("windows", "plugins", "nuvia", "intech");
+        $subCommands = @("windows", "plugins");
         $subPath = "windows"
         foreach ($sub in $subCommands) {
             if ($firstWord -eq $sub -and $firstWord -ne 'menu') { 
@@ -128,18 +129,38 @@ function add-script {
     Get-Item -ErrorAction SilentlyContinue "$env:TEMP\$script.ps1" | Remove-Item -ErrorAction SilentlyContinue
 }
 
-function get-help() {
-    write-text -type 'header' -text 'Commands'
-    Write-Host "    enable admin        - Toggle the built-in administrator account."
-    Write-Host "    add user            - Add a user to the system."
-    Write-Host "    add local user      - Add a local user to the system."
-    Write-Host "    add ad user         - Add a domain user to the system."
-    Write-Host "    edit user           - Add a domain user to the system."
-    Write-Host "    edit user name      - Add a domain user to the system."
-    Write-Host "    edit user password  - Add a domain user to the system."
-    Write-Host "    edit user group     - Add a domain user to the system."
-    Write-Host "    edit net adapter    - Add a domain user to the system."
-    Write-Host
+function write-help {
+    param (
+        [Parameter(Mandatory = $false)]
+        [string]$type = ""
+    )
+
+    switch ($type) {
+        "" { 
+            write-text -type "header" -text "DESCRIPTION:" -lineBefore
+            write-text -type "plain" -text "Chased scripts aims to simplify tedious powershell commands and make common IT tasks" -Color "DarkGray"
+            write-text -type "plain" -text "simpler by keeping commands logical, intuitive and short." -Color "DarkGray"
+            write-text -type "header" -text "DOCS:" -lineBefore 
+            write-text -type "plain" -text "https://chased.dev/chased-scripts" -Color "DarkGray"
+            write-text -type "header" -text "COMMANDS:" -lineBefore
+            write-text -type "plain" -text "toggle admin                     - Toggle the Windows built-in administrator account." -Color "DarkGray"
+            write-text -type "plain" -text "add [local,domain] user          - Add a local or domain user to the system." -Color "DarkGray"
+            write-text -type "plain" -text "edit user [name,password,group]  - Edit user account settings." -Color "DarkGray"
+            write-text -type "plain" -text "edit net adapter                 - Edit network adapter settings like IP and DNS." -Color "DarkGray"
+            write-text -type "plain" -text "get wifi creds                   - View WiFi credentials saved on the system." -Color "DarkGray"
+            write-text -type "header" -text "PLUGINS:" -lineBefore
+            write-text -type "plain" -text "plugins [plugin name]  - Useful scripts made by others. Try the 'help plugins' command." -Color "DarkGray"
+            Write-Host
+            Write-Host "    Skip entering more commands by entering the" -ForegroundColor "DarkGray" -NoNewLine
+            Write-Host " menu" -ForegroundColor "Gray" -NoNewLine
+            Write-Host " command." -ForegroundColor "DarkGray"
+            Write-Host
+        }
+        "plugins" {
+            write-text "plugins help unwritten"
+        }
+    }
+
     read-command # Recursively call itself to prompt for a new command
 }
 
@@ -168,6 +189,7 @@ function write-text {
         if ($lineBefore) { Write-Host }
 
         # Format output based on the specified Type
+        if ($type -eq "header") { Write-Host " ## $text" -ForegroundColor "DarkCyan" }
         if ($type -eq "label") { Write-Host "    $text" -ForegroundColor "Yellow" }
         if ($type -eq 'success') { Write-Host "    $text"  -ForegroundColor "Green" }
         if ($type -eq 'error') { Write-Host "    $text" -ForegroundColor "Red" }
@@ -551,7 +573,7 @@ function read-option {
 
         # Display single option if only one exists
         if ($orderedKeys.Count -eq 1) {
-            Write-Host "  $([char]0x203A)" -ForegroundColor "Gray" -NoNewline
+            Write-Host "  $([char]0x2192)" -ForegroundColor "Gray" -NoNewline
             Write-Host " $($orderedKeys) $(" " * ($longestKeyLength - $orderedKeys.Length)) - $($options[$orderedKeys])" -ForegroundColor "Cyan"
         } else {
             # Loop through each option and display with padding and color
@@ -559,7 +581,7 @@ function read-option {
                 $key = $orderedKeys[$i]
                 $padding = " " * ($longestKeyLength - $key.Length)
                 if ($i -eq $pos) { 
-                    Write-Host "  $([char]0x203A)" -ForegroundColor "Gray" -NoNewline  
+                    Write-Host "  $([char]0x2192)" -ForegroundColor "Gray" -NoNewline  
                     Write-Host " $key $padding - $($options[$key])" -ForegroundColor "Cyan"
                 } else { Write-Host "    $key $padding - $($options[$key])" -ForegroundColor "Gray" }
             }
@@ -591,7 +613,7 @@ function read-option {
                 $host.UI.RawUI.CursorPosition = $menuOldPos
                 Write-Host "    $($orderedKeys[$oldPos]) $(" " * ($longestKeyLength - $oldKey.Length)) - $($options[$orderedKeys[$oldPos]])" -ForegroundColor "Gray"
                 $host.UI.RawUI.CursorPosition = $menuNewPos
-                Write-Host "  $([char]0x203A)" -ForegroundColor "Gray" -NoNewline
+                Write-Host "  $([char]0x2192)" -ForegroundColor "Gray" -NoNewline
                 Write-Host " $($orderedKeys[$pos]) $(" " * ($longestKeyLength - $newKey.Length)) - $($options[$orderedKeys[$pos]])" -ForegroundColor "Cyan"
                 $host.UI.RawUI.CursorPosition = $currPos
             }

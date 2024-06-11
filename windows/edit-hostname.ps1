@@ -3,12 +3,15 @@ function edit-hostname {
         $currentHostname = $env:COMPUTERNAME
         $currentDescription = (Get-WmiObject -Class Win32_OperatingSystem).Description
 
-        $hostname = read-input -prompt "Enter hostname:" -Validate "^(\s*|[a-zA-Z0-9 _\-]{1,15})$" -Value $currentHostname
+        $hostname = read-input -prompt "Enter hostname:" -Validate "^(\s*|[a-zA-Z0-9 _\-]{1,15})$" -Value $currentHostname -lineBefore
+        if ($hostname -eq "") { 
+            $hostname = $currentHostname 
+        } 
 
         $description = read-input -prompt "Enter description:" -Validate "^(\s*|[a-zA-Z0-9 |_\-]{1,64})$" -Value $currentDescription
-
-        if ($hostname -eq "") { $hostname = $currentHostname } 
-        if ($description -eq "") { $description = $currentDescription } 
+        if ($description -eq "") { 
+            $description = $currentDescription 
+        } 
         
         get-closing -Script "edit-hostname"
 
@@ -38,9 +41,9 @@ function edit-hostname {
 
         if ((Get-WmiObject -Class Win32_OperatingSystem).Description -eq $description) {
             if ($description -eq $currentDescription) {
-                write-text -type "success" -text "The description will remain $description"
+                write-text -type "success" -text "The description will remain $description" -lineAfter
             } else {
-                write-text -type "success" -text "The description has been changed to $description"
+                write-text -type "success" -text "The description has been changed to $description" -lineAfter
             }
         }
 
