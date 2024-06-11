@@ -5,7 +5,7 @@ function menu {
                 "Nuvia"           = "View the Nuvia menu."
             })
 
-        if ($choice -eq 0) { $command = "intech add intechadmin" }
+        if ($choice -eq 0) { $command = "intech add admin" }
         if ($choice -eq 0) { $command = "nuvia menu" }
 
         read-command -command $command
