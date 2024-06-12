@@ -1,9 +1,5 @@
 function isr-install-apps {
     try {
-        write-welcome -Title "Install ISR Applications" -Description "Install ISR apps and add bookmarks to Chrome." -Command "isr install apps"
-
-        write-text -Type "header" -Text "Select app to install." -lineBefore -lineAfter
-
         $installChoice = read-option -options $([ordered]@{
                 "All"              = "Install all the apps that an ISR will need."
                 "Chrome"           = "Install Google Chrome."
@@ -35,7 +31,7 @@ function isr-install-apps {
         exit-script
     } catch {
         # Display error message and end the script
-        exit-script -Type "error" -Text "Error | Install-Apps-$($_.InvocationInfo.ScriptLineNumber)"
+        exit-script -type "error" -Text "Error | Install-Apps-$($_.InvocationInfo.ScriptLineNumber)"
     }
 }
 
@@ -53,7 +49,7 @@ function install-chrome {
 }
 
 function Add-ChromeBookmarks {
-    write-text -Type "header" -Text "Which profile "
+    write-text -type "header" -Text "Which profile "
     $profiles = [ordered]@{}
     $chromeUserDataPath = "C:\Users\$($user["name"])\AppData\Local\Google\Chrome\User Data"
     $profileFolders = Get-ChildItem -Path $chromeUserDataPath -Directory -ErrorAction SilentlyContinue
@@ -82,11 +78,11 @@ function Add-ChromeBookmarks {
     if (Test-Path -Path $preferencesFilePath) {
         $preferences = Get-Content -Path $preferencesFilePath -Raw | ConvertFrom-Json
         if (-not $preferences.PSObject.Properties.Match('bookmark_bar').Count) {
-            $preferences | Add-Member -Type NoteProperty -Name 'bookmark_bar' -Value @{}
+            $preferences | Add-Member -type NoteProperty -Name 'bookmark_bar' -Value @{}
         }
 
         if (-not $preferences.bookmark_bar.PSObject.Properties.Match('show_on_all_tabs').Count) {
-            $preferences.bookmark_bar | Add-Member -Type NoteProperty -Name 'show_on_all_tabs' -Value $true
+            $preferences.bookmark_bar | Add-Member -type NoteProperty -Name 'show_on_all_tabs' -Value $true
         } else {
             $preferences.bookmark_bar.show_on_all_tabs = $true
         }
@@ -97,7 +93,7 @@ function Add-ChromeBookmarks {
     }
 
     if (Test-Path -Path $account) {
-        exit-script -Type "success" -Text "The bookmarks have been added." -lineBefore
+        exit-script -type "success" -Text "The bookmarks have been added." -lineBefore
     }
 }
 
@@ -254,7 +250,7 @@ function Add-EPRegedits {
     Set-ItemProperty -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\Explorer\ExplorerPatcher" -Name "XamlSounds" -Value 0 -ErrorAction SilentlyContinue
     Set-ItemProperty -Path "HKCU:\Software\ExplorerPatcher" -Name "Language" -Value 0 -ErrorAction SilentlyContinue
 
-    write-text "Explorer configured" -Type "done" -lineAfter
+    write-text "Explorer configured" -type "done" -lineAfter
 }
 
 function Find-ExistingInstall {
@@ -265,7 +261,7 @@ function Find-ExistingInstall {
         [string]$App
     )
 
-    write-text -Type "header" -Text "Installing $App" -lineAfter
+    write-text -type "header" -Text "Installing $App" -lineAfter
 
     $installationFound = $false
 
@@ -276,7 +272,7 @@ function Find-ExistingInstall {
         }
     }
 
-    if ($installationFound) { write-text -Type "success" -Text "$App already installed." -lineAfter }
+    if ($installationFound) { write-text -type "success" -Text "$App already installed." -lineAfter }
 
     return $installationFound
 }
@@ -320,12 +316,12 @@ function Install-Program {
 
             Get-Item -ErrorAction SilentlyContinue "$env:TEMP\$output" | Remove-Item -ErrorAction SilentlyContinue
             
-            write-text -Type "success" -Text "$AppName successfully installed." -lineBefore -lineAfter
+            write-text -type "success" -Text "$AppName successfully installed." -lineBefore -lineAfter
         } else {
-            write-text -Type "error" -Text "Download failed. Skipping." -lineAfter
+            write-text -type "error" -Text "Download failed. Skipping." -lineAfter
         }
     } catch {
-        write-text -Type "error" -Text "Installation error: $($_.Exception.Message)"
+        write-text -type "error" -Text "Installation error: $($_.Exception.Message)"
         write-text "Skipping $AppName installation."
     }
 }

@@ -25,7 +25,7 @@ function Edit-LocalUserPassword {
 
         Get-LocalUser -Name $username | Set-LocalUser -Password $password
 
-        exit-script -Type "success" -text "Password settings for $username successfully updated." -lineAfter
+        exit-script -type "success" -text "Password settings for $username successfully updated." -lineAfter
     } catch {
         # Display error message and exit this script
         exit-script -type "error" -text "Edit-LocalUserPassword-$($_.InvocationInfo.ScriptLineNumber) | $($_.Exception.Message)" -lineAfter
@@ -33,5 +33,5 @@ function Edit-LocalUserPassword {
 }
 
 function Edit-ADUserPassword {
-    exit-script -Type "fail" -text "Editing domain users doesn't work yet."
+    exit-script -type "fail" -text "Editing domain users doesn't work yet."
 }

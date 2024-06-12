@@ -30,11 +30,11 @@ function isr-add-bookmarks {
         if (Test-Path -Path $preferencesFilePath) {
             $preferences = Get-Content -Path $preferencesFilePath -Raw | ConvertFrom-Json
             if (-not $preferences.PSObject.Properties.Match('bookmark_bar').Count) {
-                $preferences | Add-Member -Type NoteProperty -Name 'bookmark_bar' -Value @{}
+                $preferences | Add-Member -type NoteProperty -Name 'bookmark_bar' -Value @{}
             }
 
             if (-not $preferences.bookmark_bar.PSObject.Properties.Match('show_on_all_tabs').Count) {
-                $preferences.bookmark_bar | Add-Member -Type NoteProperty -Name 'show_on_all_tabs' -Value $true
+                $preferences.bookmark_bar | Add-Member -type NoteProperty -Name 'show_on_all_tabs' -Value $true
             } else {
                 $preferences.bookmark_bar.show_on_all_tabs = $true
             }
@@ -46,12 +46,12 @@ function isr-add-bookmarks {
 
         if (Test-Path -Path $account) {
             Write-Host
-            exit-script -Type "success" -Text "The bookmarks have been added." -lineAfter
+            exit-script -type "success" -Text "The bookmarks have been added." -lineAfter
         }
     } catch {
         # Display error message and end the script
-        exit-script -Type "error" -Text "Add isr error: $($_.Exception.Message)"
-        exit-script -Type "error" -Text "Error | Add-Bookmarks-$($_.InvocationInfo.ScriptLineNumber)"
+        exit-script -type "error" -Text "Add isr error: $($_.Exception.Message)"
+        exit-script -type "error" -Text "Error | Add-Bookmarks-$($_.InvocationInfo.ScriptLineNumber)"
     }
 }
 

@@ -2,7 +2,7 @@ function add-intechadmin {
     try {
         write-welcome -Title "Add InTechAdmin Account" -Description "Add an InTech administrator account to this PC." -Command "intech add admin"
 
-        write-text -Type "header" -Text "Getting credentials" -lineBefore -lineAfter
+        write-text -type "header" -Text "Getting credentials" -lineBefore -lineAfter
 
         $accountName = "InTechAdmin"
         $downloads = [ordered]@{
@@ -15,17 +15,17 @@ function add-intechadmin {
 
         $password = Get-Content -Path "$env:TEMP\PHRASE.txt" | ConvertTo-SecureString -Key (Get-Content -Path "$env:TEMP\KEY.txt")
 
-        write-text -Type "done" -Text "Credentials acquired."
+        write-text -type "done" -Text "Credentials acquired."
 
         $account = Get-LocalUser -Name $accountName -ErrorAction SilentlyContinue
 
         if ($null -eq $account) {
-            write-text -Type "header" -Text "Creating account" -lineBefore -lineAfter
+            write-text -type "header" -Text "Creating account" -lineBefore -lineAfter
             New-LocalUser -Name $accountName -Password $password -FullName "" -Description "InTech Administrator" -AccountNeverExpires -PasswordNeverExpires -ErrorAction stop | Out-Null
-            write-text -Type "done" -Text "Account created."
+            write-text -type "done" -Text "Account created."
             $finalMessage = "Success! The InTechAdmin account has been created."
         } else {
-            write-text -Type "header" -Text "InTechAdmin account already exists!" -lineBefore -lineAfter
+            write-text -type "header" -Text "InTechAdmin account already exists!" -lineBefore -lineAfter
             write-text -Text "Updating password..."
             $account | Set-LocalUser -Password $password
 
@@ -40,9 +40,9 @@ function add-intechadmin {
         Remove-Item -Path "$env:TEMP\PHRASE.txt"
         Remove-Item -Path "$env:TEMP\KEY.txt"
 
-        exit-script -Type "success" -Text $finalMessage
+        exit-script -type "success" -Text $finalMessage
     } catch {
         # Display error message and end the script
-        exit-script -Type "error" -Text "add-intechadmin-$($_.InvocationInfo.ScriptLineNumber) | $($_.Exception.Message)" -lineAfter
+        exit-script -type "error" -Text "add-intechadmin-$($_.InvocationInfo.ScriptLineNumber) | $($_.Exception.Message)" -lineAfter
     }
 }
