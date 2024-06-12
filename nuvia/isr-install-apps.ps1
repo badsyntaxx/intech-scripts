@@ -10,7 +10,7 @@ function isr-install-apps {
                 "Acrobat"          = "Install Adobe Acrobat reader."
                 "Balto"            = "Install Balto AI"
                 "Explorer Patcher" = "Install ExplorerPatcher"
-
+                "Exit"             = "Exit this script and go back to main command line."
             })
 
         $script:user = select-user -CustomHeader "Select user to install apps for"
@@ -25,6 +25,9 @@ function isr-install-apps {
         if ($installChoice -eq 8 -or $installChoice -eq 0) { 
             Install-ExplorerPatcher 
             Add-EPRegedits
+        }
+        if ($installChoice -eq 9) {
+            read-command
         }
 
         Initialize-Cleanup

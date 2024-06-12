@@ -1,18 +1,23 @@
 function isr-onboard {
     try {
-        write-text -type "notice" -Text "Editing hostname" -lineBefore
+        write-text -type "notice" -Text "Editing hostname. Format: NUV-1234-PC" -lineBefore
 
         $currentHostname = $env:COMPUTERNAME
         $currentDescription = (Get-WmiObject -Class Win32_OperatingSystem).Description
 
-        write-text -type "header" -Text "Enter hostname" -lineBefore -lineAfter
-        $hostname = get-input -Validate "^(\s*|[a-zA-Z0-9 _\-]{1,15})$" -Value $currentHostname
+        $hostname = read-input -prompt "Enter hostname:" -Validate "^(\s*|[a-zA-Z0-9 _\-]{1,15})$" -Value $currentHostname -lineBefore
+        if ($hostname -eq "") { 
+            $hostname = $currentHostname 
+        } 
 
-        write-text -type "header" -Text "Enter description" -lineBefore -lineAfter
-        $description = get-input -Validate "^(\s*|[a-zA-Z0-9 |_\-]{1,64})$" -Value $currentDescription
+        write-text -type "notice" -Text "Editing description. Format: ISR Remote | 1234 | John Doe" -lineBefore
 
-        if ($hostname -eq "") { $hostname = $currentHostname } 
-        if ($description -eq "") { $description = $currentDescription } 
+        $description = read-input -prompt "Enter description:" -Validate "^(\s*|[a-zA-Z0-9 |_\-]{1,64})$" -Value $currentDescription -lineBefore
+        if ($description -eq "") { 
+            $description = $currentDescription 
+        } 
+        
+        get-closing -Script "isr-onboard"
 
         if ($hostname -ne "") {
             Remove-ItemProperty -path "HKLM:\SYSTEM\CurrentControlSet\Services\Tcpip\Parameters" -name "Hostname" 
@@ -23,13 +28,28 @@ function isr-onboard {
             Set-ItemProperty -path "HKLM:\SYSTEM\CurrentControlSet\Services\Tcpip\Parameters" -name "NV Hostname" -value  $hostname
             Set-ItemProperty -path "HKLM:\SOFTWARE\Microsoft\Windows NT\CurrentVersion\Winlogon" -name "AltDefaultDomainName" -value $hostname
             Set-ItemProperty -path "HKLM:\SOFTWARE\Microsoft\Windows NT\CurrentVersion\Winlogon" -name "DefaultDomainName" -value $hostname
+            $env:COMPUTERNAME = $hostname
         } 
+
+        if ($env:COMPUTERNAME -eq $hostname) {
+            if ($hostname -eq $currentHostname) {
+                write-text -type "success" -text "The hostname will remain $hostname"
+            } else {
+                write-text -type "success" -text "The hostname has been changed to $hostname"
+            }
+        }
 
         if ($description -ne "") {
             Set-CimInstance -Query 'Select * From Win32_OperatingSystem' -Property @{Description = $description }
         } 
 
-        write-text -type "success" -Text "The PC name changes have been applied. No restart required!"
+        if ((Get-WmiObject -Class Win32_OperatingSystem).Description -eq $description) {
+            if ($description -eq $currentDescription) {
+                write-text -type "success" -text "The description will remain $description" -lineAfter
+            } else {
+                write-text -type "success" -text "The description has been changed to $description" -lineAfter
+            }
+        }
          
         # END EDIT HOSTNAME ----------------------------------------------------------------------------------------------------
 
