@@ -15,7 +15,7 @@ function isr-add-bookmarks {
             }
         }
 
-        $choice = read-option -options $profiles -LineAfter -ReturnKey
+        $choice = read-option -options $profiles -lineAfter -ReturnKey
         $account = $profiles["$choice"]
         $boomarksUrl = "https://drive.google.com/uc?export=download&id=1WmvSnxtDSLOt0rgys947sOWW-v9rzj9U"
 
@@ -46,7 +46,7 @@ function isr-add-bookmarks {
 
         if (Test-Path -Path $account) {
             Write-Host
-            exit-script -Type "success" -Text "The bookmarks have been added." -LineAfter
+            exit-script -Type "success" -Text "The bookmarks have been added." -lineAfter
         }
     } catch {
         # Display error message and end the script

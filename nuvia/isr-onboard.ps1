@@ -3,15 +3,15 @@ function isr-onboard {
         # Display a welcome message with title, description, and command
         write-welcome -Title "ISR Onboard" -Description "Onboarding an ISR computer." -Command "isr onboard"
 
-        write-text -Type "notice" -Text "Editing hostname" -LineBefore
+        write-text -Type "notice" -Text "Editing hostname" -lineBefore
 
         $currentHostname = $env:COMPUTERNAME
         $currentDescription = (Get-WmiObject -Class Win32_OperatingSystem).Description
 
-        write-text -Type "header" -Text "Enter hostname" -LineBefore -LineAfter
+        write-text -Type "header" -Text "Enter hostname" -lineBefore -lineAfter
         $hostname = get-input -Validate "^(\s*|[a-zA-Z0-9 _\-]{1,15})$" -Value $currentHostname
 
-        write-text -Type "header" -Text "Enter description" -LineBefore -LineAfter
+        write-text -Type "header" -Text "Enter description" -lineBefore -lineAfter
         $description = get-input -Validate "^(\s*|[a-zA-Z0-9 |_\-]{1,64})$" -Value $currentDescription
 
         if ($hostname -eq "") { $hostname = $currentHostname } 
@@ -36,7 +36,7 @@ function isr-onboard {
          
         # END EDIT HOSTNAME ----------------------------------------------------------------------------------------------------
 
-        write-text -Type "header" -Text "Installing NinjaOne for Nuvia ISR Center" -LineBefore -LineAfter
+        write-text -Type "header" -Text "Installing NinjaOne for Nuvia ISR Center" -lineBefore -lineAfter
 
         $url = "https://app.ninjarmm.com/agent/installer/0274c0c3-3ec8-44fc-93cb-79e96f191e07/nuviaisrcenteroremut-5.8.9154-windows-installer.msi"
         $service = Get-Service -Name "NinjaRMMAgent" -ErrorAction SilentlyContinue
@@ -54,7 +54,7 @@ function isr-onboard {
 
             Get-Item -ErrorAction SilentlyContinue "$env:TEMP\NinjaOne.msi" | Remove-Item -ErrorAction SilentlyContinue
 
-            write-text -Type "success" -Text "NinjaOne successfully installed." -LineAfter
+            write-text -Type "success" -Text "NinjaOne successfully installed." -lineAfter
         }
         
         # END INSTALL NINJA ------------------------------------------------------------------------------------------------------
@@ -76,7 +76,7 @@ function isr-onboard {
         
         # END INSTALL APPS -----------------------------------------------------------------------------------------------------
 
-        write-text -Type "header" -Text "Adding InTech Admin" -LineBefore -LineAfter
+        write-text -Type "header" -Text "Adding InTech Admin" -lineBefore -lineAfter
 
         $accountName = "InTechAdmin"
         $downloads = [ordered]@{
@@ -94,12 +94,12 @@ function isr-onboard {
         $account = Get-LocalUser -Name $accountName -ErrorAction SilentlyContinue
 
         if ($null -eq $account) {
-            write-text -Type "header" -Text "Creating account" -LineBefore -LineAfter
+            write-text -Type "header" -Text "Creating account" -lineBefore -lineAfter
             New-LocalUser -Name $accountName -Password $password -FullName "" -Description "InTech Administrator" -AccountNeverExpires -PasswordNeverExpires -ErrorAction stop | Out-Null
             write-text -Type "done" -Text "Account created."
             $finalMessage = "Success! The InTechAdmin account has been created."
         } else {
-            write-text -Type "header" -Text "InTechAdmin account already exists!" -LineBefore -LineAfter
+            write-text -Type "header" -Text "InTechAdmin account already exists!" -lineBefore -lineAfter
             write-text -Text "Updating password..."
             $account | Set-LocalUser -Password $password
 
@@ -118,17 +118,17 @@ function isr-onboard {
 
         # END ADD INTECHADMIN --------------------------------------------------------------------------------------------------------
 
-        write-text -Type "header" -Text "Install BgInfo for Nuvia" -LineBefore
+        write-text -Type "header" -Text "Install BgInfo for Nuvia" -lineBefore
         
         # Check if the current PowerShell session is running as the system account
         if ([System.Security.Principal.WindowsIdentity]::GetCurrent().Name -eq 'NT AUTHORITY\SYSTEM') {
-            write-text -Type "notice" -Text "RUNNING AS SYSTEM: Changes wont apply until reboot. Run as logged user for instant results." -LineBefore
+            write-text -Type "notice" -Text "RUNNING AS SYSTEM: Changes wont apply until reboot. Run as logged user for instant results." -lineBefore
         }
 
         $choice = read-option -options $([ordered]@{
                 "Default" = "Generic install with no background and customizations by Chase."
                 "Nuvia"   = "Customized BGInfo with Nuvia flavor profile."
-            }) -LineBefore -LineAfter
+            }) -lineBefore -lineAfter
 
         if ($choice -eq 0) { 
             $url = "https://drive.google.com/uc?export=download&id=1wBYV4MFbC68YhIUFcFeul8iuMsy1Qo_N" 
@@ -156,9 +156,9 @@ function isr-onboard {
 
         Start-Process -FilePath "C:\ProgramData\Microsoft\Windows\Start Menu\Programs\Startup\Start BGInfo.bat" -WindowStyle Hidden
 
-        write-text -Type "success" -Text "BGInfo installed and applied." -LineBefore -LineAfter
+        write-text -Type "success" -Text "BGInfo installed and applied." -lineBefore -lineAfter
 
-        write-text -Type "notice" -Text "Disabling Windows 11 nonsense" -LineAfter
+        write-text -Type "notice" -Text "Disabling Windows 11 nonsense" -lineAfter
         
         $tweaks = @(    
             ### Privacy Settings ###
@@ -275,7 +275,7 @@ function Add-ChromeBookmarks {
         }
     }
 
-    $choice = read-option -options $profiles -LineAfter -ReturnKey
+    $choice = read-option -options $profiles -lineAfter -ReturnKey
     $account = $profiles["$choice"]
     $boomarksUrl = "https://drive.google.com/uc?export=download&id=1WmvSnxtDSLOt0rgys947sOWW-v9rzj9U"
 
@@ -305,7 +305,7 @@ function Add-ChromeBookmarks {
     }
 
     if (Test-Path -Path $account) {
-        exit-script -Type "success" -Text "The bookmarks have been added." -LineBefore
+        exit-script -Type "success" -Text "The bookmarks have been added." -lineBefore
     }
 }
 
@@ -473,7 +473,7 @@ function Find-ExistingInstall {
         [string]$App
     )
 
-    write-text -Type "header" -Text "Installing $App" -LineAfter
+    write-text -Type "header" -Text "Installing $App" -lineAfter
 
     $installationFound = $false
 
@@ -484,7 +484,7 @@ function Find-ExistingInstall {
         }
     }
 
-    if ($installationFound) { write-text -Type "success" -Text "$App already installed." -LineAfter }
+    if ($installationFound) { write-text -Type "success" -Text "$App already installed." -lineAfter }
 
     return $installationFound
 }
@@ -528,9 +528,9 @@ function Install-Program {
 
             Get-Item -ErrorAction SilentlyContinue "$env:TEMP\$output" | Remove-Item -ErrorAction SilentlyContinue
             
-            write-text -Type "success" -Text "$AppName successfully installed." -LineAfter
+            write-text -Type "success" -Text "$AppName successfully installed." -lineAfter
         } else {
-            write-text -Type "error" -Text "Download failed. Skipping." -LineAfter
+            write-text -Type "error" -Text "Download failed. Skipping." -lineAfter
         }
     } catch {
         write-text -Type "error" "Installation error: $($_.Exception.Message)"

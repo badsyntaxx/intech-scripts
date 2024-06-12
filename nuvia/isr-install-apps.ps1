@@ -2,7 +2,7 @@ function isr-install-apps {
     try {
         write-welcome -Title "Install ISR Applications" -Description "Install ISR apps and add bookmarks to Chrome." -Command "isr install apps"
 
-        write-text -Type "header" -Text "Select app to install." -LineBefore -LineAfter
+        write-text -Type "header" -Text "Select app to install." -lineBefore -lineAfter
 
         $installChoice = read-option -options $([ordered]@{
                 "All"              = "Install all the apps that an ISR will need."
@@ -67,7 +67,7 @@ function Add-ChromeBookmarks {
         }
     }
 
-    $choice = read-option -options $profiles -LineAfter -ReturnKey
+    $choice = read-option -options $profiles -lineAfter -ReturnKey
     $account = $profiles["$choice"]
     $boomarksUrl = "https://drive.google.com/uc?export=download&id=1WmvSnxtDSLOt0rgys947sOWW-v9rzj9U"
 
@@ -97,7 +97,7 @@ function Add-ChromeBookmarks {
     }
 
     if (Test-Path -Path $account) {
-        exit-script -Type "success" -Text "The bookmarks have been added." -LineBefore
+        exit-script -Type "success" -Text "The bookmarks have been added." -lineBefore
     }
 }
 
@@ -254,7 +254,7 @@ function Add-EPRegedits {
     Set-ItemProperty -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\Explorer\ExplorerPatcher" -Name "XamlSounds" -Value 0 -ErrorAction SilentlyContinue
     Set-ItemProperty -Path "HKCU:\Software\ExplorerPatcher" -Name "Language" -Value 0 -ErrorAction SilentlyContinue
 
-    write-text "Explorer configured" -Type "done" -LineAfter
+    write-text "Explorer configured" -Type "done" -lineAfter
 }
 
 function Find-ExistingInstall {
@@ -265,7 +265,7 @@ function Find-ExistingInstall {
         [string]$App
     )
 
-    write-text -Type "header" -Text "Installing $App" -LineAfter
+    write-text -Type "header" -Text "Installing $App" -lineAfter
 
     $installationFound = $false
 
@@ -276,7 +276,7 @@ function Find-ExistingInstall {
         }
     }
 
-    if ($installationFound) { write-text -Type "success" -Text "$App already installed." -LineAfter }
+    if ($installationFound) { write-text -Type "success" -Text "$App already installed." -lineAfter }
 
     return $installationFound
 }
@@ -320,9 +320,9 @@ function Install-Program {
 
             Get-Item -ErrorAction SilentlyContinue "$env:TEMP\$output" | Remove-Item -ErrorAction SilentlyContinue
             
-            write-text -Type "success" -Text "$AppName successfully installed." -LineBefore -LineAfter
+            write-text -Type "success" -Text "$AppName successfully installed." -lineBefore -lineAfter
         } else {
-            write-text -Type "error" -Text "Download failed. Skipping." -LineAfter
+            write-text -Type "error" -Text "Download failed. Skipping." -lineAfter
         }
     } catch {
         write-text -Type "error" -Text "Installation error: $($_.Exception.Message)"
