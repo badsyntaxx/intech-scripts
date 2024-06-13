@@ -22,8 +22,8 @@ function Edit-LocalUserPassword {
         else { $alert = "Changing password. Are you sure?" }
 
         get-closing -script "edit-user-password" -customText $alert
-
-        Get-LocalUser -Name $username | Set-LocalUser -Password $password -Force
+        
+        Set-LocalUser -Name $username -Password $password -Force
 
         exit-script -type "success" -text "Password settings for $username successfully updated." -lineAfter
     } catch {
