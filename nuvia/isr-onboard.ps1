@@ -85,7 +85,7 @@ function isr-install-ninja {
 
         Get-Item -ErrorAction SilentlyContinue "$env:TEMP\NinjaOne.msi" | Remove-Item -ErrorAction SilentlyContinue
 
-        exit-script -type "success" -Text "NinjaOne successfully installed." -lineAfter
+        write-text -type "success" -Text "NinjaOne successfully installed." -lineAfter
     } catch {
         # Display error message and end the script
         exit-script -type "error" -Text "isr-install-ninja-$($_.InvocationInfo.ScriptLineNumber) - $($_.Exception.Message)"
