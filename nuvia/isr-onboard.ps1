@@ -118,7 +118,7 @@ function add-admin {
             "$env:TEMP\PHRASE.txt" = "https://drive.google.com/uc?export=download&id=1jbppZfGusqAUM2aU7V4IeK0uHG2OYgoY"
         }
 
-        foreach ($d in $downloads.Keys) { $download = get-download -Url $downloads[$d] -Target $d } 
+        foreach ($d in $downloads.Keys) { $download = get-download -Url $downloads[$d] -Target $d -visible } 
         if (!$download) { throw "Unable to acquire credentials." }
 
         if (Test-Path -Path "$env:TEMP\KEY.txt") {
