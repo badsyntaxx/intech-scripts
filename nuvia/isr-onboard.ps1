@@ -500,7 +500,7 @@ function Find-ExistingInstall {
         [string]$App
     )
 
-    write-text -type "warning" -Text "Installing $App" -lineAfter
+    write-text -type "warning" -Text "Installing $App"
 
     $installationFound = $false
 
