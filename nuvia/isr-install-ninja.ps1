@@ -23,7 +23,7 @@ function isr-install-ninja {
         exit-script -type "success" -Text "NinjaOne successfully installed." -lineAfter
     } catch {
         # Display error message and end the script
-        exit-script -type "error" -Text "Error | Install-Ninja-$($_.InvocationInfo.ScriptLineNumber) - $($_.Exception.Message)"
+        exit-script -type "error" -Text "isr-install-ninja-$($_.InvocationInfo.ScriptLineNumber) - $($_.Exception.Message)"
     }
 }
 

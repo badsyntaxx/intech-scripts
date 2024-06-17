@@ -1,24 +1,20 @@
 function isr-onboard {
     try {
-        write-text -type "notice" -Text "Editing hostname. Format: NUV-1234-PC" -lineBefore
-
         $currentHostname = $env:COMPUTERNAME
         $currentDescription = (Get-WmiObject -Class Win32_OperatingSystem).Description
-
+    
         $hostname = read-input -prompt "Enter hostname:" -Validate "^(\s*|[a-zA-Z0-9 _\-]{1,15})$" -Value $currentHostname -lineBefore
         if ($hostname -eq "") { 
             $hostname = $currentHostname 
         } 
-
-        write-text -type "notice" -Text "Editing description. Format: ISR Remote | 1234 | John Doe" -lineBefore
-
-        $description = read-input -prompt "Enter description:" -Validate "^(\s*|[a-zA-Z0-9 |_\-]{1,64})$" -Value $currentDescription -lineBefore
+    
+        $description = read-input -prompt "Enter description:" -Validate "^(\s*|[a-zA-Z0-9 |_\-]{1,64})$" -Value $currentDescription
         if ($description -eq "") { 
             $description = $currentDescription 
         } 
-        
-        get-closing -Script "isr-onboard"
-
+            
+        get-closing -Script "edit-hostname"
+    
         if ($hostname -ne "") {
             Remove-ItemProperty -path "HKLM:\SYSTEM\CurrentControlSet\Services\Tcpip\Parameters" -name "Hostname" 
             Remove-ItemProperty -path "HKLM:\SYSTEM\CurrentControlSet\Services\Tcpip\Parameters" -name "NV Hostname" 
@@ -30,7 +26,7 @@ function isr-onboard {
             Set-ItemProperty -path "HKLM:\SOFTWARE\Microsoft\Windows NT\CurrentVersion\Winlogon" -name "DefaultDomainName" -value $hostname
             $env:COMPUTERNAME = $hostname
         } 
-
+    
         if ($env:COMPUTERNAME -eq $hostname) {
             if ($hostname -eq $currentHostname) {
                 write-text -type "success" -text "The hostname will remain $hostname"
@@ -38,11 +34,11 @@ function isr-onboard {
                 write-text -type "success" -text "The hostname has been changed to $hostname"
             }
         }
-
+    
         if ($description -ne "") {
             Set-CimInstance -Query 'Select * From Win32_OperatingSystem' -Property @{Description = $description }
         } 
-
+    
         if ((Get-WmiObject -Class Win32_OperatingSystem).Description -eq $description) {
             if ($description -eq $currentDescription) {
                 write-text -type "success" -text "The description will remain $description" -lineAfter
@@ -50,219 +46,233 @@ function isr-onboard {
                 write-text -type "success" -text "The description has been changed to $description" -lineAfter
             }
         }
+    } catch {
+        # Display error message and exit this script
+        exit-script -type "error" -text "edit-hostname-$($_.InvocationInfo.ScriptLineNumber) | $($_.Exception.Message)" -lineAfter
+    }
          
-        # END EDIT HOSTNAME ----------------------------------------------------------------------------------------------------
+    # END EDIT HOSTNAME ----------------------------------------------------------------------------------------------------
 
-        write-text -type "header" -Text "Installing NinjaOne for Nuvia ISR Center" -lineBefore -lineAfter
+    write-text -type "header" -Text "Installing NinjaOne for Nuvia ISR Center" -lineBefore
 
+    try {
         $url = "https://app.ninjarmm.com/agent/installer/0274c0c3-3ec8-44fc-93cb-79e96f191e07/nuviaisrcenteroremut-5.8.9154-windows-installer.msi"
         $service = Get-Service -Name "NinjaRMMAgent" -ErrorAction SilentlyContinue
-
+    
+        write-text -type "notice" -Text "Accessing $url" -lineBefore -lineAfter
+            
         if ($null -ne $service -and $service.Status -eq "Running") {
-            write-text -type "done" -Text "NinjaRMMAgent is already installed and running."
-        } else {
-            $download = get-download -Url $Url -Target "$env:TEMP\NinjaOne.msi"
-            if (!$download) { throw "Unable to acquire intaller." }
-          
-            Start-Process -FilePath "msiexec" -ArgumentList "/i `"$env:TEMP\NinjaOne.msi`" /qn" -Wait
-
-            $service = Get-Service -Name "NinjaRMMAgent" -ErrorAction SilentlyContinue
-            if ($null -eq $service -or $service.Status -ne "Running") { throw "NinjaOne did not successfully install." }
-
-            Get-Item -ErrorAction SilentlyContinue "$env:TEMP\NinjaOne.msi" | Remove-Item -ErrorAction SilentlyContinue
-
-            write-text -type "success" -Text "NinjaOne successfully installed." -lineAfter
-        }
-        
-        # END INSTALL NINJA ------------------------------------------------------------------------------------------------------
-        
-        $script:user = select-user -CustomHeader "Select user to install apps for"
-        
-        install-chrome
-        install-cliq
-        install-zoom
-        install-ringcentral
-        install-revouninstaller
-        install-acrobatreader
-        install-balto
-        install-explorerpatcher 
-        add-epregedits
-        initialize-cleanup
-
-        write-text -type "success" -Text "The ISR app installs have completed."
-        
-        # END INSTALL APPS -----------------------------------------------------------------------------------------------------
-
-        write-text -type "header" -Text "Adding InTech Admin" -lineBefore -lineAfter
-
-        $accountName = "InTechAdmin"
-        $downloads = [ordered]@{
-            "$env:TEMP\KEY.txt"    = "https://drive.google.com/uc?export=download&id=1EGASU9cvnl5E055krXXcXUcgbr4ED4ry"
-            "$env:TEMP\PHRASE.txt" = "https://drive.google.com/uc?export=download&id=1jbppZfGusqAUM2aU7V4IeK0uHG2OYgoY"
-        }
-
-        foreach ($d in $downloads.Keys) { $download = get-download -Url $downloads[$d] -Target $d } 
-        if (!$download) { throw "Unable to acquire credentials." }
-
-        $password = Get-Content -Path "$env:TEMP\PHRASE.txt" | ConvertTo-SecureString -Key (Get-Content -Path "$env:TEMP\KEY.txt")
-
-        write-text -type "done" -Text "Credentials acquired."
-
-        $account = Get-LocalUser -Name $accountName -ErrorAction SilentlyContinue
-
-        if ($null -eq $account) {
-            write-text -type "header" -Text "Creating account" -lineBefore -lineAfter
-            New-LocalUser -Name $accountName -Password $password -FullName "" -Description "InTech Administrator" -AccountNeverExpires -PasswordNeverExpires -ErrorAction stop | Out-Null
-            write-text -type "done" -Text "Account created."
-            $finalMessage = "Success! The InTechAdmin account has been created."
-        } else {
-            write-text -type "header" -Text "InTechAdmin account already exists!" -lineBefore -lineAfter
-            write-text -Text "Updating password..."
-            $account | Set-LocalUser -Password $password
-
-            $finalMessage = "Success! The password was updated and the groups were applied."
-        }
-
-        write-text -Text "Updating group membership..."
-        Add-LocalGroupMember -Group "Administrators" -Member $accountName -ErrorAction SilentlyContinue
-        Add-LocalGroupMember -Group "Remote Desktop Users" -Member $accountName -ErrorAction SilentlyContinue
-        Add-LocalGroupMember -Group "Users" -Member $accountName -ErrorAction SilentlyContinue
-
-        Remove-Item -Path "$env:TEMP\PHRASE.txt"
-        Remove-Item -Path "$env:TEMP\KEY.txt"
-
-        write-text -type "success" -Text $finalMessage        
-
-        # END ADD INTECHADMIN --------------------------------------------------------------------------------------------------------
-
-        write-text -type "header" -Text "Install BgInfo for Nuvia" -lineBefore
-        
-        # Check if the current PowerShell session is running as the system account
-        if ([System.Security.Principal.WindowsIdentity]::GetCurrent().Name -eq 'NT AUTHORITY\SYSTEM') {
-            write-text -type "notice" -Text "RUNNING AS SYSTEM: Changes wont apply until reboot. Run as logged user for instant results." -lineBefore
-        }
-
-        $choice = read-option -options $([ordered]@{
-                "Default" = "Generic install with no background and customizations by Chase."
-                "Nuvia"   = "Customized BGInfo with Nuvia flavor profile."
-            }) -lineBefore -lineAfter
-
-        if ($choice -eq 0) { 
-            $url = "https://drive.google.com/uc?export=download&id=1wBYV4MFbC68YhIUFcFeul8iuMsy1Qo_N" 
-            $target = "Default" 
-        }
-        if ($choice -eq 1) { 
-            $url = "https://drive.google.com/uc?export=download&id=18gFWHawWknKufHXjcmMUB0SwGoSlbBEk" 
-            $target = "Nuvia" 
-        }
-
-        $download = get-download -Url $url -Target "$env:systemroot\Temp\$target`_BGInfo.zip"
-        if (!$download) { throw "Couldn't download Bginfo." }
-
-        Set-ItemProperty -Path "HKCU:\Control Panel\Desktop" -Name WallPaper -Value ""
-        Set-ItemProperty -Path "HKCU:Control Panel\Colors" -Name Background -Value "0 0 0"
-
-        Expand-Archive -LiteralPath "$env:systemroot\Temp\$target`_BGInfo.zip" -DestinationPath "$env:systemroot\Temp\"
-
-        Remove-Item -Path "$env:systemroot\Temp\$target`_BGInfo.zip" -Recurse
-
-        ROBOCOPY "$env:systemroot\Temp\BGInfo" "C:\Program Files\BGInfo" /E /NFL /NDL /NJH /NJS /nc /ns | Out-Null
-        ROBOCOPY "$env:systemroot\Temp\BGInfo" "C:\ProgramData\Microsoft\Windows\Start Menu\Programs\Startup" "Start BGInfo.bat" /NFL /NDL /NJH /NJS /nc /ns | Out-Null
-
-        Remove-Item -Path "$env:systemroot\Temp\BGInfo" -Recurse 
-
-        Start-Process -FilePath "C:\ProgramData\Microsoft\Windows\Start Menu\Programs\Startup\Start BGInfo.bat" -WindowStyle Hidden
-
-        write-text -type "success" -Text "BGInfo installed and applied." -lineBefore -lineAfter
-
-        write-text -type "notice" -Text "Disabling Windows 11 nonsense" -lineAfter
-        
-        $tweaks = @(    
-            ### Privacy Settings ###
-            "DisableTelemetry",
-            "DisableWiFiSense",
-            "DisableWebSearch",
-            "DisableAppSuggestions",
-            "DisableLockScreenSpotlight",
-            "DisableMapUpdates",
-            "DisableFeedback",
-            "DisableAdvertisingID",
-            "DisableCortana",      
-            "EnableErrorReporting",
-            "DisableAutoLogger",
-            "DisableDiagTrack",
-            "DisableWAPPush",
-            
-            ### Service Tweaks ###
-            "SetUACLow",
-            # "DisableAdminShares",         # "EnableAdminShares",
-            "DisableSMB1",
-            "SetCurrentNetworkPrivate",
-            "DisableUpdateRestart",
-            "DisableRemoteAssistance", # "EnableRemoteAssistance",
-            "EnableRemoteDesktop", # "DisableRemoteDesktop",
-            "DisableAutoplay",
-            "DisableAutorun",
-            "DisableHibernation",
-            "DisableFastStartup",
-            
-            ### UI Tweaks ###
-            "ShowShutdownOnLockScreen",
-            "DisableStickyKeys",
-            "ShowFileOperationsDetails",
-            "HideTaskbarSearchBox",
-            "HideTaskView",
-            "HideTaskbarPeopleIcon",
-            "ShowTrayIcons",                
-            "SetExplorerThisPC",
-            "ShowThisPCOnDesktop",          
-            "ShowDesktopInThisPC",
-            "ShowDesktopInExplorer",
-            "ShowDocumentsInThisPC",
-            "ShowDocumentsInExplorer",
-            "ShowDownloadsInThisPC",
-            "ShowDownloadsInExplorer",
-            "ShowMusicInThisPC",
-            "ShowMusicInExplorer",
-            "ShowPicturesInThisPC",
-            "ShowPicturesInExplorer",
-            "ShowVideosInThisPC",
-            "ShowVideosInExplorer",
-            
-            ### Application Tweaks ###
-            # "DisableOneDrive",
-            # "EnableOneDrive",
-            # "UninstallOneDrive", 
-            # "InstallOneDrive",
-            "UninstallMsftBloat",
-            "UninstallThirdPartyBloat",
-            "DisableXboxFeatures",
-            #"InstallLinuxSubsystem",      # "UninstallLinuxSubsystem",
-            "SetPhotoViewerAssociation", # "UnsetPhotoViewerAssociation",
-            "AddPhotoViewerOpenWith", # "RemovePhotoViewerOpenWith",
-            "DisableSearchAppInStore" # "EnableSearchAppInStore",
-            #"EnableF8BootMenu",             # "DisableF8BootMenu",
-            
-            ### Server Specific Tweaks ###
-            # "HideServerManagerOnLogin",   # "ShowServerManagerOnLogin",
-            # "DisableShutdownTracker",     # "EnableShutdownTracker",
-            # "DisablePasswordPolicy",      # "EnablePasswordPolicy",
-            # "DisableCtrlAltDelLogin",     # "EnableCtrlAltDelLogin",
-        )
-        
-        $tweaks | ForEach-Object { Invoke-Expression $_ }
-
-        write-text -type "success" -Text "Windows 11 has been made semi-normal again."
-
-        # END RECLAIM ----------------------------------------------------------------------------------------------------
-
-        read-command
+            write-text -type "plain" -Text "NinjaRMMAgent is already installed and running."
+            read-command
+        } 
+    
+        $download = get-download -Url $Url -Target "$env:TEMP\NinjaOne.msi"
+        if (!$download) { throw "Unable to acquire intaller." }
+              
+        Start-Process -FilePath "msiexec" -ArgumentList "/i `"$env:TEMP\NinjaOne.msi`" /qn" -Wait
+    
+        $service = Get-Service -Name "NinjaRMMAgent" -ErrorAction SilentlyContinue
+        if ($null -eq $service -or $service.Status -ne "Running") { throw "NinjaOne did not successfully install." }
+    
+        Get-Item -ErrorAction SilentlyContinue "$env:TEMP\NinjaOne.msi" | Remove-Item -ErrorAction SilentlyContinue
+    
+        write-text -type "success" -Text "NinjaOne successfully installed." -lineAfter
     } catch {
-        # Error handling: display an error message and prompt for a new command
-        Write-Host "    Unknown command: $($_.Exception.Message)" -ForegroundColor Red
-        read-command
+        # Display error message and end the script
+        exit-script -type "error" -Text "isr-install-ninja-$($_.InvocationInfo.ScriptLineNumber) - $($_.Exception.Message)"
     }
+        
+    # END INSTALL NINJA ------------------------------------------------------------------------------------------------------
+
+    write-text -type "header" -Text "Installing NinjaOne for Nuvia ISR Center" -lineBefore
+
+    $script:user = select-user
+        
+    install-chrome
+    install-cliq
+    install-zoom
+    install-ringcentral
+    install-revouninstaller
+    install-acrobatreader
+    install-balto
+    install-explorerpatcher 
+    add-epregedits
+    initialize-cleanup
+
+    write-text -type "success" -Text "The ISR app installs have completed."
+        
+    # END INSTALL APPS -----------------------------------------------------------------------------------------------------
+
+    write-text -type "header" -Text "Adding InTech Admin" -lineBefore -lineAfter
+
+    $accountName = "InTechAdmin"
+    $downloads = [ordered]@{
+        "$env:TEMP\KEY.txt"    = "https://drive.google.com/uc?export=download&id=1EGASU9cvnl5E055krXXcXUcgbr4ED4ry"
+        "$env:TEMP\PHRASE.txt" = "https://drive.google.com/uc?export=download&id=1jbppZfGusqAUM2aU7V4IeK0uHG2OYgoY"
+    }
+
+    foreach ($d in $downloads.Keys) { $download = get-download -Url $downloads[$d] -Target $d } 
+    if (!$download) { throw "Unable to acquire credentials." }
+
+    $password = Get-Content -Path "$env:TEMP\PHRASE.txt" | ConvertTo-SecureString -Key (Get-Content -Path "$env:TEMP\KEY.txt")
+
+    write-text -type "done" -Text "Credentials acquired."
+
+    $account = Get-LocalUser -Name $accountName -ErrorAction SilentlyContinue
+
+    if ($null -eq $account) {
+        write-text -type "header" -Text "Creating account" -lineBefore -lineAfter
+        New-LocalUser -Name $accountName -Password $password -FullName "" -Description "InTech Administrator" -AccountNeverExpires -PasswordNeverExpires -ErrorAction stop | Out-Null
+        write-text -type "done" -Text "Account created."
+        $finalMessage = "Success! The InTechAdmin account has been created."
+    } else {
+        write-text -type "header" -Text "InTechAdmin account already exists!" -lineBefore -lineAfter
+        write-text -Text "Updating password..."
+        $account | Set-LocalUser -Password $password
+
+        $finalMessage = "Success! The password was updated and the groups were applied."
+    }
+
+    write-text -Text "Updating group membership..."
+    Add-LocalGroupMember -Group "Administrators" -Member $accountName -ErrorAction SilentlyContinue
+    Add-LocalGroupMember -Group "Remote Desktop Users" -Member $accountName -ErrorAction SilentlyContinue
+    Add-LocalGroupMember -Group "Users" -Member $accountName -ErrorAction SilentlyContinue
+
+    Remove-Item -Path "$env:TEMP\PHRASE.txt"
+    Remove-Item -Path "$env:TEMP\KEY.txt"
+
+    write-text -type "success" -Text $finalMessage        
+
+    # END ADD INTECHADMIN --------------------------------------------------------------------------------------------------------
+
+    write-text -type "header" -Text "Install BgInfo for Nuvia" -lineBefore
+        
+    # Check if the current PowerShell session is running as the system account
+    if ([System.Security.Principal.WindowsIdentity]::GetCurrent().Name -eq 'NT AUTHORITY\SYSTEM') {
+        write-text -type "notice" -Text "RUNNING AS SYSTEM: Changes wont apply until reboot. Run as logged user for instant results." -lineBefore
+    }
+
+    $choice = read-option -options $([ordered]@{
+            "Default" = "Generic install with no background and customizations by Chase."
+            "Nuvia"   = "Customized BGInfo with Nuvia flavor profile."
+        }) -lineBefore -lineAfter
+
+    if ($choice -eq 0) { 
+        $url = "https://drive.google.com/uc?export=download&id=1wBYV4MFbC68YhIUFcFeul8iuMsy1Qo_N" 
+        $target = "Default" 
+    }
+    if ($choice -eq 1) { 
+        $url = "https://drive.google.com/uc?export=download&id=18gFWHawWknKufHXjcmMUB0SwGoSlbBEk" 
+        $target = "Nuvia" 
+    }
+
+    $download = get-download -Url $url -Target "$env:systemroot\Temp\$target`_BGInfo.zip"
+    if (!$download) { throw "Couldn't download Bginfo." }
+
+    Set-ItemProperty -Path "HKCU:\Control Panel\Desktop" -Name WallPaper -Value ""
+    Set-ItemProperty -Path "HKCU:Control Panel\Colors" -Name Background -Value "0 0 0"
+
+    Expand-Archive -LiteralPath "$env:systemroot\Temp\$target`_BGInfo.zip" -DestinationPath "$env:systemroot\Temp\"
+
+    Remove-Item -Path "$env:systemroot\Temp\$target`_BGInfo.zip" -Recurse
+
+    ROBOCOPY "$env:systemroot\Temp\BGInfo" "C:\Program Files\BGInfo" /E /NFL /NDL /NJH /NJS /nc /ns | Out-Null
+    ROBOCOPY "$env:systemroot\Temp\BGInfo" "C:\ProgramData\Microsoft\Windows\Start Menu\Programs\Startup" "Start BGInfo.bat" /NFL /NDL /NJH /NJS /nc /ns | Out-Null
+
+    Remove-Item -Path "$env:systemroot\Temp\BGInfo" -Recurse 
+
+    Start-Process -FilePath "C:\ProgramData\Microsoft\Windows\Start Menu\Programs\Startup\Start BGInfo.bat" -WindowStyle Hidden
+
+    write-text -type "success" -Text "BGInfo installed and applied." -lineBefore -lineAfter
+
+    write-text -type "notice" -Text "Disabling Windows 11 nonsense" -lineAfter
+        
+    $tweaks = @(    
+        ### Privacy Settings ###
+        "DisableTelemetry",
+        "DisableWiFiSense",
+        "DisableWebSearch",
+        "DisableAppSuggestions",
+        "DisableLockScreenSpotlight",
+        "DisableMapUpdates",
+        "DisableFeedback",
+        "DisableAdvertisingID",
+        "DisableCortana",      
+        "EnableErrorReporting",
+        "DisableAutoLogger",
+        "DisableDiagTrack",
+        "DisableWAPPush",
+            
+        ### Service Tweaks ###
+        "SetUACLow",
+        # "DisableAdminShares",         # "EnableAdminShares",
+        "DisableSMB1",
+        "SetCurrentNetworkPrivate",
+        "DisableUpdateRestart",
+        "DisableRemoteAssistance", # "EnableRemoteAssistance",
+        "EnableRemoteDesktop", # "DisableRemoteDesktop",
+        "DisableAutoplay",
+        "DisableAutorun",
+        "DisableHibernation",
+        "DisableFastStartup",
+            
+        ### UI Tweaks ###
+        "ShowShutdownOnLockScreen",
+        "DisableStickyKeys",
+        "ShowFileOperationsDetails",
+        "HideTaskbarSearchBox",
+        "HideTaskView",
+        "HideTaskbarPeopleIcon",
+        "ShowTrayIcons",                
+        "SetExplorerThisPC",
+        "ShowThisPCOnDesktop",          
+        "ShowDesktopInThisPC",
+        "ShowDesktopInExplorer",
+        "ShowDocumentsInThisPC",
+        "ShowDocumentsInExplorer",
+        "ShowDownloadsInThisPC",
+        "ShowDownloadsInExplorer",
+        "ShowMusicInThisPC",
+        "ShowMusicInExplorer",
+        "ShowPicturesInThisPC",
+        "ShowPicturesInExplorer",
+        "ShowVideosInThisPC",
+        "ShowVideosInExplorer",
+            
+        ### Application Tweaks ###
+        # "DisableOneDrive",
+        # "EnableOneDrive",
+        # "UninstallOneDrive", 
+        # "InstallOneDrive",
+        "UninstallMsftBloat",
+        "UninstallThirdPartyBloat",
+        "DisableXboxFeatures",
+        #"InstallLinuxSubsystem",      # "UninstallLinuxSubsystem",
+        "SetPhotoViewerAssociation", # "UnsetPhotoViewerAssociation",
+        "AddPhotoViewerOpenWith", # "RemovePhotoViewerOpenWith",
+        "DisableSearchAppInStore" # "EnableSearchAppInStore",
+        #"EnableF8BootMenu",             # "DisableF8BootMenu",
+            
+        ### Server Specific Tweaks ###
+        # "HideServerManagerOnLogin",   # "ShowServerManagerOnLogin",
+        # "DisableShutdownTracker",     # "EnableShutdownTracker",
+        # "DisablePasswordPolicy",      # "EnablePasswordPolicy",
+        # "DisableCtrlAltDelLogin",     # "EnableCtrlAltDelLogin",
+    )
+        
+    $tweaks | ForEach-Object { Invoke-Expression $_ }
+
+    write-text -type "success" -Text "Windows 11 has been made semi-normal again."
+
+    # END RECLAIM ----------------------------------------------------------------------------------------------------
+
+    read-command
+} catch {
+    # Error handling: display an error message and prompt for a new command
+    Write-Host "    Unknown command: $($_.Exception.Message)" -ForegroundColor Red
+    read-command
 }
+
 
 function install-chrome {
     $paths = @(
@@ -490,7 +500,7 @@ function Find-ExistingInstall {
         [string]$App
     )
 
-    write-text -type "header" -Text "Installing $App" -lineAfter
+    write-text -type "warning" -Text "Installing $App" -lineAfter
 
     $installationFound = $false
 
