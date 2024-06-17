@@ -267,12 +267,7 @@ function isr-onboard {
     # END RECLAIM ----------------------------------------------------------------------------------------------------
 
     read-command
-} catch {
-    # Error handling: display an error message and prompt for a new command
-    Write-Host "    Unknown command: $($_.Exception.Message)" -ForegroundColor Red
-    read-command
 }
-
 
 function install-chrome {
     $paths = @(
