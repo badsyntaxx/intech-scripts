@@ -68,10 +68,10 @@ function isr-install-ninja {
         $url = "https://app.ninjarmm.com/agent/installer/0274c0c3-3ec8-44fc-93cb-79e96f191e07/nuviaisrcenteroremut-5.8.9154-windows-installer.msi"
         $service = Get-Service -Name "NinjaRMMAgent" -ErrorAction SilentlyContinue
 
-        write-text -type "notice" -Text "Accessing $url" -lineBefore -lineAfter
+        write-text -type "notice" -text "Accessing $url" -lineBefore -lineAfter
         
         if ($null -ne $service -and $service.Status -eq "Running") {
-            write-text -type "plain" -Text "NinjaRMMAgent is already installed and running."
+            write-text -type "plain" -text "NinjaRMMAgent is already installed and running."
         } else {
             $download = get-download -Url $Url -Target "$env:TEMP\NinjaOne.msi"
             if (!$download) { throw "Unable to acquire intaller." }
@@ -83,11 +83,11 @@ function isr-install-ninja {
 
             Get-Item -ErrorAction SilentlyContinue "$env:TEMP\NinjaOne.msi" | Remove-Item -ErrorAction SilentlyContinue
 
-            write-text -type "success" -Text "NinjaOne successfully installed." -lineAfter
+            write-text -type "success" -text "NinjaOne successfully installed." -lineAfter
         }
     } catch {
         # Display error message and end the script
-        exit-script -type "error" -Text "isr-install-ninja-$($_.InvocationInfo.ScriptLineNumber) - $($_.Exception.Message)"
+        exit-script -type "error" -text "isr-install-ninja-$($_.InvocationInfo.ScriptLineNumber) - $($_.Exception.Message)"
     }
 }
 
@@ -106,7 +106,7 @@ function isr-install-apps {
         Initialize-Cleanup
     } catch {
         # Display error message and end the script
-        exit-script -type "error" -Text "Error | Install-Apps-$($_.InvocationInfo.ScriptLineNumber)"
+        exit-script -type "error" -text "Error | Install-Apps-$($_.InvocationInfo.ScriptLineNumber)"
     }
 }
 
@@ -171,7 +171,7 @@ function install-bginfo {
     try {
         # Check if the current PowerShell session is running as the system account
         if ([System.Security.Principal.WindowsIdentity]::GetCurrent().Name -eq 'NT AUTHORITY\SYSTEM') {
-            write-text -type "notice" -Text "RUNNING AS SYSTEM: Changes wont apply until reboot. Run as logged user for instant results." -lineBefore
+            write-text -type "notice" -text "RUNNING AS SYSTEM: Changes wont apply until reboot. Run as logged user for instant results." -lineBefore
         }
         
         Write-Host
@@ -223,7 +223,7 @@ function install-bginfo {
 
         Start-Process -FilePath "C:\ProgramData\Microsoft\Windows\Start Menu\Programs\Startup\Start BGInfo.bat" -WindowStyle Hidden
 
-        write-text -type "success" -Text "BGInfo installed and applied." -lineAfter
+        write-text -type "success" -text "BGInfo installed and applied." -lineAfter
     } catch {
         # Display error message and end the script
         exit-script -type "error" -text "install-bginfo-$($_.InvocationInfo.ScriptLineNumber) | $($_.Exception.Message)" -lineAfter
@@ -245,7 +245,7 @@ function install-chrome {
 }
 
 function Add-ChromeBookmarks {
-    write-text -type "header" -Text "Which profile "
+    write-text -type "header" -text "Which profile "
     $profiles = [ordered]@{}
     $chromeUserDataPath = "C:\Users\$($user["name"])\AppData\Local\Google\Chrome\User Data"
     $profileFolders = Get-ChildItem -Path $chromeUserDataPath -Directory -ErrorAction SilentlyContinue
@@ -289,7 +289,7 @@ function Add-ChromeBookmarks {
     }
 
     if (Test-Path -Path $account) {
-        exit-script -type "success" -Text "The bookmarks have been added." -lineBefore
+        exit-script -type "success" -text "The bookmarks have been added." -lineBefore
     }
 }
 
@@ -457,7 +457,7 @@ function Find-ExistingInstall {
         [string]$App
     )
 
-    write-text -type "warning" -Text "Installing $App"
+    write-text -type "notice" -text "Installing $App"
 
     $installationFound = $false
 
@@ -468,7 +468,7 @@ function Find-ExistingInstall {
         }
     }
 
-    if ($installationFound) { write-text -type "success" -Text "$App already installed." -lineAfter }
+    if ($installationFound) { write-text -type "success" -text "$App already installed." }
 
     return $installationFound
 }
@@ -512,9 +512,9 @@ function Install-Program {
 
             Get-Item -ErrorAction SilentlyContinue "$env:TEMP\$output" | Remove-Item -ErrorAction SilentlyContinue
             
-            write-text -type "success" -Text "$AppName successfully installed." -lineAfter
+            write-text -type "success" -text "$AppName successfully installed." -lineAfter
         } else {
-            write-text -type "error" -Text "Download failed. Skipping." -lineAfter
+            write-text -type "error" -text "Download failed. Skipping." -lineAfter
         }
     } catch {
         write-text -type "error" "Installation error: $($_.Exception.Message)"

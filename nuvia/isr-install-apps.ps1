@@ -34,7 +34,7 @@ function isr-install-apps {
         exit-script
     } catch {
         # Display error message and end the script
-        exit-script -type "error" -Text "Error | Install-Apps-$($_.InvocationInfo.ScriptLineNumber)"
+        exit-script -type "error" -text "Error | Install-Apps-$($_.InvocationInfo.ScriptLineNumber)"
     }
 }
 
@@ -52,7 +52,7 @@ function install-chrome {
 }
 
 function Add-ChromeBookmarks {
-    write-text -type "header" -Text "Which profile "
+    write-text -type "header" -text "Which profile "
     $profiles = [ordered]@{}
     $chromeUserDataPath = "C:\Users\$($user["name"])\AppData\Local\Google\Chrome\User Data"
     $profileFolders = Get-ChildItem -Path $chromeUserDataPath -Directory -ErrorAction SilentlyContinue
@@ -96,7 +96,7 @@ function Add-ChromeBookmarks {
     }
 
     if (Test-Path -Path $account) {
-        exit-script -type "success" -Text "The bookmarks have been added." -lineBefore
+        exit-script -type "success" -text "The bookmarks have been added." -lineBefore
     }
 }
 
@@ -264,7 +264,7 @@ function Find-ExistingInstall {
         [string]$App
     )
 
-    write-text -type "header" -Text "Installing $App" -lineAfter
+    write-text -type "header" -text "Installing $App" -lineAfter
 
     $installationFound = $false
 
@@ -275,7 +275,7 @@ function Find-ExistingInstall {
         }
     }
 
-    if ($installationFound) { write-text -type "success" -Text "$App already installed." -lineAfter }
+    if ($installationFound) { write-text -type "success" -text "$App already installed." -lineAfter }
 
     return $installationFound
 }
@@ -319,12 +319,12 @@ function Install-Program {
 
             Get-Item -ErrorAction SilentlyContinue "$env:TEMP\$output" | Remove-Item -ErrorAction SilentlyContinue
             
-            write-text -type "success" -Text "$AppName successfully installed." -lineBefore -lineAfter
+            write-text -type "success" -text "$AppName successfully installed." -lineBefore -lineAfter
         } else {
-            write-text -type "error" -Text "Download failed. Skipping." -lineAfter
+            write-text -type "error" -text "Download failed. Skipping." -lineAfter
         }
     } catch {
-        write-text -type "error" -Text "Installation error: $($_.Exception.Message)"
+        write-text -type "error" -text "Installation error: $($_.Exception.Message)"
         write-text "Skipping $AppName installation."
     }
 }

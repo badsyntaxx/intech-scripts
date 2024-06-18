@@ -1,7 +1,7 @@
 function install-tscan {
     try {
         write-welcome -Title "Install T-Scan" -Description "Install T-Scan for Nuvia" -Command "intech install isr ninja"
-        write-text -type "header" -Text "Installing T-Scan for Nuvia" -lineBefore -lineAfter
+        write-text -type "header" -text "Installing T-Scan for Nuvia" -lineBefore -lineAfter
 
         add-tscan-folder
 
@@ -21,7 +21,7 @@ function install-tscan {
         Get-Item -ErrorAction SilentlyContinue "$env:TEMP\tscan" | Remove-Item -ErrorAction SilentlyContinue -Confirm $false
         exit-script
     } catch {
-        exit-script -type "error" -Text "Install error: $($_.Exception.Message)"
+        exit-script -type "error" -text "Install error: $($_.Exception.Message)"
     }
 }
 
@@ -34,7 +34,7 @@ function add-tscan-folder {
             New-Item -Path "$env:TEMP" -Name "tscan" -ItemType Directory | Out-Null
         }
         
-        write-text -type "done" -Text "Folder created." -lineAfter
+        write-text -type "done" -text "Folder created." -lineAfter
     } catch {
         write-text "Error creating temp folder: $($_.Exception.Message)" -type "error"
     }

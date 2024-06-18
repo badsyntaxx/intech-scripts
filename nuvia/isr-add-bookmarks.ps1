@@ -46,12 +46,12 @@ function isr-add-bookmarks {
 
         if (Test-Path -Path $account) {
             Write-Host
-            exit-script -type "success" -Text "The bookmarks have been added." -lineAfter
+            exit-script -type "success" -text "The bookmarks have been added." -lineAfter
         }
     } catch {
         # Display error message and end the script
-        exit-script -type "error" -Text "Add isr error: $($_.Exception.Message)"
-        exit-script -type "error" -Text "Error | Add-Bookmarks-$($_.InvocationInfo.ScriptLineNumber)"
+        exit-script -type "error" -text "Add isr error: $($_.Exception.Message)"
+        exit-script -type "error" -text "Error | Add-Bookmarks-$($_.InvocationInfo.ScriptLineNumber)"
     }
 }
 

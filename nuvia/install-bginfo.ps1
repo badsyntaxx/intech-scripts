@@ -2,7 +2,7 @@ function install-bginfo {
     try {
         # Check if the current PowerShell session is running as the system account
         if ([System.Security.Principal.WindowsIdentity]::GetCurrent().Name -eq 'NT AUTHORITY\SYSTEM') {
-            write-text -type "notice" -Text "RUNNING AS SYSTEM: Changes wont apply until reboot. Run as logged user for instant results." -lineBefore
+            write-text -type "notice" -text "RUNNING AS SYSTEM: Changes wont apply until reboot. Run as logged user for instant results." -lineBefore
         }
         
         Write-Host
@@ -54,7 +54,7 @@ function install-bginfo {
 
         Start-Process -FilePath "C:\ProgramData\Microsoft\Windows\Start Menu\Programs\Startup\Start BGInfo.bat" -WindowStyle Hidden
 
-        exit-script -type "success" -Text "BGInfo installed and applied." -lineAfter
+        exit-script -type "success" -text "BGInfo installed and applied." -lineAfter
     } catch {
         # Display error message and end the script
         exit-script -type "error" -text "install-bginfo-$($_.InvocationInfo.ScriptLineNumber) | $($_.Exception.Message)" -lineAfter

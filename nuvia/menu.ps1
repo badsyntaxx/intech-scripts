@@ -16,7 +16,7 @@ function menu {
 
         read-command -command $command
     } catch {
-        exit-script -type "error" -Text "nuvia-menu: $($_.Exception.Message) $url/nuvia/$dependency.ps1" 
+        exit-script -type "error" -text "nuvia-menu: $($_.Exception.Message) $url/nuvia/$dependency.ps1" 
     }
 }
 

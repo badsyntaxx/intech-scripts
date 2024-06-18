@@ -3,10 +3,10 @@ function isr-install-ninja {
         $url = "https://app.ninjarmm.com/agent/installer/0274c0c3-3ec8-44fc-93cb-79e96f191e07/nuviaisrcenteroremut-5.8.9154-windows-installer.msi"
         $service = Get-Service -Name "NinjaRMMAgent" -ErrorAction SilentlyContinue
 
-        write-text -type "notice" -Text "Accessing $url" -lineBefore -lineAfter
+        write-text -type "notice" -text "Accessing $url" -lineBefore -lineAfter
         
         if ($null -ne $service -and $service.Status -eq "Running") {
-            write-text -type "plain" -Text "NinjaRMMAgent is already installed and running."
+            write-text -type "plain" -text "NinjaRMMAgent is already installed and running."
             read-command
         } 
 
@@ -20,10 +20,10 @@ function isr-install-ninja {
 
         Get-Item -ErrorAction SilentlyContinue "$env:TEMP\NinjaOne.msi" | Remove-Item -ErrorAction SilentlyContinue
 
-        exit-script -type "success" -Text "NinjaOne successfully installed." -lineAfter
+        exit-script -type "success" -text "NinjaOne successfully installed." -lineAfter
     } catch {
         # Display error message and end the script
-        exit-script -type "error" -Text "isr-install-ninja-$($_.InvocationInfo.ScriptLineNumber) - $($_.Exception.Message)"
+        exit-script -type "error" -text "isr-install-ninja-$($_.InvocationInfo.ScriptLineNumber) - $($_.Exception.Message)"
     }
 }
 
