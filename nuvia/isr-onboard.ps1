@@ -104,10 +104,10 @@ function isr-install-apps {
         install-cliq 
         install-zoom 
         install-ringcentral 
+        Install-HWInfo
         install-revouninstaller 
         install-acrobatreader 
         install-balto 
-        Add-EPRegedits
         Initialize-Cleanup
     } catch {
         # Display error message and end the script
