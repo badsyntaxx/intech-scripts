@@ -1,9 +1,15 @@
 function isr-onboard {
+    write-text -type "header" -text "Editing hostname" -lineBefore
     edit-hostname
+    write-text -type "header" -text "Installing NinjaOne" -lineBefore
     isr-install-ninja
+    write-text -type "header" -text "Installing ISR apps" -lineBefore
     isr-install-apps
+    write-text -type "header" -text "Adding InTechAdmin account" -lineBefore
     add-admin
+    write-text -type "header" -text "Changing background" -lineBefore
     install-bginfo
+    write-text -type "header" -text "Removing Windows 11 bloat" -lineBefore
     reclaim
 
     read-command
