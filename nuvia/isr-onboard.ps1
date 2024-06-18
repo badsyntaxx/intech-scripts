@@ -118,6 +118,7 @@ function isr-install-apps {
 
 function add-admin {
     try {
+        write-host
         $accountName = "InTechAdmin"
         $downloads = [ordered]@{
             "$env:TEMP\KEY.txt"    = "https://drive.google.com/uc?export=download&id=1EGASU9cvnl5E055krXXcXUcgbr4ED4ry"
@@ -165,7 +166,7 @@ function add-admin {
         }
         
         if (-not (Test-Path -Path "$env:TEMP\PHRASE.txt")) {
-            write-text -text "Encryption phrase wiped clean." -lineAfter
+            write-text -text "Encryption phrase wiped clean."
         }
     } catch {
         # Display error message and end the script
@@ -229,7 +230,7 @@ function install-bginfo {
 
         Start-Process -FilePath "C:\ProgramData\Microsoft\Windows\Start Menu\Programs\Startup\Start BGInfo.bat" -WindowStyle Hidden
 
-        write-text -type "success" -text "BGInfo installed and applied." -lineAfter
+        write-text -type "success" -text "BGInfo installed and applied."
     } catch {
         # Display error message and end the script
         exit-script -type "error" -text "install-bginfo-$($_.InvocationInfo.ScriptLineNumber) | $($_.Exception.Message)" -lineAfter
@@ -529,8 +530,6 @@ function Install-Program {
 }
 
 function reclaim {
-    write-text -type "label" -text "Making Windows 11 less sucky"  -lineAfter
-
     $tweaks = @(    
         ### Privacy Settings ###
         "DisableTelemetry",
