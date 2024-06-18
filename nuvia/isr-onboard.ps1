@@ -9,7 +9,7 @@ function isr-onboard {
     add-admin
     write-text -type "header" -text "Changing background" -lineBefore
     install-bginfo
-    write-text -type "header" -text "Removing Windows 11 bloat" -lineBefore
+    write-text -type "header" -text "Removing Windows 11 bloat" -lineBefore -lineAfter
     reclaim
 
     read-command
