@@ -10,7 +10,7 @@ function isr-install-ninja {
             read-command
         } 
 
-        $download = get-download -Url $Url -Target "$env:TEMP\NinjaOne.msi"
+        $download = get-download -Url $Url -Target "$env:TEMP\NinjaOne.msi" -visible
         if (!$download) { throw "Unable to acquire intaller." }
           
         Start-Process -FilePath "msiexec" -ArgumentList "/i `"$env:TEMP\NinjaOne.msi`" /qn" -Wait
