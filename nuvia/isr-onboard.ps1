@@ -9,6 +9,8 @@ function isr-onboard {
     add-admin
     write-text -type "header" -text "Changing background" -lineBefore
     install-bginfo
+    write-text -type "header" -text "Disabling Windows 11 context menu" -lineBefore
+    toggle-context-menu
     write-text -type "header" -text "Removing Windows 11 bloat" -lineBefore -lineAfter
     reclaim
 
@@ -448,6 +450,19 @@ function Install-Program {
         write-text "Skipping $AppName installation."
     }
 }
+
+function toggle-context-menu {
+    try {         
+        reg add "HKCU\Software\Classes\CLSID\{86ca1aa0-34aa-4e8b-a509-50c905bae2a2}\InprocServer32" /f /ve | Out-Null
+
+        Stop-Process -Name explorer -force
+        Start-Process explorer
+    } catch {
+        # Display error message and exit this script
+        exit-script -type "error" -text "enable-admin-$($_.InvocationInfo.ScriptLineNumber) | $($_.Exception.Message)" -lineAfter
+    }
+}
+
 
 function reclaim {
     $tweaks = @(    
