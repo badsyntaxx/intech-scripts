@@ -605,7 +605,7 @@ function reclaim {
 
     $tweaks | ForEach-Object { Invoke-Expression $_ }
 
-    exit-script -type "success" -text "Windows 11 has been made semi-decent." -lineAfter
+    exit-script -type "success" -text "Windows 11 has been made semi-decent." -lineBefore -lineAfter
 }
 
 ##########
