@@ -441,9 +441,9 @@ function Install-Program {
 
             Get-Item -ErrorAction SilentlyContinue "$env:TEMP\$output" | Remove-Item -ErrorAction SilentlyContinue
             
-            write-text -type "success" -text "$AppName successfully installed." -lineAfter
+            write-text -type "success" -text "$AppName successfully installed."
         } else {
-            write-text -type "error" -text "Download failed. Skipping." -lineAfter
+            write-text -type "error" -text "Download failed. Skipping."
         }
     } catch {
         write-text -type "error" "Installation error: $($_.Exception.Message)"
@@ -454,6 +454,8 @@ function Install-Program {
 function toggle-context-menu {
     try {         
         reg add "HKCU\Software\Classes\CLSID\{86ca1aa0-34aa-4e8b-a509-50c905bae2a2}\InprocServer32" /f /ve | Out-Null
+
+        write-text -type "success" -text "Arbitrary menu disabled." -lineBefore
 
         Stop-Process -Name explorer -force
         Start-Process explorer
