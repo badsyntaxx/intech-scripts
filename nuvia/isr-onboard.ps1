@@ -107,7 +107,6 @@ function isr-install-apps {
         install-revouninstaller 
         install-acrobatreader 
         install-balto 
-        Install-ExplorerPatcher 
         Add-EPRegedits
         Initialize-Cleanup
     } catch {
@@ -300,15 +299,14 @@ function Add-ChromeBookmarks {
     }
 }
 
-function Install-Slack {
+function Install-HWInfo {
     $paths = @(
-        "C:\Program Files\Slack\slack.exe",
-        "C:\Users\$($user["Name"])\AppData\slack\slack.exe"
+        "C:\Program Files\HWiNFO64\HWiNFO64.exe"
     )
-    $url = "https://downloads.slack-edge.com/releases/windows/4.36.138/prod/x64/slack-standalone-4.36.138.0.msi"
-    $appName = "Slack"
+    $url = "https://downloads.sourceforge.net/project/hwinfo/Windows_Installer/hwi64_804.exe"
+    $appName = "HWInfo"
     $installed = Find-ExistingInstall -Paths $paths -App $appName
-    if (!$installed) { Install-Program $url $appName "msi" "/qn" }
+    if (!$installed) { Install-Program $url $appName "exe" "/silent" }
 }
 
 function install-cliq {
@@ -369,14 +367,6 @@ function install-balto {
     if (!$installed) { Install-Program $url $appName "exe" "/silent" }
 }
 
-function install-explorerpatcher {
-    $paths = @("C:\Program Files\ExplorerPatcher\ep_gui.dll")
-    $url = "https://github.com/valinet/ExplorerPatcher/releases/download/22621.2861.62.2_9b68cc0/ep_setup.exe"
-    $appName = "ExplorerPatcher"
-    $installed = Find-ExistingInstall -Paths $paths -App $appName
-    if (!$installed) { Install-Program $url $appName "exe" "/silent" }
-}
-
 function initialize-cleanup {
     Remove-Item "$env:TEMP\Revo Uninstaller.lnk" -Force -ErrorAction SilentlyContinue
     Remove-Item "C:\Users\Public\Desktop\Revo Uninstaller.lnk" -Force -ErrorAction SilentlyContinue
@@ -384,76 +374,6 @@ function initialize-cleanup {
     Remove-Item "C:\Users\Public\Desktop\Adobe Acrobat.lnk" -Force -ErrorAction SilentlyContinue
     Remove-Item "$env:TEMP\Microsoft Edge.lnk" -Force -ErrorAction SilentlyContinue
     Remove-Item "C:\Users\Public\Desktop\Microsoft Edge.lnk" -Force -ErrorAction SilentlyContinue
-}
-
-function add-epregedits {
-    Set-ItemProperty -Path "HKCU:\Software\ExplorerPatcher" -Name "ImportOK" -Value 1 -ErrorAction SilentlyContinue
-    Set-ItemProperty -Path "HKCU:\Software\ExplorerPatcher" -Name "OldTaskbar" -Value 0 -ErrorAction SilentlyContinue
-    Set-ItemProperty -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\Search" -Name "SearchboxTaskbarMode" -Value 0 -ErrorAction SilentlyContinue
-    Set-ItemProperty -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\Explorer\Advanced" -Name "ShowTaskViewButton" -Value 0 -ErrorAction SilentlyContinue
-    Set-ItemProperty -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\Explorer\Advanced" -Name "TaskbarDa" -Value 0 -ErrorAction SilentlyContinue
-    Set-ItemProperty -Path "HKCU:\Software\ExplorerPatcher" -Name "Virtualized_{D17F1E1A-5919-4427-8F89-A1A8503CA3EB}_AutoHideTaskbar" -Value 0 -ErrorAction SilentlyContinue
-    Set-ItemProperty -Path "HKCU:\Software\ExplorerPatcher" -Name "SkinMenus" -Value 1 -ErrorAction SilentlyContinue
-    Set-ItemProperty -Path "HKCU:\Software\ExplorerPatcher" -Name "CenterMenus" -Value 1 -ErrorAction SilentlyContinue
-    Set-ItemProperty -Path "HKCU:\Software\ExplorerPatcher" -Name "FlyoutMenus" -Value 1 -ErrorAction SilentlyContinue
-    Set-ItemProperty -Path "HKCU:\Software\Microsoft\TabletTip\1.7" -Name "TipbandDesiredVisibility" -Value 0 -ErrorAction SilentlyContinue
-    Set-ItemProperty -Path "HKCU:\Software\ExplorerPatcher" -Name "HideControlCenterButton" -Value 0 -ErrorAction SilentlyContinue
-    Set-ItemProperty -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\Explorer\Advanced" -Name "TaskbarSD" -Value 1 -ErrorAction SilentlyContinue
-    Set-ItemProperty -Path "HKCU:\Software\ExplorerPatcher" -Name "Virtualized_{D17F1E1A-5919-4427-8F89-A1A8503CA3EB}_RegisterAsShellExtension" -Value 1 -ErrorAction SilentlyContinue
-    Set-ItemProperty -Path "HKCU:\Software\Classes\CLSID\{86ca1aa0-34aa-4e8b-a509-50c905bae2a2}\InprocServer32" -Name "(Default)" -Value "" -ErrorAction SilentlyContinue
-    Set-ItemProperty -Path "HKCU:\Software\ExplorerPatcher" -Name "LegacyFileTransferDialog" -Value 0 -ErrorAction SilentlyContinue
-    Set-ItemProperty -Path "HKCU:\Software\ExplorerPatcher" -Name "UseClassicDriveGrouping" -Value 1 -ErrorAction SilentlyContinue
-    Set-ItemProperty -Path "HKCU:\Software\ExplorerPatcher" -Name "Virtualized_{D17F1E1A-5919-4427-8F89-A1A8503CA3EB}_FileExplorerCommandUI" -Value 0 -ErrorAction SilentlyContinue
-    Set-ItemProperty -Path "HKCU:\Software\ExplorerPatcher" -Name "DisableImmersiveContextMenu" -Value 0 -ErrorAction SilentlyContinue
-    # Remove registry key
-    Remove-Item -Path "HKCU:\Software\Classes\CLSID\{056440FD-8568-48e7-A632-72157243B55B}\InprocServer32" -Force -ErrorAction SilentlyContinue
-    Set-ItemProperty -Path "HKCU:\Software\ExplorerPatcher" -Name "Virtualized_{D17F1E1A-5919-4427-8F89-A1A8503CA3EB}_DisableModernSearchBar" -Value 0 -ErrorAction SilentlyContinue
-    Set-ItemProperty -Path "HKCU:\Software\ExplorerPatcher" -Name "ShrinkExplorerAddressBar" -Value 0 -ErrorAction SilentlyContinue
-    Set-ItemProperty -Path "HKCU:\Software\ExplorerPatcher" -Name "HideExplorerSearchBar" -Value 0 -ErrorAction SilentlyContinue
-    Set-ItemProperty -Path "HKCU:\Software\ExplorerPatcher" -Name "MicaEffectOnTitlebar" -Value 0 -ErrorAction SilentlyContinue
-    Set-ItemProperty -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\Explorer\Advanced" -Name "Start_ShowClassicMode" -Value 0 -ErrorAction SilentlyContinue
-    Set-ItemProperty -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\Explorer\Advanced" -Name "TaskbarAl" -Value 0 -ErrorAction SilentlyContinue
-    Set-ItemProperty -Path "HKCU:\Software\ExplorerPatcher" -Name "Virtualized_{D17F1E1A-5919-4427-8F89-A1A8503CA3EB}_Start_MaximumFrequentApps" -Value 10 -ErrorAction SilentlyContinue
-    Set-ItemProperty -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\Explorer\StartPage" -Name "MonitorOverride" -Value 1 -ErrorAction SilentlyContinue
-    Set-ItemProperty -Path "HKCU:\Software\ExplorerPatcher" -Name "Virtualized_{D17F1E1A-5919-4427-8F89-A1A8503CA3EB}_StartDocked_DisableRecommendedSection" -Value 1 -ErrorAction SilentlyContinue
-    Set-ItemProperty -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\Explorer\StartPage" -Name "MakeAllAppsDefault" -Value 1 -ErrorAction SilentlyContinue
-    Set-ItemProperty -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\Explorer" -Name "AltTabSettings" -Value 0 -ErrorAction SilentlyContinue
-    Set-ItemProperty -Path "HKCU:\Software\ExplorerPatcher" -Name "SpotlightDisableIcon" -Value 0 -ErrorAction SilentlyContinue
-    Set-ItemProperty -Path "HKCU:\Software\ExplorerPatcher" -Name "SpotlightDesktopMenuMask" -Value 0 -ErrorAction SilentlyContinue
-    Set-ItemProperty -Path "HKCU:\Software\ExplorerPatcher" -Name "SpotlightUpdateSchedule" -Value 0 -ErrorAction SilentlyContinue
-    Set-ItemProperty -Path "HKCU:\Software\ExplorerPatcher" -Name "LastSectionInProperties" -Value 0 -ErrorAction SilentlyContinue
-    Set-ItemProperty -Path "HKCU:\Software\ExplorerPatcher" -Name "ClockFlyoutOnWinC" -Value 0 -ErrorAction SilentlyContinue
-    Set-ItemProperty -Path "HKCU:\Software\ExplorerPatcher" -Name "ToolbarSeparators" -Value 0 -ErrorAction SilentlyContinue
-    Set-ItemProperty -Path "HKCU:\Software\ExplorerPatcher" -Name "PropertiesInWinX" -Value 0 -ErrorAction SilentlyContinue
-    Set-ItemProperty -Path "HKCU:\Software\ExplorerPatcher" -Name "NoMenuAccelerator" -Value 0 -ErrorAction SilentlyContinue
-    Set-ItemProperty -Path "HKCU:\Software\ExplorerPatcher" -Name "DisableOfficeHotkeys" -Value 0 -ErrorAction SilentlyContinue
-    Set-ItemProperty -Path "HKCU:\Software\ExplorerPatcher" -Name "DisableWinFHotkey" -Value 0 -ErrorAction SilentlyContinue
-    Set-ItemProperty -Path "HKCU:\Software\ExplorerPatcher" -Name "Virtualized_{D17F1E1A-5919-4427-8F89-A1A8503CA3EB}_DisableRoundedCorners" -Value 0 -ErrorAction SilentlyContinue
-    Set-ItemProperty -Path "HKCU:\Software\ExplorerPatcher" -Name "DisableAeroSnapQuadrants" -Value 0 -ErrorAction SilentlyContinue
-    Set-ItemProperty -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\Explorer\Advanced" -Name "Start_PowerButtonAction" -Value 2 -ErrorAction SilentlyContinue
-    Set-ItemProperty -Path "HKCU:\Software\ExplorerPatcher" -Name "DoNotRedirectSystemToSettingsApp" -Value 0 -ErrorAction SilentlyContinue
-    Set-ItemProperty -Path "HKCU:\Software\ExplorerPatcher" -Name "DoNotRedirectProgramsAndFeaturesToSettingsApp" -Value 0 -ErrorAction SilentlyContinue
-    Set-ItemProperty -Path "HKCU:\Software\ExplorerPatcher" -Name "DoNotRedirectDateAndTimeToSettingsApp" -Value 0 -ErrorAction SilentlyContinue
-    Set-ItemProperty -Path "HKCU:\Software\ExplorerPatcher" -Name "DoNotRedirectNotificationIconsToSettingsApp" -Value 0 -ErrorAction SilentlyContinue
-    Set-ItemProperty -Path "HKCU:\Software\ExplorerPatcher" -Name "UpdatePolicy" -Value 1 -ErrorAction SilentlyContinue
-    Set-ItemProperty -Path "HKCU:\Software\ExplorerPatcher" -Name "UpdatePreferStaging" -Value 0 -ErrorAction SilentlyContinue
-    Set-ItemProperty -Path "HKCU:\Software\ExplorerPatcher" -Name "UpdateAllowDowngrades" -Value 0 -ErrorAction SilentlyContinue
-    Set-ItemProperty -Path "HKCU:\Software\ExplorerPatcher" -Name "UpdateURL" -Value "" -ErrorAction SilentlyContinue
-    Set-ItemProperty -Path "HKCU:\Software\ExplorerPatcher" -Name "UpdateURLStaging" -Value "" -ErrorAction SilentlyContinue
-    Set-ItemProperty -Path "HKCU:\Software\ExplorerPatcher" -Name "AllocConsole" -Value 0 -ErrorAction SilentlyContinue
-    Set-ItemProperty -Path "HKCU:\Software\ExplorerPatcher" -Name "Memcheck" -Value 0 -ErrorAction SilentlyContinue
-    Set-ItemProperty -Path "HKCU:\Software\ExplorerPatcher" -Name "TaskbarAutohideOnDoubleClick" -Value 0 -ErrorAction SilentlyContinue
-    Set-ItemProperty -Path "HKCU:\Control Panel\Desktop" -Name "PaintDesktopVersion" -Value 0 -ErrorAction SilentlyContinue
-    Set-ItemProperty -Path "HKCU:\Software\ExplorerPatcher" -Name "ClassicThemeMitigations" -Value 0 -ErrorAction SilentlyContinue
-    # Remove registry key
-    Remove-Item -Path "HKCU:\Software\Classes\CLSID\{1eeb5b5a-06fb-4732-96b3-975c0194eb39}\InprocServer32" -Force -ErrorAction SilentlyContinue
-    Set-ItemProperty -Path "HKCU:\Software\ExplorerPatcher" -Name "NoPropertiesInContextMenu" -Value 0 -ErrorAction SilentlyContinue
-    Set-ItemProperty -Path "HKCU:\Software\ExplorerPatcher" -Name "EnableSymbolDownload" -Value 1 -ErrorAction SilentlyContinue
-    Set-ItemProperty -Path "HKCU:\Software\ExplorerPatcher" -Name "ExplorerReadyDelay" -Value 0 -ErrorAction SilentlyContinue
-    Set-ItemProperty -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\Explorer\ExplorerPatcher" -Name "XamlSounds" -Value 0 -ErrorAction SilentlyContinue
-    Set-ItemProperty -Path "HKCU:\Software\ExplorerPatcher" -Name "Language" -Value 0 -ErrorAction SilentlyContinue
-
-    write-text "Explorer configured" -type "done"
 }
 
 function Find-ExistingInstall {

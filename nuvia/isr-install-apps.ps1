@@ -6,10 +6,10 @@ function isr-install-apps {
                 "Cliq"             = "Install Zoho Cliq."
                 "Zoom"             = "Install Microsoft Zoom."
                 "RingCentral"      = "Install RingCentral."
+                "HWInfo"           = "Install HWInfo."
                 "Revo Uninstaller" = "Install RevoUninstaller."
                 "Acrobat"          = "Install Adobe Acrobat reader."
                 "Balto"            = "Install Balto AI"
-                "Explorer Patcher" = "Install ExplorerPatcher"
                 "Exit"             = "Exit this script and go back to main command line."
             })
 
@@ -19,13 +19,10 @@ function isr-install-apps {
         if ($installChoice -eq 2 -or $installChoice -eq 0) { install-cliq }
         if ($installChoice -eq 3 -or $installChoice -eq 0) { install-zoom }
         if ($installChoice -eq 4 -or $installChoice -eq 0) { install-ringcentral }
-        if ($installChoice -eq 5 -or $installChoice -eq 0) { install-revouninstaller }
-        if ($installChoice -eq 6 -or $installChoice -eq 0) { install-acrobatreader }
-        if ($installChoice -eq 7 -or $installChoice -eq 0) { install-balto }
-        if ($installChoice -eq 8 -or $installChoice -eq 0) { 
-            Install-ExplorerPatcher 
-            Add-EPRegedits
-        }
+        if ($installChoice -eq 5 -or $installChoice -eq 0) { Install-HWInfo }
+        if ($installChoice -eq 6 -or $installChoice -eq 0) { install-revouninstaller }
+        if ($installChoice -eq 7 -or $installChoice -eq 0) { install-acrobatreader }
+        if ($installChoice -eq 8 -or $installChoice -eq 0) { install-balto }
         if ($installChoice -eq 9) {
             read-command
         }
@@ -34,7 +31,7 @@ function isr-install-apps {
         exit-script
     } catch {
         # Display error message and end the script
-        exit-script -type "error" -text "Error | Install-Apps-$($_.InvocationInfo.ScriptLineNumber)"
+        exit-script -type "error" -text "isr-install-apps-$($_.InvocationInfo.ScriptLineNumber) | $($_.Exception.Message)" -lineAfter
     }
 }
 
@@ -51,64 +48,70 @@ function install-chrome {
     if (!$installed) { Install-Program $url $appName "msi" "/qn" }
 }
 
-function Add-ChromeBookmarks {
-    write-text -type "header" -text "Which profile "
-    $profiles = [ordered]@{}
-    $chromeUserDataPath = "C:\Users\$($user["name"])\AppData\Local\Google\Chrome\User Data"
-    $profileFolders = Get-ChildItem -Path $chromeUserDataPath -Directory -ErrorAction SilentlyContinue
-    if ($null -eq $profileFolders) { throw "Cannot find profiles for this Chrome installation." }
-    foreach ($profileFolder in $profileFolders) {
-        $preferencesFile = Join-Path -Path $profileFolder.FullName -ChildPath "Preferences"
-        if (Test-Path -Path $preferencesFile) {
-            $preferencesContent = Get-Content -Path $preferencesFile -Raw | ConvertFrom-Json
-            $profileName = $preferencesContent.account_info.full_name
-            $profiles["$profileName"] = $profileFolder.FullName
-        }
-    }
+function isr-add-bookmarks {
+    try {
+        $user = select-user
 
-    $choice = read-option -options $profiles -lineAfter -ReturnKey
-    $account = $profiles["$choice"]
-    $boomarksUrl = "https://drive.google.com/uc?export=download&id=1WmvSnxtDSLOt0rgys947sOWW-v9rzj9U"
-
-    $download = get-download -Url $boomarksUrl -Target "$env:TEMP\Bookmarks"
-    if (!$download) { throw "Unable to acquire bookmarks." }
-
-    ROBOCOPY $env:TEMP $account "Bookmarks" /NFL /NDL /NC /NS /NP | Out-Null
-
-    Remove-Item -Path "$env:TEMP\Bookmarks" -Force
-
-    $preferencesFilePath = Join-Path -Path $profiles["$choice"] -ChildPath "Preferences"
-    if (Test-Path -Path $preferencesFilePath) {
-        $preferences = Get-Content -Path $preferencesFilePath -Raw | ConvertFrom-Json
-        if (-not $preferences.PSObject.Properties.Match('bookmark_bar').Count) {
-            $preferences | Add-Member -type NoteProperty -Name 'bookmark_bar' -Value @{}
+        $profiles = [ordered]@{}
+        $chromeUserDataPath = "C:\Users\$($user["Name"])\AppData\Local\Google\Chrome\User Data"
+        $profileFolders = Get-ChildItem -Path $chromeUserDataPath -Directory
+        if ($null -eq $profileFolders) { throw "Cannot find profiles for this Chrome installation." }
+        foreach ($profileFolder in $profileFolders) {
+            $preferencesFile = Join-Path -Path $profileFolder.FullName -ChildPath "Preferences"
+            if (Test-Path -Path $preferencesFile) {
+                $preferencesContent = Get-Content -Path $preferencesFile -Raw | ConvertFrom-Json
+                $profileName = $preferencesContent.account_info.full_name
+                $profiles["$profileName"] = $profileFolder.FullName
+            }
         }
 
-        if (-not $preferences.bookmark_bar.PSObject.Properties.Match('show_on_all_tabs').Count) {
-            $preferences.bookmark_bar | Add-Member -type NoteProperty -Name 'show_on_all_tabs' -Value $true
+        $choice = read-option -options $profiles -lineAfter -ReturnKey
+        $account = $profiles["$choice"]
+        $boomarksUrl = "https://drive.google.com/uc?export=download&id=1WmvSnxtDSLOt0rgys947sOWW-v9rzj9U"
+
+        $download = get-download -Url $boomarksUrl -Target "$env:TEMP\Bookmarks"
+        if (!$download) { throw "Unable to acquire bookmarks." }
+
+        ROBOCOPY $env:TEMP $account "Bookmarks" /NFL /NDL /NC /NS /NP | Out-Null
+
+        Remove-Item -Path "$env:TEMP\Bookmarks" -Force
+
+        $preferencesFilePath = Join-Path -Path $profiles["$choice"] -ChildPath "Preferences"
+        if (Test-Path -Path $preferencesFilePath) {
+            $preferences = Get-Content -Path $preferencesFilePath -Raw | ConvertFrom-Json
+            if (-not $preferences.PSObject.Properties.Match('bookmark_bar').Count) {
+                $preferences | Add-Member -type NoteProperty -Name 'bookmark_bar' -Value @{}
+            }
+
+            if (-not $preferences.bookmark_bar.PSObject.Properties.Match('show_on_all_tabs').Count) {
+                $preferences.bookmark_bar | Add-Member -type NoteProperty -Name 'show_on_all_tabs' -Value $true
+            } else {
+                $preferences.bookmark_bar.show_on_all_tabs = $true
+            }
+
+            $preferences | ConvertTo-Json -Depth 100 | Set-Content -Path $preferencesFilePath
         } else {
-            $preferences.bookmark_bar.show_on_all_tabs = $true
+            throw "Preferences file not found."
         }
 
-        $preferences | ConvertTo-Json -Depth 100 | Set-Content -Path $preferencesFilePath
-    } else {
-        throw "Preferences file not found."
-    }
-
-    if (Test-Path -Path $account) {
-        exit-script -type "success" -text "The bookmarks have been added." -lineBefore
+        if (Test-Path -Path $account) {
+            exit-script -type "success" -text "The bookmarks have been added." -lineAfter
+        }
+    } catch {
+        # Display error message and end the script
+        exit-script -type "error" -text "isr-add-bookmarks-$($_.InvocationInfo.ScriptLineNumber) | $($_.Exception.Message)" -lineAfter
     }
 }
 
-function Install-Slack {
+
+function Install-HWInfo {
     $paths = @(
-        "C:\Program Files\Slack\slack.exe",
-        "C:\Users\$($user["Name"])\AppData\slack\slack.exe"
+        "C:\Program Files\HWiNFO64\HWiNFO64.exe"
     )
-    $url = "https://downloads.slack-edge.com/releases/windows/4.36.138/prod/x64/slack-standalone-4.36.138.0.msi"
-    $appName = "Slack"
+    $url = "https://downloads.sourceforge.net/project/hwinfo/Windows_Installer/hwi64_804.exe"
+    $appName = "HWInfo"
     $installed = Find-ExistingInstall -Paths $paths -App $appName
-    if (!$installed) { Install-Program $url $appName "msi" "/qn" }
+    if (!$installed) { Install-Program $url $appName "exe" "/silent" }
 }
 
 function install-cliq {
@@ -169,14 +172,6 @@ function install-balto {
     if (!$installed) { Install-Program $url $appName "exe" "/silent" }
 }
 
-function Install-ExplorerPatcher {
-    $paths = @("C:\Program Files\ExplorerPatcher\ep_gui.dll")
-    $url = "https://github.com/valinet/ExplorerPatcher/releases/download/22621.2861.62.2_9b68cc0/ep_setup.exe"
-    $appName = "ExplorerPatcher"
-    $installed = Find-ExistingInstall -Paths $paths -App $appName
-    if (!$installed) { Install-Program $url $appName "exe" "/silent" }
-}
-
 function Initialize-Cleanup {
     Remove-Item "$env:TEMP\Revo Uninstaller.lnk" -Force -ErrorAction SilentlyContinue
     Remove-Item "C:\Users\Public\Desktop\Revo Uninstaller.lnk" -Force -ErrorAction SilentlyContinue
@@ -184,76 +179,6 @@ function Initialize-Cleanup {
     Remove-Item "C:\Users\Public\Desktop\Adobe Acrobat.lnk" -Force -ErrorAction SilentlyContinue
     Remove-Item "$env:TEMP\Microsoft Edge.lnk" -Force -ErrorAction SilentlyContinue
     Remove-Item "C:\Users\Public\Desktop\Microsoft Edge.lnk" -Force -ErrorAction SilentlyContinue
-}
-
-function Add-EPRegedits {
-    Set-ItemProperty -Path "HKCU:\Software\ExplorerPatcher" -Name "ImportOK" -Value 1 -ErrorAction SilentlyContinue
-    Set-ItemProperty -Path "HKCU:\Software\ExplorerPatcher" -Name "OldTaskbar" -Value 0 -ErrorAction SilentlyContinue
-    Set-ItemProperty -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\Search" -Name "SearchboxTaskbarMode" -Value 0 -ErrorAction SilentlyContinue
-    Set-ItemProperty -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\Explorer\Advanced" -Name "ShowTaskViewButton" -Value 0 -ErrorAction SilentlyContinue
-    Set-ItemProperty -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\Explorer\Advanced" -Name "TaskbarDa" -Value 0 -ErrorAction SilentlyContinue
-    Set-ItemProperty -Path "HKCU:\Software\ExplorerPatcher" -Name "Virtualized_{D17F1E1A-5919-4427-8F89-A1A8503CA3EB}_AutoHideTaskbar" -Value 0 -ErrorAction SilentlyContinue
-    Set-ItemProperty -Path "HKCU:\Software\ExplorerPatcher" -Name "SkinMenus" -Value 1 -ErrorAction SilentlyContinue
-    Set-ItemProperty -Path "HKCU:\Software\ExplorerPatcher" -Name "CenterMenus" -Value 1 -ErrorAction SilentlyContinue
-    Set-ItemProperty -Path "HKCU:\Software\ExplorerPatcher" -Name "FlyoutMenus" -Value 1 -ErrorAction SilentlyContinue
-    Set-ItemProperty -Path "HKCU:\Software\Microsoft\TabletTip\1.7" -Name "TipbandDesiredVisibility" -Value 0 -ErrorAction SilentlyContinue
-    Set-ItemProperty -Path "HKCU:\Software\ExplorerPatcher" -Name "HideControlCenterButton" -Value 0 -ErrorAction SilentlyContinue
-    Set-ItemProperty -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\Explorer\Advanced" -Name "TaskbarSD" -Value 1 -ErrorAction SilentlyContinue
-    Set-ItemProperty -Path "HKCU:\Software\ExplorerPatcher" -Name "Virtualized_{D17F1E1A-5919-4427-8F89-A1A8503CA3EB}_RegisterAsShellExtension" -Value 1 -ErrorAction SilentlyContinue
-    Set-ItemProperty -Path "HKCU:\Software\Classes\CLSID\{86ca1aa0-34aa-4e8b-a509-50c905bae2a2}\InprocServer32" -Name "(Default)" -Value "" -ErrorAction SilentlyContinue
-    Set-ItemProperty -Path "HKCU:\Software\ExplorerPatcher" -Name "LegacyFileTransferDialog" -Value 0 -ErrorAction SilentlyContinue
-    Set-ItemProperty -Path "HKCU:\Software\ExplorerPatcher" -Name "UseClassicDriveGrouping" -Value 1 -ErrorAction SilentlyContinue
-    Set-ItemProperty -Path "HKCU:\Software\ExplorerPatcher" -Name "Virtualized_{D17F1E1A-5919-4427-8F89-A1A8503CA3EB}_FileExplorerCommandUI" -Value 0 -ErrorAction SilentlyContinue
-    Set-ItemProperty -Path "HKCU:\Software\ExplorerPatcher" -Name "DisableImmersiveContextMenu" -Value 0 -ErrorAction SilentlyContinue
-    # Remove registry key
-    Remove-Item -Path "HKCU:\Software\Classes\CLSID\{056440FD-8568-48e7-A632-72157243B55B}\InprocServer32" -Force -ErrorAction SilentlyContinue
-    Set-ItemProperty -Path "HKCU:\Software\ExplorerPatcher" -Name "Virtualized_{D17F1E1A-5919-4427-8F89-A1A8503CA3EB}_DisableModernSearchBar" -Value 0 -ErrorAction SilentlyContinue
-    Set-ItemProperty -Path "HKCU:\Software\ExplorerPatcher" -Name "ShrinkExplorerAddressBar" -Value 0 -ErrorAction SilentlyContinue
-    Set-ItemProperty -Path "HKCU:\Software\ExplorerPatcher" -Name "HideExplorerSearchBar" -Value 0 -ErrorAction SilentlyContinue
-    Set-ItemProperty -Path "HKCU:\Software\ExplorerPatcher" -Name "MicaEffectOnTitlebar" -Value 0 -ErrorAction SilentlyContinue
-    Set-ItemProperty -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\Explorer\Advanced" -Name "Start_ShowClassicMode" -Value 0 -ErrorAction SilentlyContinue
-    Set-ItemProperty -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\Explorer\Advanced" -Name "TaskbarAl" -Value 0 -ErrorAction SilentlyContinue
-    Set-ItemProperty -Path "HKCU:\Software\ExplorerPatcher" -Name "Virtualized_{D17F1E1A-5919-4427-8F89-A1A8503CA3EB}_Start_MaximumFrequentApps" -Value 10 -ErrorAction SilentlyContinue
-    Set-ItemProperty -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\Explorer\StartPage" -Name "MonitorOverride" -Value 1 -ErrorAction SilentlyContinue
-    Set-ItemProperty -Path "HKCU:\Software\ExplorerPatcher" -Name "Virtualized_{D17F1E1A-5919-4427-8F89-A1A8503CA3EB}_StartDocked_DisableRecommendedSection" -Value 1 -ErrorAction SilentlyContinue
-    Set-ItemProperty -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\Explorer\StartPage" -Name "MakeAllAppsDefault" -Value 1 -ErrorAction SilentlyContinue
-    Set-ItemProperty -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\Explorer" -Name "AltTabSettings" -Value 0 -ErrorAction SilentlyContinue
-    Set-ItemProperty -Path "HKCU:\Software\ExplorerPatcher" -Name "SpotlightDisableIcon" -Value 0 -ErrorAction SilentlyContinue
-    Set-ItemProperty -Path "HKCU:\Software\ExplorerPatcher" -Name "SpotlightDesktopMenuMask" -Value 0 -ErrorAction SilentlyContinue
-    Set-ItemProperty -Path "HKCU:\Software\ExplorerPatcher" -Name "SpotlightUpdateSchedule" -Value 0 -ErrorAction SilentlyContinue
-    Set-ItemProperty -Path "HKCU:\Software\ExplorerPatcher" -Name "LastSectionInProperties" -Value 0 -ErrorAction SilentlyContinue
-    Set-ItemProperty -Path "HKCU:\Software\ExplorerPatcher" -Name "ClockFlyoutOnWinC" -Value 0 -ErrorAction SilentlyContinue
-    Set-ItemProperty -Path "HKCU:\Software\ExplorerPatcher" -Name "ToolbarSeparators" -Value 0 -ErrorAction SilentlyContinue
-    Set-ItemProperty -Path "HKCU:\Software\ExplorerPatcher" -Name "PropertiesInWinX" -Value 0 -ErrorAction SilentlyContinue
-    Set-ItemProperty -Path "HKCU:\Software\ExplorerPatcher" -Name "NoMenuAccelerator" -Value 0 -ErrorAction SilentlyContinue
-    Set-ItemProperty -Path "HKCU:\Software\ExplorerPatcher" -Name "DisableOfficeHotkeys" -Value 0 -ErrorAction SilentlyContinue
-    Set-ItemProperty -Path "HKCU:\Software\ExplorerPatcher" -Name "DisableWinFHotkey" -Value 0 -ErrorAction SilentlyContinue
-    Set-ItemProperty -Path "HKCU:\Software\ExplorerPatcher" -Name "Virtualized_{D17F1E1A-5919-4427-8F89-A1A8503CA3EB}_DisableRoundedCorners" -Value 0 -ErrorAction SilentlyContinue
-    Set-ItemProperty -Path "HKCU:\Software\ExplorerPatcher" -Name "DisableAeroSnapQuadrants" -Value 0 -ErrorAction SilentlyContinue
-    Set-ItemProperty -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\Explorer\Advanced" -Name "Start_PowerButtonAction" -Value 2 -ErrorAction SilentlyContinue
-    Set-ItemProperty -Path "HKCU:\Software\ExplorerPatcher" -Name "DoNotRedirectSystemToSettingsApp" -Value 0 -ErrorAction SilentlyContinue
-    Set-ItemProperty -Path "HKCU:\Software\ExplorerPatcher" -Name "DoNotRedirectProgramsAndFeaturesToSettingsApp" -Value 0 -ErrorAction SilentlyContinue
-    Set-ItemProperty -Path "HKCU:\Software\ExplorerPatcher" -Name "DoNotRedirectDateAndTimeToSettingsApp" -Value 0 -ErrorAction SilentlyContinue
-    Set-ItemProperty -Path "HKCU:\Software\ExplorerPatcher" -Name "DoNotRedirectNotificationIconsToSettingsApp" -Value 0 -ErrorAction SilentlyContinue
-    Set-ItemProperty -Path "HKCU:\Software\ExplorerPatcher" -Name "UpdatePolicy" -Value 1 -ErrorAction SilentlyContinue
-    Set-ItemProperty -Path "HKCU:\Software\ExplorerPatcher" -Name "UpdatePreferStaging" -Value 0 -ErrorAction SilentlyContinue
-    Set-ItemProperty -Path "HKCU:\Software\ExplorerPatcher" -Name "UpdateAllowDowngrades" -Value 0 -ErrorAction SilentlyContinue
-    Set-ItemProperty -Path "HKCU:\Software\ExplorerPatcher" -Name "UpdateURL" -Value "" -ErrorAction SilentlyContinue
-    Set-ItemProperty -Path "HKCU:\Software\ExplorerPatcher" -Name "UpdateURLStaging" -Value "" -ErrorAction SilentlyContinue
-    Set-ItemProperty -Path "HKCU:\Software\ExplorerPatcher" -Name "AllocConsole" -Value 0 -ErrorAction SilentlyContinue
-    Set-ItemProperty -Path "HKCU:\Software\ExplorerPatcher" -Name "Memcheck" -Value 0 -ErrorAction SilentlyContinue
-    Set-ItemProperty -Path "HKCU:\Software\ExplorerPatcher" -Name "TaskbarAutohideOnDoubleClick" -Value 0 -ErrorAction SilentlyContinue
-    Set-ItemProperty -Path "HKCU:\Control Panel\Desktop" -Name "PaintDesktopVersion" -Value 0 -ErrorAction SilentlyContinue
-    Set-ItemProperty -Path "HKCU:\Software\ExplorerPatcher" -Name "ClassicThemeMitigations" -Value 0 -ErrorAction SilentlyContinue
-    # Remove registry key
-    Remove-Item -Path "HKCU:\Software\Classes\CLSID\{1eeb5b5a-06fb-4732-96b3-975c0194eb39}\InprocServer32" -Force -ErrorAction SilentlyContinue
-    Set-ItemProperty -Path "HKCU:\Software\ExplorerPatcher" -Name "NoPropertiesInContextMenu" -Value 0 -ErrorAction SilentlyContinue
-    Set-ItemProperty -Path "HKCU:\Software\ExplorerPatcher" -Name "EnableSymbolDownload" -Value 1 -ErrorAction SilentlyContinue
-    Set-ItemProperty -Path "HKCU:\Software\ExplorerPatcher" -Name "ExplorerReadyDelay" -Value 0 -ErrorAction SilentlyContinue
-    Set-ItemProperty -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\Explorer\ExplorerPatcher" -Name "XamlSounds" -Value 0 -ErrorAction SilentlyContinue
-    Set-ItemProperty -Path "HKCU:\Software\ExplorerPatcher" -Name "Language" -Value 0 -ErrorAction SilentlyContinue
-
-    write-text "Explorer configured" -type "done" -lineAfter
 }
 
 function Find-ExistingInstall {
