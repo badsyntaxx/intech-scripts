@@ -23,9 +23,7 @@ function isr-install-apps {
         if ($installChoice -eq 6 -or $installChoice -eq 0) { install-revouninstaller }
         if ($installChoice -eq 7 -or $installChoice -eq 0) { install-acrobatreader }
         if ($installChoice -eq 8 -or $installChoice -eq 0) { install-balto }
-        if ($installChoice -eq 9) {
-            read-command
-        }
+        if ($installChoice -eq 9) { read-command }
 
         Initialize-Cleanup
         exit-script
@@ -189,7 +187,7 @@ function Find-ExistingInstall {
         [string]$App
     )
 
-    write-text -type "header" -text "Installing $App" -lineAfter
+    write-text -type "notice" -text "Installing $App" -lineAfter
 
     $installationFound = $false
 
