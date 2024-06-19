@@ -187,7 +187,7 @@ function Find-ExistingInstall {
         [string]$App
     )
 
-    write-text -type "notice" -text "Installing $App" -lineAfter
+    write-text -type "notice" -text "Installing $App" -lineBefore
 
     $installationFound = $false
 
@@ -198,7 +198,7 @@ function Find-ExistingInstall {
         }
     }
 
-    if ($installationFound) { write-text -type "success" -text "$App already installed." -lineAfter }
+    if ($installationFound) { write-text -type "success" -text "$App already installed." -lineBefore }
 
     return $installationFound
 }
@@ -218,7 +218,7 @@ function Install-Program {
     try {
         if ($Extenstion -eq "msi") { $output = "$AppName.msi" } else { $output = "$AppName.exe" }
         
-        $download = get-download -Url $Url -Target "$env:TEMP\$output"
+        $download = get-download -Url $Url -Target "$env:TEMP\$output" -visible
 
         if ($download) {
             if ($Extenstion -eq "msi") {
