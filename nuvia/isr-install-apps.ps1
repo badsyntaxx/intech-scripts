@@ -186,7 +186,7 @@ function Find-ExistingInstall {
         }
     }
 
-    if ($installationFound) { write-text -type "success" -text "$App already installed." -lineBefore }
+    if ($installationFound) { write-text -type "success" -text "$App already installed." }
 
     return $installationFound
 }
@@ -230,9 +230,9 @@ function Install-Program {
 
             Get-Item -ErrorAction SilentlyContinue "$env:TEMP\$output" | Remove-Item -ErrorAction SilentlyContinue
             
-            write-text -type "success" -text "$AppName successfully installed." -lineBefore -lineAfter
+            write-text -type "success" -text "$AppName successfully installed." -lineBefore
         } else {
-            write-text -type "error" -text "Download failed. Skipping." -lineAfter
+            write-text -type "error" -text "Download failed. Skipping."
         }
     } catch {
         write-text -type "error" -text "Installation error: $($_.Exception.Message)"
