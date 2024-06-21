@@ -31,8 +31,6 @@ function edit-hostname {
         if ($description -eq "") { 
             $description = $currentDescription 
         } 
-        
-        get-closing -Script "edit-hostname"
 
         if ($hostname -ne "") {
             Remove-ItemProperty -path "HKLM:\SYSTEM\CurrentControlSet\Services\Tcpip\Parameters" -name "Hostname" 
@@ -101,7 +99,6 @@ function isr-install-ninja {
 
 function isr-install-apps {
     try {
-        $script:user = select-user
         install-chrome 
         install-cliq 
         install-zoom 
@@ -243,7 +240,7 @@ function install-chrome {
     $paths = @(
         "$env:ProgramFiles\Google\Chrome\Application\chrome.exe",
         "$env:ProgramFiles (x86)\Google\Chrome\Application\chrome.exe",
-        "C:\Users\$($user["Name"])\AppData\Google\Chrome\Application\chrome.exe"
+        "$env:USERPROFILE\AppData\Google\Chrome\Application\chrome.exe"
     )
 
     $url = "https://dl.google.com/dl/chrome/install/googlechromestandaloneenterprise64.msi"
@@ -255,7 +252,7 @@ function install-chrome {
 function Add-ChromeBookmarks {
     write-text -type "header" -text "Which profile "
     $profiles = [ordered]@{}
-    $chromeUserDataPath = "C:\Users\$($user["name"])\AppData\Local\Google\Chrome\User Data"
+    $chromeUserDataPath = "$env:USERPROFILE\AppData\Local\Google\Chrome\User Data"
     $profileFolders = Get-ChildItem -Path $chromeUserDataPath -Directory -ErrorAction SilentlyContinue
     if ($null -eq $profileFolders) { throw "Cannot find profiles for this Chrome installation." }
     foreach ($profileFolder in $profileFolders) {
@@ -312,7 +309,7 @@ function Install-HWInfo {
 }
 
 function install-cliq {
-    $paths = @("C:\Users\$($user["Name"])\AppData\Local\cliq\app-1.7.1")
+    $paths = @("$env:USERPROFILE\AppData\Local\cliq\app-1.7.1")
     $url = "https://downloads.zohocdn.com/chat-desktop/windows/Cliq_1.7.1_x64.exe"
     $appName = "Cliq"
     $installed = Find-ExistingInstall -Paths $paths -App $appName
@@ -323,7 +320,7 @@ function install-zoom {
     $paths = @(
         "C:\Program Files\Zoom\Zoom.exe",
         "C:\Program Files\Zoom\bin\Zoom.exe",
-        "C:\Users\$($user["Name"])\AppData\Zoom\Zoom.exe"
+        "$env:USERPROFILE\AppData\Zoom\Zoom.exe"
     )
     $url = "https://zoom.us/client/latest/ZoomInstallerFull.msi?archType=x64"
     $appName = "Zoom"
@@ -362,7 +359,7 @@ function install-acrobatreader {
 }
 
 function install-balto {
-    $paths = @("C:\Users\$($user["Name"])\AppData\Local\Programs\Balto\Balto.exe")
+    $paths = @("$env:USERPROFILE\AppData\Local\Programs\Balto\Balto.exe")
     $url = "https://download.baltocloud.com/Balto+Setup+6.1.1.exe"
     $appName = "Balto"
     $installed = Find-ExistingInstall -Paths $paths -App $appName
