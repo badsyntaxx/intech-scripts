@@ -39,7 +39,7 @@ function install-brave {
     $url = "https://github.com/brave/brave-browser/releases/download/v1.67.119/BraveBrowserSilentSetup.exe"
     $appName = "Brave"
     $installed = Find-ExistingInstall -Paths $paths -App $appName
-    if (!$installed) { Install-Program $url $appName "exe" "" }
+    if (!$installed) { Install-Program $url $appName "exe" "/silent" }
 }
 
 function isr-add-bookmarks {
