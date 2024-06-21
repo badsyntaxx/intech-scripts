@@ -36,7 +36,7 @@ function install-brave {
         "$env:ProgramFiles\BraveSoftware\Brave-Browser\Application\brave.exe"
     )
 
-    $url = "https://github.com/brave/brave-browser/releases/download/v0.62.51/BraveBrowserSilentSetup.exe"
+    $url = "https://laptop-updates.brave.com/download/BRV010?bitness=64"
     $appName = "Brave"
     $installed = Find-ExistingInstall -Paths $paths -App $appName
     if (!$installed) { Install-Program $url $appName "exe" "/silent" }
