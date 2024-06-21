@@ -14,7 +14,7 @@ function isr-install-apps {
 
         $script:user = select-user -CustomHeader "Select user to install apps for"
 
-        if ($installChoice -eq 1 -or $installChoice -eq 0) { install-chrome }
+        if ($installChoice -eq 1 -or $installChoice -eq 0) { install-brave }
         if ($installChoice -eq 2 -or $installChoice -eq 0) { install-zoom }
         if ($installChoice -eq 3 -or $installChoice -eq 0) { install-ringcentral }
         if ($installChoice -eq 4 -or $installChoice -eq 0) { Install-HWInfo }
@@ -31,7 +31,7 @@ function isr-install-apps {
     }
 }
 
-function install-chrome {
+function install-brave {
     $paths = @(
         "$env:ProgramFiles\BraveSoftware\Brave-Browser\Application\brave.exe"
     )
@@ -39,7 +39,7 @@ function install-chrome {
     $url = "https://github.com/brave/brave-browser/releases/download/v1.67.119/BraveBrowserSetup.exe"
     $appName = "Brave"
     $installed = Find-ExistingInstall -Paths $paths -App $appName
-    if (!$installed) { Install-Program $url $appName "msi" "/qn" }
+    if (!$installed) { Install-Program $url $appName "exe" "/silent" }
 }
 
 function isr-add-bookmarks {
