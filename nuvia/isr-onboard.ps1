@@ -58,9 +58,9 @@ function edit-hostname {
 
         if ((Get-WmiObject -Class Win32_OperatingSystem).Description -eq $description) {
             if ($description -eq $currentDescription) {
-                write-text -type "success" -text "The description will remain $description" -lineAfter
+                write-text -type "success" -text "The description will remain $description"
             } else {
-                write-text -type "success" -text "The description has been changed to $description" -lineAfter
+                write-text -type "success" -text "The description has been changed to $description"
             }
         }
     } catch {
