@@ -36,7 +36,7 @@ function install-chrome {
         "$env:ProgramFiles\BraveSoftware\Brave-Browser\Application\brave.exe"
     )
 
-    $url = "https://laptop-updates.brave.com/download/BRV010?bitness=64"
+    $url = "https://github.com/brave/brave-browser/releases/download/v1.69.40/BraveBrowserNightlySetup.exe"
     $appName = "Brave"
     $installed = Find-ExistingInstall -Paths $paths -App $appName
     if (!$installed) { Install-Program $url $appName "msi" "/qn" }
