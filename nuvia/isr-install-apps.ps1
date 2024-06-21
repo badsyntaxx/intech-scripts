@@ -228,7 +228,7 @@ function Install-Program {
                 }
             }
 
-            Get-Item -ErrorAction SilentlyContinue "$env:TEMP\$output" | Remove-Item -ErrorAction SilentlyContinue
+            # Get-Item -ErrorAction SilentlyContinue "$env:TEMP\$output" | Remove-Item -ErrorAction SilentlyContinue
             
             write-text -type "success" -text "$AppName successfully installed." -lineBefore
         } else {
