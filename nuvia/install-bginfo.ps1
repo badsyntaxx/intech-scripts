@@ -10,7 +10,7 @@ function install-bginfo {
         $url = "https://drive.google.com/uc?export=download&id=18gFWHawWknKufHXjcmMUB0SwGoSlbBEk" 
         $target = "Nuvia" 
 
-        $download = get-download -Url $url -Target "$env:TEMP\$target`_BGInfo.zip" -visible
+        $download = get-download -Url $url -Target "$env:SystemRoot\Temp\$target`_BGInfo.zip" -visible
         if (!$download) { exit-script -type "error" -text "Couldn't download Bginfo." }
 
         # Set the wallpaper property
@@ -22,17 +22,17 @@ function install-bginfo {
         # I don't know of a good way to check that this value has actually changed
         write-text -type "success" -text "Wallpaper successfully cleared." -lineBefore
 
-        Expand-Archive -LiteralPath "$env:TEMP\$target`_BGInfo.zip" -DestinationPath "$env:TEMP\"
+        Expand-Archive -LiteralPath "$env:SystemRoot\Temp\$target`_BGInfo.zip" -DestinationPath "$env:SystemRoot\Temp\"
 
         # Test if the extracted folder exists
-        if (Test-Path "$env:TEMP\BGInfo") {
+        if (Test-Path "$env:SystemRoot\Temp\BGInfo") {
             write-text -type "success" -text "BGInfo successfully unpacked."
         } else {
             write-text -type "error" -text "Failed to unpack BGInfo."
         }
 
-        ROBOCOPY "$env:TEMP\BGInfo" "C:\Program Files\BGInfo" /E /NFL /NDL /NJH /NJS /nc /ns | Out-Null
-        ROBOCOPY "$env:TEMP\BGInfo" "C:\ProgramData\Microsoft\Windows\Start Menu\Programs\Startup" "Start BGInfo.bat" /NFL /NDL /NJH /NJS /nc /ns | Out-Null
+        ROBOCOPY "$env:SystemRoot\Temp\BGInfo" "C:\Program Files\BGInfo" /E /NFL /NDL /NJH /NJS /nc /ns | Out-Null
+        ROBOCOPY "$env:SystemRoot\Temp\BGInfo" "C:\ProgramData\Microsoft\Windows\Start Menu\Programs\Startup" "Start BGInfo.bat" /NFL /NDL /NJH /NJS /nc /ns | Out-Null
 
         if (Test-Path "C:\Program Files\BGInfo") {
             write-text -type "success" -text "BGInfo successfully installed."
@@ -40,12 +40,12 @@ function install-bginfo {
             write-text -type "error" -text "Failed to install BGInfo."
         }
 
-        Remove-Item -Path "$env:TEMP\$target`_BGInfo.zip" -Recurse
-        Remove-Item -Path "$env:TEMP\BGInfo" -Recurse 
+        Remove-Item -Path "$env:SystemRoot\Temp\$target`_BGInfo.zip" -Recurse
+        Remove-Item -Path "$env:SystemRoot\Temp\BGInfo" -Recurse 
 
         $filesDeleted = $true
-        if (Test-Path "$env:TEMP\$target`_BGInfo.zip") { $filesDeleted = $false }
-        if (Test-Path "$env:TEMP\BGInfo") { $filesDeleted = $false } 
+        if (Test-Path "$env:SystemRoot\Temp\$target`_BGInfo.zip") { $filesDeleted = $false }
+        if (Test-Path "$env:SystemRoot\Temp\BGInfo") { $filesDeleted = $false } 
         if ($filesDeleted) {
             write-text -type "success" -text "Temp files successfully deleted."
         } else {

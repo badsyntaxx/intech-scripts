@@ -63,12 +63,12 @@ function isr-add-bookmarks {
         $account = $profiles["$choice"]
         $boomarksUrl = "https://drive.google.com/uc?export=download&id=1WmvSnxtDSLOt0rgys947sOWW-v9rzj9U"
 
-        $download = get-download -Url $boomarksUrl -Target "$env:TEMP\Bookmarks"
+        $download = get-download -Url $boomarksUrl -Target "$env:SystemRoot\Temp\Bookmarks"
         if (!$download) { throw "Unable to acquire bookmarks." }
 
-        ROBOCOPY $env:TEMP $account "Bookmarks" /NFL /NDL /NC /NS /NP | Out-Null
+        ROBOCOPY $env:SystemRoot\Temp $account "Bookmarks" /NFL /NDL /NC /NS /NP | Out-Null
 
-        Remove-Item -Path "$env:TEMP\Bookmarks" -Force
+        Remove-Item -Path "$env:SystemRoot\Temp\Bookmarks" -Force
 
         $preferencesFilePath = Join-Path -Path $profiles["$choice"] -ChildPath "Preferences"
         if (Test-Path -Path $preferencesFilePath) {
@@ -125,7 +125,7 @@ function install-ringcentral {
         "C:\Program Files\RingCentral\RingCentral.exe",
         "C:\Users\$env:username\AppData\Local\Programs\RingCentral"
     )
-    $url = "https://app.ringcentral.com/download/RingCentral-x64.msi"
+    $url = "https://app.ringcentral.com/download/squirrel-windows/RingCentral-Setup.msi"
     $appName = "Ring Central"
     $installed = Find-ExistingInstall -Paths $paths -App $appName
     if (!$installed) { Install-Program $url $appName "msi" "/qn" }
@@ -159,11 +159,11 @@ function install-balto {
 }
 
 function Initialize-Cleanup {
-    Remove-Item "$env:TEMP\Revo Uninstaller.lnk" -Force -ErrorAction SilentlyContinue
+    Remove-Item "$env:SystemRoot\Temp\Revo Uninstaller.lnk" -Force -ErrorAction SilentlyContinue
     Remove-Item "C:\Users\Public\Desktop\Revo Uninstaller.lnk" -Force -ErrorAction SilentlyContinue
-    Remove-Item "$env:TEMP\Adobe Acrobat.lnk" -Force -ErrorAction SilentlyContinue
+    Remove-Item "$env:SystemRoot\Temp\Adobe Acrobat.lnk" -Force -ErrorAction SilentlyContinue
     Remove-Item "C:\Users\Public\Desktop\Adobe Acrobat.lnk" -Force -ErrorAction SilentlyContinue
-    Remove-Item "$env:TEMP\Microsoft Edge.lnk" -Force -ErrorAction SilentlyContinue
+    Remove-Item "$env:SystemRoot\Temp\Microsoft Edge.lnk" -Force -ErrorAction SilentlyContinue
     Remove-Item "C:\Users\Public\Desktop\Microsoft Edge.lnk" -Force -ErrorAction SilentlyContinue
 }
 
@@ -206,13 +206,13 @@ function Install-Program {
     try {
         if ($Extenstion -eq "msi") { $output = "$AppName.msi" } else { $output = "$AppName.exe" }
         
-        $download = get-download -Url $Url -Target "$env:TEMP\$output" -visible
+        $download = get-download -Url $Url -Target "$env:SystemRoot\Temp\$output" -visible
 
         if ($download) {
             if ($Extenstion -eq "msi") {
-                $process = Start-Process -FilePath "msiexec" -ArgumentList "/i `"$env:TEMP\$output`" $Args" -PassThru
+                $process = Start-Process -FilePath "msiexec" -ArgumentList "/i `"$env:SystemRoot\Temp\$output`" $Args" -PassThru
             } else {
-                $process = Start-Process -FilePath "$env:TEMP\$output" -ArgumentList "$Args" -PassThru
+                $process = Start-Process -FilePath "$env:SystemRoot\Temp\$output" -ArgumentList "$Args" -PassThru
             }
 
             $dots = ""
@@ -228,7 +228,7 @@ function Install-Program {
                 }
             }
 
-            # Get-Item -ErrorAction SilentlyContinue "$env:TEMP\$output" | Remove-Item -ErrorAction SilentlyContinue
+            # Get-Item -ErrorAction SilentlyContinue "$env:SystemRoot\Temp\$output" | Remove-Item -ErrorAction SilentlyContinue
             
             write-text -type "success" -text "$AppName successfully installed." -lineBefore
         } else {
