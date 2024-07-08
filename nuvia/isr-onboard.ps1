@@ -333,7 +333,7 @@ function install-ringcentral {
         "C:\Program Files\RingCentral\RingCentral.exe",
         "C:\Users\$env:username\AppData\Local\Programs\RingCentral"
     )
-    $url = "https://app.ringcentral.com/download/RingCentral-x64.msi"
+    $url = "https://app.ringcentral.com/download/squirrel-windows/RingCentral-Setup.msi"
     $appName = "Ring Central"
     $installed = Find-ExistingInstall -Paths $paths -App $appName
     if (!$installed) { Install-Program $url $appName "msi" "/qn" }
