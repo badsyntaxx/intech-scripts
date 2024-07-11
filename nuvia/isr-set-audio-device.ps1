@@ -137,7 +137,7 @@ function add-script {
         [string]$progressText
     )
 
-    $url = "https://raw.githubusercontent.com/badsyntaxx/chased-intech-scripts/main"
+    $url = "https://raw.githubusercontent.com/badsyntaxx/intech-scripts/main"
 
     # Download the script
     $download = get-download -Url "$url/$subPath/$script.ps1" -Target "$env:TEMP\$script.ps1" -failText "Could not acquire components...$url/$subPath/$script.ps1"
