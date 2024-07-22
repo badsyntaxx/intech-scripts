@@ -1,4 +1,4 @@
-function initialize-chasedScripts {
+function initialize-chasteScripts {
     try {
         # Check if user has administrator privileges
         if (!([Security.Principal.WindowsPrincipal][Security.Principal.WindowsIdentity]::GetCurrent()).IsInRole([Security.Principal.WindowsBuiltInRole]"Administrator")) {
@@ -8,9 +8,9 @@ function initialize-chasedScripts {
         }
         
         # Create the main script file
-        New-Item -Path "$env:TEMP\CHASED-Script.ps1" -ItemType File -Force | Out-Null
+        New-Item -Path "$env:TEMP\CHASTE-Script.ps1" -ItemType File -Force | Out-Null
 
-        $url = "https://raw.githubusercontent.com/badsyntaxx/intech-scripts/main"
+        $url = "https://raw.githubusercontent.com/badsyntaxx/chaste-scripts/main"
 
         # Download the script
         $download = get-script -Url "$url/core/framework.ps1" -Target "$env:TEMP\framework.ps1"
@@ -18,20 +18,20 @@ function initialize-chasedScripts {
 
         # Append the script to the main script
         $rawScript = Get-Content -Path "$env:TEMP\framework.ps1" -Raw -ErrorAction SilentlyContinue
-        Add-Content -Path "$env:TEMP\CHASED-Script.ps1" -Value $rawScript
+        Add-Content -Path "$env:TEMP\CHASTE-Script.ps1" -Value $rawScript
 
         # Remove the script file
         Get-Item -ErrorAction SilentlyContinue "$env:TEMP\framework.ps1" | Remove-Item -ErrorAction SilentlyContinue
 
         # Add a final line that will invoke the desired function
-        Add-Content -Path "$env:TEMP\CHASED-Script.ps1" -Value 'invoke-script -script "read-command" -initialize $true'
+        Add-Content -Path "$env:TEMP\CHASTE-Script.ps1" -Value 'invoke-script -script "read-command" -initialize $true'
 
         # Execute the combined script
-        $chasedScript = Get-Content -Path "$env:TEMP\CHASED-Script.ps1" -Raw
-        Invoke-Expression $chasedScript
+        $chasteScript = Get-Content -Path "$env:TEMP\CHASTE-Script.ps1" -Raw
+        Invoke-Expression $chasteScript
     } catch {
         # Error handling: display an error message and prompt for a new command
-        Write-Host "Cant start Chased Scripts: $($_.Exception.Message) | init-$($_.InvocationInfo.ScriptLineNumber)" -ForegroundColor "Red"
+        Write-Host "    Connection Error: $($_.Exception.Message) | init-$($_.InvocationInfo.ScriptLineNumber)" -ForegroundColor "Red"
     }
 }
 
@@ -84,5 +84,5 @@ function get-script {
     }
 }
 
-# Invoke the root of CHASED scripts
-initialize-chasedScripts
+# Invoke the root of CHASTE scripts
+initialize-chasteScripts

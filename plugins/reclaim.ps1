@@ -1,4 +1,6 @@
 function reclaim {
+    write-text -type "label" -text "Making Windows 11 less sucky"  -lineAfter
+
     $tweaks = @(    
         ### Privacy Settings ###
         "DisableTelemetry",
@@ -74,7 +76,7 @@ function reclaim {
 
     $tweaks | ForEach-Object { Invoke-Expression $_ }
 
-    exit-script -type "success" -text "Windows 11 has been made semi-decent." -lineAfter
+    exit-script -type "success" -text "Windows 11 has been made semi-normal again." -lineAfter
 }
 
 ##########
