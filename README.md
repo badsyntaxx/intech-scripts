@@ -1,1 +1,1 @@
-https://chaste.dev/chaste-scripts/
+https://chaste.dev/intech-scripts/

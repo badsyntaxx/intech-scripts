@@ -163,7 +163,7 @@ function write-help {
             write-text -type "plain" -text "Chaste scripts aims to simplify tedious powershell commands and make common IT tasks" -Color "DarkGray"
             write-text -type "plain" -text "simpler by keeping commands logical, intuitive and short." -Color "DarkGray"
             write-text -type "header" -text "DOCS:" -lineBefore 
-            write-text -type "plain" -text "https://chaste.dev/chaste-scripts" -Color "DarkGray"
+            write-text -type "plain" -text "https://chaste.dev/intech-scripts" -Color "DarkGray"
             write-text -type "header" -text "COMMANDS:" -lineBefore
             write-text -type "plain" -text "toggle admin                     - Toggle the Windows built-in administrator account." -Color "DarkGray"
             write-text -type "plain" -text "add [local,domain] user          - Add a local or domain user to the system." -Color "DarkGray"
