@@ -5,6 +5,7 @@ function isr-install-apps {
                 "Brave"            = "Install Brave browser."
                 "Zoom"             = "Install Microsoft Zoom."
                 "RingCentral"      = "Install RingCentral."
+                "Cliq"             = "Install Cliq."
                 "HWInfo"           = "Install HWInfo."
                 "Revo Uninstaller" = "Install RevoUninstaller."
                 "Acrobat"          = "Install Adobe Acrobat reader."
@@ -97,6 +98,15 @@ function isr-add-bookmarks {
     }
 }
 
+function Install-Cliq {
+    $paths = @(
+        "C:\Users\Chase Asahina\AppData\Local\cliq\Cliq.exe"
+    )
+    $url = "https://downloads.zohocdn.com/chat-desktop/windows/Cliq_1.7.3_x64.exe"
+    $appName = "Cliq"
+    $installed = Find-ExistingInstall -Paths $paths -App $appName
+    if (!$installed) { Install-Program $url $appName "exe" "/silent" }
+}
 
 function Install-HWInfo {
     $paths = @(
@@ -228,7 +238,7 @@ function Install-Program {
                 }
             }
 
-            # Get-Item -ErrorAction SilentlyContinue "$env:SystemRoot\Temp\$output" | Remove-Item -ErrorAction SilentlyContinue
+            Get-Item -ErrorAction SilentlyContinue "$env:SystemRoot\Temp\$output" | Remove-Item -ErrorAction SilentlyContinue
             
             write-text -type "success" -text "$AppName successfully installed." -lineBefore
         } else {
