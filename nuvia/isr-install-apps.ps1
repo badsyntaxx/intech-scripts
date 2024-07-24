@@ -101,7 +101,7 @@ function isr-add-bookmarks {
 
 function Install-Cliq {
     $paths = @(
-        "C:\Users\Chase Asahina\AppData\Local\cliq\Cliq.exe"
+        "C:\Users\$($user["Name"])\AppData\Local\cliq\Cliq.exe"
     )
     $url = "https://downloads.zohocdn.com/chat-desktop/windows/Cliq_1.7.3_x64.exe"
     $appName = "Cliq"
