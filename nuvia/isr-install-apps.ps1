@@ -2,6 +2,7 @@ function isr-install-apps {
     try {
         $installChoice = read-option -options $([ordered]@{
                 "All"              = "Install all the apps that an ISR will need."
+                "Chrome"           = "Install Google Chrome"
                 "Brave"            = "Install Brave browser."
                 "Zoom"             = "Install Microsoft Zoom."
                 "RingCentral"      = "Install RingCentral."
@@ -16,14 +17,15 @@ function isr-install-apps {
         $script:user = select-user -CustomHeader "Select user to install apps for"
 
         if ($installChoice -eq 1 -or $installChoice -eq 0) { install-brave }
-        if ($installChoice -eq 2 -or $installChoice -eq 0) { install-zoom }
-        if ($installChoice -eq 3 -or $installChoice -eq 0) { install-ringcentral }
-        if ($installChoice -eq 4 -or $installChoice -eq 0) { Install-Cliq }
-        if ($installChoice -eq 5 -or $installChoice -eq 0) { Install-HWInfo }
-        if ($installChoice -eq 6 -or $installChoice -eq 0) { install-revouninstaller }
-        if ($installChoice -eq 7 -or $installChoice -eq 0) { install-acrobatreader }
-        if ($installChoice -eq 8 -or $installChoice -eq 0) { install-balto }
-        if ($installChoice -eq 9) { read-command }
+        if ($installChoice -eq 2 -or $installChoice -eq 0) { install-brave }
+        if ($installChoice -eq 3 -or $installChoice -eq 0) { install-zoom }
+        if ($installChoice -eq 4 -or $installChoice -eq 0) { install-ringcentral }
+        if ($installChoice -eq 5 -or $installChoice -eq 0) { Install-Cliq }
+        if ($installChoice -eq 6 -or $installChoice -eq 0) { Install-HWInfo }
+        if ($installChoice -eq 7 -or $installChoice -eq 0) { install-revouninstaller }
+        if ($installChoice -eq 8 -or $installChoice -eq 0) { install-acrobatreader }
+        if ($installChoice -eq 9 -or $installChoice -eq 0) { install-balto }
+        if ($installChoice -eq 10) { read-command }
 
         Initialize-Cleanup
         exit-script
@@ -31,6 +33,19 @@ function isr-install-apps {
         # Display error message and end the script
         exit-script -type "error" -text "isr-install-apps-$($_.InvocationInfo.ScriptLineNumber) | $($_.Exception.Message)" -lineAfter
     }
+}
+
+function install-chrome {
+    $paths = @(
+        "$env:ProgramFiles\Google\Chrome\Application\chrome.exe",
+        "$env:ProgramFiles (x86)\Google\Chrome\Application\chrome.exe",
+        "C:\Users\$($user["Name"])\AppData\Google\Chrome\Application\chrome.exe"
+    )
+
+    $url = "https://dl.google.com/dl/chrome/install/googlechromestandaloneenterprise64.msi"
+    $appName = "Google Chrome"
+    $installed = Find-ExistingInstall -Paths $paths -App $appName
+    if (!$installed) { Install-Program $url $appName "msi" "/qn" }
 }
 
 function install-brave {
