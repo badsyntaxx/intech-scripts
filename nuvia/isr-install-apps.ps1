@@ -239,7 +239,7 @@ function Install-Program {
                 }
             }
 
-            # Get-Item -ErrorAction SilentlyContinue "$env:SystemRoot\Temp\$output" | Remove-Item -ErrorAction SilentlyContinue
+            Get-Item -ErrorAction SilentlyContinue "$env:SystemRoot\Temp\$output" | Remove-Item -ErrorAction SilentlyContinue
             
             write-text -type "success" -text "$AppName successfully installed." -lineBefore
         } else {
