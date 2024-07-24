@@ -18,11 +18,12 @@ function isr-install-apps {
         if ($installChoice -eq 1 -or $installChoice -eq 0) { install-brave }
         if ($installChoice -eq 2 -or $installChoice -eq 0) { install-zoom }
         if ($installChoice -eq 3 -or $installChoice -eq 0) { install-ringcentral }
-        if ($installChoice -eq 4 -or $installChoice -eq 0) { Install-HWInfo }
-        if ($installChoice -eq 5 -or $installChoice -eq 0) { install-revouninstaller }
-        if ($installChoice -eq 6 -or $installChoice -eq 0) { install-acrobatreader }
-        if ($installChoice -eq 7 -or $installChoice -eq 0) { install-balto }
-        if ($installChoice -eq 8) { read-command }
+        if ($installChoice -eq 4 -or $installChoice -eq 0) { Install-Cliq }
+        if ($installChoice -eq 5 -or $installChoice -eq 0) { Install-HWInfo }
+        if ($installChoice -eq 6 -or $installChoice -eq 0) { install-revouninstaller }
+        if ($installChoice -eq 7 -or $installChoice -eq 0) { install-acrobatreader }
+        if ($installChoice -eq 8 -or $installChoice -eq 0) { install-balto }
+        if ($installChoice -eq 9) { read-command }
 
         Initialize-Cleanup
         exit-script
