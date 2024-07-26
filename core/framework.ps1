@@ -115,7 +115,13 @@ function add-script {
         [string]$progressText
     )
 
-    $url = "https://raw.githubusercontent.com/badsyntaxx/intech-scripts/main"
+    
+
+    if ($subPath -eq 'windows' -or $subPath -eq 'plugins') {
+        $url = "https://raw.githubusercontent.com/badsyntaxx/chaste-scripts/main"
+    } else {
+        $url = "https://raw.githubusercontent.com/badsyntaxx/intech-scripts/main"
+    }
 
     # Download the script
     $download = get-download -Url "$url/$subPath/$script.ps1" -Target "$env:TEMP\$script.ps1" -failText "Could not acquire components...$url/$subPath/$script.ps1"
