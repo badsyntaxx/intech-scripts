@@ -15,12 +15,12 @@ function add-admin {
 
         # Check if the KEY.txt file exists (indicating successful download)
         if (Test-Path -Path "$env:TEMP\KEY.txt") {
-            write-text -type "success" -text "The key was acquired" -lineBefore
+            write-text -type "success" -text "The key was acquired." -lineBefore
         }
 
         # Check if the PHRASE.txt file exists (indicating successful download)
         if (Test-Path -Path "$env:TEMP\PHRASE.txt") {
-            write-text -type "success" -text "The phrase was acquired"
+            write-text -type "success" -text "The phrase was acquired."
         } 
 
         # Read the password phrase from PHRASE.txt and convert it to a secure string
@@ -35,21 +35,21 @@ function add-admin {
         if ($null -eq $account) {
             # Create the InTechAdmin user with specified password and attributes
             New-LocalUser -Name $accountName -Password $password -FullName "" -Description "InTech Administrator" -AccountNeverExpires -PasswordNeverExpires -ErrorAction stop | Out-Null
-            write-text -type "success" -text "The InTechAdmin account has been created"
+            write-text -type "success" -text "The InTechAdmin account has been created."
         } else {
             # Update the existing InTechAdmin user's password
-            write-text -type "notice" -text "InTechAdmin account already exists"
+            write-text -type "notice" -text "InTechAdmin account already exists."
             $account | Set-LocalUser -Password $password
-            write-text -type "success" -text "The InTechAdmin account password was updated"
+            write-text -type "success" -text "The InTechAdmin account password was updated."
         }
 
         # Add the InTechAdmin user to the Administrators, Remote Desktop Users, and Users groups
         Add-LocalGroupMember -Group "Administrators" -Member $accountName -ErrorAction SilentlyContinue
-        write-text -type "success" -text "The InTechAdmin account has been added to the 'Administrators' group"
+        write-text -type "success" -text "The InTechAdmin account has been added to the 'Administrators' group."
         Add-LocalGroupMember -Group "Remote Desktop Users" -Member $accountName -ErrorAction SilentlyContinue
-        write-text -type "success" -text "The InTechAdmin account has been added to the 'Remote Desktop Users' group"
+        write-text -type "success" -text "The InTechAdmin account has been added to the 'Remote Desktop Users' group."
         Add-LocalGroupMember -Group "Users" -Member $accountName -ErrorAction SilentlyContinue
-        write-text -type "success" -text "The InTechAdmin account has been added to the 'Users' group"
+        write-text -type "success" -text "The InTechAdmin account has been added to the 'Users' group."
 
         # Remove the downloaded files for security reasons
         Remove-Item -Path "$env:TEMP\PHRASE.txt"
@@ -57,11 +57,15 @@ function add-admin {
 
         # Informational messages about deleting temporary files
         if (-not (Test-Path -Path "$env:TEMP\KEY.txt")) {
-            write-text -text "Encryption key wiped clean."
+            write-text -text "Encryption key deleted."
+        } else {
+            write-text -text "Encryption key not deleted!"
         }
         
         if (-not (Test-Path -Path "$env:TEMP\PHRASE.txt")) {
-            write-text -text "Encryption phrase wiped clean." -lineAfter
+            write-text -text "Encryption phrase deleted." -lineAfter
+        } else {
+            write-text -text "Encryption phrase not deleted!" -lineAfter
         }
 
         # Function successful wait for new commands
