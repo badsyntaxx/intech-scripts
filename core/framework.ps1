@@ -115,8 +115,6 @@ function add-script {
         [string]$progressText
     )
 
-    
-
     if ($subPath -eq 'windows' -or $subPath -eq 'plugins') {
         $url = "https://raw.githubusercontent.com/badsyntaxx/chaste-scripts/main"
     } else {
