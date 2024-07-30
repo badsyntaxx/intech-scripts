@@ -139,6 +139,7 @@ function write-help {
 
     switch ($type) {
         "" { 
+            write-text -type 'header' -text "Running as $([System.Security.Principal.WindowsIdentity]::GetCurrent().Name)"
             write-text -type "header" -text "DESCRIPTION:" -lineBefore
             write-text -type "plain" -text "Chaste scripts aims to simplify tedious powershell commands and make common IT tasks" -Color "DarkGray"
             write-text -type "plain" -text "simpler by keeping commands logical, intuitive and short. I also ensure that all" -Color "DarkGray"
