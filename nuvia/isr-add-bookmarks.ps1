@@ -1,16 +1,21 @@
 function isr-add-bookmarks {
     try {
-        $user = select-user
-
         $profiles = [ordered]@{}
         $chromeUserDataPath = "C:\Users\$($user["Name"])\AppData\Local\Google\Chrome\User Data"
+        if (!(Test-Path $chromeUserDataPath)) {
+            # throw "No user directory. It's likely the account has not had it's first sign-in yet." 
+            New-Item -ItemType Directory -Path $chromeUserDataPath
+        }
         $profileFolders = Get-ChildItem -Path $chromeUserDataPath -Directory
         if ($null -eq $profileFolders) { throw "Cannot find profiles for this Chrome installation." }
         foreach ($profileFolder in $profileFolders) {
             $preferencesFile = Join-Path -Path $profileFolder.FullName -ChildPath "Preferences"
             if (Test-Path -Path $preferencesFile) {
                 $preferencesContent = Get-Content -Path $preferencesFile -Raw | ConvertFrom-Json
-                $profileName = $preferencesContent.account_info.full_name
+                $profileName = $preferencesContent.account_info.email
+                if ($null -eq $preferencesContent.account_info.email) {
+                    $profileName = $preferencesContent.account_info.account_id
+                } 
                 $profiles["$profileName"] = $profileFolder.FullName
             }
         }
@@ -52,4 +57,3 @@ function isr-add-bookmarks {
         exit-script -type "error" -text "isr-add-bookmarks-$($_.InvocationInfo.ScriptLineNumber) | $($_.Exception.Message)" -lineAfter
     }
 }
-
