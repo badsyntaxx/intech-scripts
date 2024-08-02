@@ -14,7 +14,9 @@ function isr-install-apps {
                 "Exit"             = "Exit this script and go back to main command line."
             })
 
-        $script:user = select-user -CustomHeader "Select user to install apps for"
+        if ($installChoice -ne 10) { 
+            $script:user = select-user -CustomHeader "Select user to install apps for"
+        }
 
         if ($installChoice -eq 1 -or $installChoice -eq 0) { install-brave }
         if ($installChoice -eq 2 -or $installChoice -eq 0) { install-brave }
@@ -46,6 +48,14 @@ function install-chrome {
     $appName = "Google Chrome"
     $installed = Find-ExistingInstall -Paths $paths -App $appName
     if (!$installed) { Install-Program $url $appName "msi" "/qn" }
+
+    $bookmarksChoice = read-option -options $([ordered]@{
+            "Install bookmarks?" = "Add ISR bookmarks to Google Chrome now."
+            "Skip"               = "Skip ahead and do not add bookmarks to Google Chrome."
+        })
+
+    if ($bookmarksChoice -eq 1 -or $bookmarksChoice -eq 0) { install-brave }
+    if ($bookmarksChoice -eq 2 -or $bookmarksChoice -eq 0) { install-brave }
 }
 
 function install-brave {
@@ -57,61 +67,6 @@ function install-brave {
     $appName = "Brave"
     $installed = Find-ExistingInstall -Paths $paths -App $appName
     if (!$installed) { Install-Program $url $appName "exe" "/silent" }
-}
-
-function isr-add-bookmarks {
-    try {
-        $user = select-user
-
-        $profiles = [ordered]@{}
-        $chromeUserDataPath = "C:\Users\$($user["Name"])\AppData\Local\Google\Chrome\User Data"
-        $profileFolders = Get-ChildItem -Path $chromeUserDataPath -Directory
-        if ($null -eq $profileFolders) { throw "Cannot find profiles for this Chrome installation." }
-        foreach ($profileFolder in $profileFolders) {
-            $preferencesFile = Join-Path -Path $profileFolder.FullName -ChildPath "Preferences"
-            if (Test-Path -Path $preferencesFile) {
-                $preferencesContent = Get-Content -Path $preferencesFile -Raw | ConvertFrom-Json
-                $profileName = $preferencesContent.account_info.full_name
-                $profiles["$profileName"] = $profileFolder.FullName
-            }
-        }
-
-        $choice = read-option -options $profiles -lineAfter -ReturnKey
-        $account = $profiles["$choice"]
-        $boomarksUrl = "https://drive.google.com/uc?export=download&id=1WmvSnxtDSLOt0rgys947sOWW-v9rzj9U"
-
-        $download = get-download -Url $boomarksUrl -Target "$env:SystemRoot\Temp\Bookmarks"
-        if (!$download) { throw "Unable to acquire bookmarks." }
-
-        ROBOCOPY $env:SystemRoot\Temp $account "Bookmarks" /NFL /NDL /NC /NS /NP | Out-Null
-
-        Remove-Item -Path "$env:SystemRoot\Temp\Bookmarks" -Force
-
-        $preferencesFilePath = Join-Path -Path $profiles["$choice"] -ChildPath "Preferences"
-        if (Test-Path -Path $preferencesFilePath) {
-            $preferences = Get-Content -Path $preferencesFilePath -Raw | ConvertFrom-Json
-            if (-not $preferences.PSObject.Properties.Match('bookmark_bar').Count) {
-                $preferences | Add-Member -type NoteProperty -Name 'bookmark_bar' -Value @{}
-            }
-
-            if (-not $preferences.bookmark_bar.PSObject.Properties.Match('show_on_all_tabs').Count) {
-                $preferences.bookmark_bar | Add-Member -type NoteProperty -Name 'show_on_all_tabs' -Value $true
-            } else {
-                $preferences.bookmark_bar.show_on_all_tabs = $true
-            }
-
-            $preferences | ConvertTo-Json -Depth 100 | Set-Content -Path $preferencesFilePath
-        } else {
-            throw "Preferences file not found."
-        }
-
-        if (Test-Path -Path $account) {
-            exit-script -type "success" -text "The bookmarks have been added." -lineAfter
-        }
-    } catch {
-        # Display error message and end the script
-        exit-script -type "error" -text "isr-add-bookmarks-$($_.InvocationInfo.ScriptLineNumber) | $($_.Exception.Message)" -lineAfter
-    }
 }
 
 function Install-Cliq {

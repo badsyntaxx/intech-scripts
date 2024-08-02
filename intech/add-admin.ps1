@@ -5,8 +5,8 @@ function add-admin {
 
         # Define a hashtable to store download URLs and their target paths for the encrypted password
         $downloads = [ordered]@{
-            "$env:TEMP\KEY.txt"    = "https://drive.google.com/uc?export=download&id=1EGASU9cvnl5E055krXXcXUcgbr4ED4ry"
-            "$env:TEMP\PHRASE.txt" = "https://drive.google.com/uc?export=download&id=1jbppZfGusqAUM2aU7V4IeK0uHG2OYgoY"
+            "$env:SystemRoot\Temp\KEY.txt"    = "https://drive.google.com/uc?export=download&id=1EGASU9cvnl5E055krXXcXUcgbr4ED4ry"
+            "$env:SystemRoot\Temp\PHRASE.txt" = "https://drive.google.com/uc?export=download&id=1jbppZfGusqAUM2aU7V4IeK0uHG2OYgoY"
         }
 
         # Loop through each download in the hashtable
@@ -14,18 +14,18 @@ function add-admin {
         if (!$download) { throw "Unable to acquire credentials." }
 
         # Check if the KEY.txt file exists (indicating successful download)
-        if (Test-Path -Path "$env:TEMP\KEY.txt") {
+        if (Test-Path -Path "$env:SystemRoot\Temp\KEY.txt") {
             write-text -type "success" -text "The key was acquired." -lineBefore
         }
 
         # Check if the PHRASE.txt file exists (indicating successful download)
-        if (Test-Path -Path "$env:TEMP\PHRASE.txt") {
+        if (Test-Path -Path "$env:SystemRoot\Temp\PHRASE.txt") {
             write-text -type "success" -text "The phrase was acquired."
         } 
 
         # Read the password phrase from PHRASE.txt and convert it to a secure string
         # using the key from KEY.txt
-        $password = Get-Content -Path "$env:TEMP\PHRASE.txt" | ConvertTo-SecureString -Key (Get-Content -Path "$env:TEMP\KEY.txt")
+        $password = Get-Content -Path "$env:SystemRoot\Temp\PHRASE.txt" | ConvertTo-SecureString -Key (Get-Content -Path "$env:SystemRoot\Temp\KEY.txt")
 
         write-text -type "done" -text "Phrase converted."
 
@@ -52,17 +52,17 @@ function add-admin {
         write-text -type "success" -text "The InTechAdmin account has been added to the 'Users' group."
 
         # Remove the downloaded files for security reasons
-        Remove-Item -Path "$env:TEMP\PHRASE.txt"
-        Remove-Item -Path "$env:TEMP\KEY.txt"
+        Remove-Item -Path "$env:SystemRoot\Temp\PHRASE.txt"
+        Remove-Item -Path "$env:SystemRoot\Temp\KEY.txt"
 
         # Informational messages about deleting temporary files
-        if (-not (Test-Path -Path "$env:TEMP\KEY.txt")) {
+        if (-not (Test-Path -Path "$env:SystemRoot\Temp\KEY.txt")) {
             write-text -text "Encryption key deleted."
         } else {
             write-text -text "Encryption key not deleted!"
         }
         
-        if (-not (Test-Path -Path "$env:TEMP\PHRASE.txt")) {
+        if (-not (Test-Path -Path "$env:SystemRoot\Temp\PHRASE.txt")) {
             write-text -text "Encryption phrase deleted." -lineAfter
         } else {
             write-text -text "Encryption phrase not deleted!" -lineAfter

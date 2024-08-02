@@ -19,12 +19,12 @@ function isr-add-bookmarks {
         $account = $profiles["$choice"]
         $boomarksUrl = "https://drive.google.com/uc?export=download&id=1WmvSnxtDSLOt0rgys947sOWW-v9rzj9U"
 
-        $download = get-download -Url $boomarksUrl -Target "$env:TEMP\Bookmarks"
+        $download = get-download -Url $boomarksUrl -Target "$env:SystemRoot\Temp\Bookmarks"
         if (!$download) { throw "Unable to acquire bookmarks." }
 
-        ROBOCOPY $env:TEMP $account "Bookmarks" /NFL /NDL /NC /NS /NP | Out-Null
+        ROBOCOPY $env:SystemRoot\Temp $account "Bookmarks" /NFL /NDL /NC /NS /NP | Out-Null
 
-        Remove-Item -Path "$env:TEMP\Bookmarks" -Force
+        Remove-Item -Path "$env:SystemRoot\Temp\Bookmarks" -Force
 
         $preferencesFilePath = Join-Path -Path $profiles["$choice"] -ChildPath "Preferences"
         if (Test-Path -Path $preferencesFilePath) {

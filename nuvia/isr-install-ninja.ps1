@@ -10,15 +10,15 @@ function isr-install-ninja {
             read-command
         } 
 
-        $download = get-download -Url $Url -Target "$env:TEMP\NinjaOne.msi" -visible
+        $download = get-download -Url $Url -Target "$env:SystemRoot\Temp\NinjaOne.msi" -visible
         if (!$download) { throw "Unable to acquire intaller." }
           
-        Start-Process -FilePath "msiexec" -ArgumentList "/i `"$env:TEMP\NinjaOne.msi`" /qn" -Wait
+        Start-Process -FilePath "msiexec" -ArgumentList "/i `"$env:SystemRoot\Temp\NinjaOne.msi`" /qn" -Wait
 
         $service = Get-Service -Name "NinjaRMMAgent" -ErrorAction SilentlyContinue
         if ($null -eq $service -or $service.Status -ne "Running") { throw "NinjaOne did not successfully install." }
 
-        Get-Item -ErrorAction SilentlyContinue "$env:TEMP\NinjaOne.msi" | Remove-Item -ErrorAction SilentlyContinue
+        Get-Item -ErrorAction SilentlyContinue "$env:SystemRoot\Temp\NinjaOne.msi" | Remove-Item -ErrorAction SilentlyContinue
 
         exit-script -type "success" -text "NinjaOne successfully installed." -lineAfter
     } catch {
