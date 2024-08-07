@@ -8,7 +8,7 @@ function schedule-reboot {
     $nextWednesday = $nextWednesday.AddHours(22)
 
     # Create the trigger for every Wednesday at 10 PM
-    $trigger = New-ScheduledTaskTrigger -StartBoundary $nextWednesday -Repetition (Weekly) -Enabled $true -TaskTriggerType Weekly
+    $trigger = New-ScheduledTaskTrigger -StartBoundary $nextWednesday -Repetition ('Weekly') -Enabled $true -TaskTriggerType 'Weekly'
 
     # Create the task principal (adjust as needed)
     $principal = New-ScheduledTaskPrincipal -LogonType Interactive
