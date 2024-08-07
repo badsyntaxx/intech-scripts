@@ -1,18 +1,28 @@
 function schedule-reboot {
-    # Create the action to restart the computer
-    $action = New-ScheduledTaskAction -Execute "shutdown" -Argument "/r /t 0"
+    try {
+        $taskName = 'WeeklyReboot'
+    
+        # Check if the task already exists
+        $existingTask = Get-ScheduledTask -TaskName $taskName -ErrorAction SilentlyContinue
+    
+        if ($existingTask) {
+            write-text -type 'success' -text "Task '$taskName' already exists. Skipping task creation."
+        } else {
+            # Define the action (reboot) and trigger (weekly on Wednesday at 10 PM)
+            $action = New-ScheduledTaskAction -Execute 'shutdown' -Argument '/r /t 0'
+            $trigger = New-ScheduledTaskTrigger -Weekly -DaysOfWeek Wednesday -At 10:00PM
+    
+            # Create the task
+            Register-ScheduledTask -Action $action -Trigger $trigger -TaskName $taskName -User 'NT AUTHORITY\SYSTEM' -RunLevel Highest
+            Write-Host "Task '$taskName' created successfully."
+        }
 
-    # Calculate the next Wednesday at 10 PM
-    $today = Get-Date
-    $nextWednesday = $today.AddDays(3 - $today.DayOfWeek)
-    $nextWednesday = $nextWednesday.AddHours(22)
+        Write-Host
 
-    # Create the trigger for every Wednesday at 10 PM
-    $trigger = New-ScheduledTaskTrigger -StartBoundary $nextWednesday -Repetition ('Weekly') -Enabled $true -TaskTriggerType 'Weekly'
-
-    # Create the task principal (adjust as needed)
-    $principal = New-ScheduledTaskPrincipal -LogonType Interactive
-
-    # Register the task
-    Register-ScheduledTask -TaskName "WeeklyReboot" -Action $action -Trigger $trigger -Principal $principal
+        read-command
+    } catch {
+        # Display error message and exit this script
+        exit-script -type "error" -text "schedule-reboot-$($_.InvocationInfo.ScriptLineNumber) | $($_.Exception.Message)" -lineAfter
+    }
+    
 }
