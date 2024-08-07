@@ -1,7 +1,6 @@
 function schedule-reboot {
     try {
-        $taskName = 'WeeklyReboot'
-    
+        $taskName = "InTech Weekly Reboot"
         # Check if the task already exists
         $existingTask = Get-ScheduledTask -TaskName $taskName -ErrorAction SilentlyContinue
     
@@ -13,8 +12,9 @@ function schedule-reboot {
             $trigger = New-ScheduledTaskTrigger -Weekly -DaysOfWeek Wednesday -At 10:00PM
     
             # Create the task
-            Register-ScheduledTask -Action $action -Trigger $trigger -TaskName $taskName -User 'NT AUTHORITY\SYSTEM' -RunLevel Highest
-            Write-Host "Task '$taskName' created successfully."
+            Register-ScheduledTask -Action $action -Trigger $trigger -TaskName $taskName -User 'NT AUTHORITY\SYSTEM' -RunLevel Highest | Out-Null
+
+            write-text -type "success" -text "Task '$taskName' created successfully."
         }
 
         Write-Host
@@ -23,6 +23,5 @@ function schedule-reboot {
     } catch {
         # Display error message and exit this script
         exit-script -type "error" -text "schedule-reboot-$($_.InvocationInfo.ScriptLineNumber) | $($_.Exception.Message)" -lineAfter
-    }
-    
+    } 
 }
