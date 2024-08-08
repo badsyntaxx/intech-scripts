@@ -8,15 +8,11 @@ function install-jumpcloud {
         # Example ./InstallWindowsAgent.ps1 -JumpCloudConnectKey "56b403784365r6o2n311cosr218u1762le4y9e9a"
         # Your JumpCloudConnectKey can be found on the systems tab within the JumpCloud admin console.
 
-        Param (
-            [Parameter (Mandatory = $true)]
-            [string] $JumpCloudConnectKey = "fe8929df5bbccb8aceb58385b88aba034b7d69f7"
-        )
-
         #--- Modify Below This Line At Your Own Risk ------------------------------
 
         # JumpCloud Agent Installation Variables
         $TempPath = 'C:\Windows\Temp\'
+        $JumpCloudConnectKey = "fe8929df5bbccb8aceb58385b88aba034b7d69f7";
         $AGENT_PATH = Join-Path ${env:ProgramFiles} "JumpCloud"
         $AGENT_BINARY_NAME = "jumpcloud-agent.exe"
         $AGENT_INSTALLER_URL = "https://cdn02.jumpcloud.com/production/jcagent-msi-signed.msi"
