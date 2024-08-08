@@ -11,12 +11,11 @@ function install-jumpcloud {
         #--- Modify Below This Line At Your Own Risk ------------------------------
 
         # JumpCloud Agent Installation Variables
-        $TempPath = 'C:\Windows\Temp\'
         $JumpCloudConnectKey = "fe8929df5bbccb8aceb58385b88aba034b7d69f7";
         $AGENT_PATH = Join-Path ${env:ProgramFiles} "JumpCloud"
         $AGENT_BINARY_NAME = "jumpcloud-agent.exe"
         $AGENT_INSTALLER_URL = "https://cdn02.jumpcloud.com/production/jcagent-msi-signed.msi"
-        $AGENT_INSTALLER_PATH = "C:\windows\Temp\jcagent-msi-signed.msi"
+        $AGENT_INSTALLER_PATH = "$env:SystemRoot\Temp\jcagent-msi-signed.msi"
         # JumpCloud Agent Installation Functions
         Function InstallAgent() {
             msiexec /i $AGENT_INSTALLER_PATH /quiet JCINSTALLERARGUMENTS=`"-k $JumpCloudConnectKey /VERYSILENT /NORESTART /NOCLOSEAPPLICATIONS /L*V "C:\Windows\Temp\jcUpdate.log"`"
@@ -26,13 +25,13 @@ function install-jumpcloud {
         }
         Function DownloadAndInstallAgent() {
             If (Test-Path -Path "$($AGENT_PATH)\$($AGENT_BINARY_NAME)") {
-                Write-Output 'JumpCloud Agent Already Installed'
+                write-text 'JumpCloud Agent Already Installed'
             } else {
-                Write-Output 'Downloading JCAgent Installer'
+                write-text 'Downloading JCAgent Installer'
                 # Download Installer
                 DownloadAgentInstaller
-                Write-Output 'JumpCloud Agent Download Complete'
-                Write-Output 'Running JCAgent Installer'
+                write-text 'JumpCloud Agent Download Complete'
+                write-text 'Running JCAgent Installer'
                 # Run Installer
                 InstallAgent
 
@@ -44,11 +43,11 @@ function install-jumpcloud {
                     #Output the errors encountered
                     $AgentService = Get-Service -Name "jumpcloud-agent" -ErrorAction SilentlyContinue
                     if ($AgentService.Status -eq 'Running') {
-                        Write-Output 'JumpCloud Agent Succesfully Installed'
+                        write-text 'JumpCloud Agent Succesfully Installed'
                         exit
                     }
                 }
-                Write-Output 'JumpCloud Agent Failed to Install'
+                write-text 'JumpCloud Agent Failed to Install'
             }
         }
 
