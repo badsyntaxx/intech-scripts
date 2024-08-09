@@ -1,6 +1,8 @@
 function schedule-reboot {
     try {
+        write-text "Creating the InTech weekly reboot task."
         $taskName = "InTech Weekly Reboot"
+
         # Check if the task already exists
         $existingTask = Get-ScheduledTask -TaskName $taskName -ErrorAction SilentlyContinue
     
@@ -15,6 +17,7 @@ function schedule-reboot {
             Register-ScheduledTask -Action $action -Trigger $trigger -TaskName $taskName -User 'NT AUTHORITY\SYSTEM' -RunLevel Highest | Out-Null
 
             write-text -type "success" -text "Task '$taskName' created successfully."
+            write-text "The system will now reboot every Wednesday at 10PM."
         }
 
         Write-Host

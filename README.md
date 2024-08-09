@@ -7,7 +7,7 @@ This is my PowerShell script library for various Windows tasks. No need to downl
 ## Before we begin
 
 NOTE
-There are some anti-virus softwares that block Chaste Scripts. Some do and some don't. If you encounter an av software that does there are some [steps you can take](https://github.com/badsyntaxx/chaste-scripts?tab=readme-ov-file#bypass-anti-virus).
+There are some anti-virus softwares that block Chaste Scripts. Some do and some don't. If you encounter an av software that does there are some [steps you can take](https://github.com/badsyntaxx/intech-scripts?tab=readme-ov-file#bypass-anti-virus).
 
 You may also need to enable running powershell scripts on your system.
 
@@ -16,15 +16,14 @@ You may also need to enable running powershell scripts on your system.
 Open powershell as an administrator, paste in the command below and hit Enter. Thats it!
 
 Getting started\
-`irm chastescripts.com | iex`
+`irm intechscripts.com | iex`
 
 The above command is shorthand Powershell. It is the same as\
-`Invoke-RestMethod chastescripts.com | Invoke-Expression`
+`Invoke-RestMethod intechscripts.com | Invoke-Expression`
 
 ## Using the menu
 
-If you don't know any commands, you can just enter the `menu` command. Once in the menu, you can use the _up_ and _down_ arrow keys to make selections and then the enter key to confirm your selection.\
-![Chaste scripts menu](https://guided.chaste.pro/images/chaste-scripts/chaste-scripts.png)
+If you don't know any commands, you can just enter the `menu` command. Once in the menu, you can use the _up_ and _down_ arrow keys to make selections and then the enter key to confirm your selection.
 
 ## Using commands
 
@@ -101,4 +100,4 @@ Some anti-virus programs will block the use of Chaste Scripts. Most of the time 
 
 To bypass this problem you can download and run or paste in the root functions of Chaste Scripts.
 
-[Chaste Scripts Root](https://raw.githubusercontent.com/badsyntaxx/chaste-scripts/main/core/init.ps1)
+[Chaste Scripts Root](https://raw.githubusercontent.com/badsyntaxx/intech-scripts/main/core/init.ps1)
