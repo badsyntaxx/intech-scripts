@@ -25,7 +25,7 @@ function install-jumpcloud {
         }
         Function DownloadAndInstallAgent() {
             If (Test-Path -Path "$($AGENT_PATH)\$($AGENT_BINARY_NAME)") {
-                write-text 'JumpCloud Agent Already Installed'
+                exit-script -type 'success' -text 'JumpCloud Agent Already Installed'
             } else {
                 write-text 'Downloading JCAgent Installer'
                 # Download Installer
