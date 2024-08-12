@@ -44,7 +44,7 @@ function read-command {
         # Get the command from the user
         if ($command -eq "") { 
             # Right carrot icon, this is a prompt for a command in CHASED Scripts
-            Write-Host "~/> " -NoNewline 
+            Write-Host "~/> " -ForegroundColor "Green" -NoNewline 
             $command = Read-Host 
         }
 
