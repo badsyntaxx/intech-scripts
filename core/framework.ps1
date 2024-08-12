@@ -44,7 +44,7 @@ function read-command {
         # Get the command from the user
         if ($command -eq "") { 
             # Right carrot icon, this is a prompt for a command in CHASED Scripts
-            Write-Host " $([char]0x203A)$([char]0x203A) " -NoNewline 
+            Write-Host "~/> " -NoNewline 
             $command = Read-Host 
         }
 
@@ -189,7 +189,10 @@ function write-text {
         if ($lineBefore) { Write-Host }
 
         # Format output based on the specified Type
-        if ($type -eq "header") { Write-Host " ## $text" -ForegroundColor "DarkCyan" }
+        if ($type -eq "header") {
+            Write-Host " ## " -ForegroundColor "Cyan" -NoNewline
+            Write-Host "$text" -ForegroundColor "White" 
+        }
         if ($type -eq "label") { Write-Host "    $text" -ForegroundColor "Yellow" }
         if ($type -eq 'success') { Write-Host "    $text"  -ForegroundColor "Green" }
         if ($type -eq 'error') { Write-Host "    $text" -ForegroundColor "Red" }
