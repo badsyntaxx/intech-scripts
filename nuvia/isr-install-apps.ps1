@@ -2,9 +2,11 @@ function isr-install-apps {
     try {
         $installChoice = read-option -options $([ordered]@{
                 "All"              = "Install all the apps that an ISR will need."
+                "Chrome"           = "Install Google Chrome"
                 "Brave"            = "Install Brave browser."
                 "Zoom"             = "Install Microsoft Zoom."
                 "RingCentral"      = "Install RingCentral."
+                "Cliq"             = "Install Cliq."
                 "HWInfo"           = "Install HWInfo."
                 "Revo Uninstaller" = "Install RevoUninstaller."
                 "Acrobat"          = "Install Adobe Acrobat reader."
@@ -12,16 +14,20 @@ function isr-install-apps {
                 "Exit"             = "Exit this script and go back to main command line."
             })
 
-        $script:user = select-user -CustomHeader "Select user to install apps for"
+        if ($installChoice -ne 10) { 
+            $script:user = select-user -CustomHeader "Select user to install apps for"
+        }
 
-        if ($installChoice -eq 1 -or $installChoice -eq 0) { install-brave }
-        if ($installChoice -eq 2 -or $installChoice -eq 0) { install-zoom }
-        if ($installChoice -eq 3 -or $installChoice -eq 0) { install-ringcentral }
-        if ($installChoice -eq 4 -or $installChoice -eq 0) { Install-HWInfo }
-        if ($installChoice -eq 5 -or $installChoice -eq 0) { install-revouninstaller }
-        if ($installChoice -eq 6 -or $installChoice -eq 0) { install-acrobatreader }
-        if ($installChoice -eq 7 -or $installChoice -eq 0) { install-balto }
-        if ($installChoice -eq 8) { read-command }
+        if ($installChoice -eq 1 -or $installChoice -eq 0) { install-chrome }
+        if ($installChoice -eq 2 -or $installChoice -eq 0) { install-brave }
+        if ($installChoice -eq 3 -or $installChoice -eq 0) { install-zoom }
+        if ($installChoice -eq 4 -or $installChoice -eq 0) { install-ringcentral }
+        if ($installChoice -eq 5 -or $installChoice -eq 0) { Install-Cliq }
+        if ($installChoice -eq 6 -or $installChoice -eq 0) { Install-HWInfo }
+        if ($installChoice -eq 7 -or $installChoice -eq 0) { install-revouninstaller }
+        if ($installChoice -eq 8 -or $installChoice -eq 0) { install-acrobatreader }
+        if ($installChoice -eq 9 -or $installChoice -eq 0) { install-balto }
+        if ($installChoice -eq 10) { read-command }
 
         Initialize-Cleanup
         exit-script
@@ -31,30 +37,46 @@ function isr-install-apps {
     }
 }
 
-function install-brave {
+function install-chrome {
     $paths = @(
-        "$env:ProgramFiles\BraveSoftware\Brave-Browser\Application\brave.exe"
+        "$env:ProgramFiles\Google\Chrome\Application\chrome.exe",
+        "$env:ProgramFiles (x86)\Google\Chrome\Application\chrome.exe",
+        "C:\Users\$($user["Name"])\AppData\Google\Chrome\Application\chrome.exe"
     )
 
-    $url = "https://brave-browser-downloads.s3.brave.com/latest/brave_installer-x64.exe"
-    $appName = "Brave"
+    $url = "https://dl.google.com/dl/chrome/install/googlechromestandaloneenterprise64.msi"
+    $appName = "Google Chrome"
     $installed = Find-ExistingInstall -Paths $paths -App $appName
-    if (!$installed) { Install-Program $url $appName "exe" "/silent" }
+    if (!$installed) { Install-Program $url $appName "msi" "/qn" }
+
+    $bookmarksChoice = read-option -options $([ordered]@{
+            "Install bookmarks?" = "Add ISR bookmarks to Google Chrome now."
+            "Skip"               = "Skip ahead and do not add bookmarks to Google Chrome."
+        })
+
+    if ($bookmarksChoice -eq 0) { 
+        isr-add-bookmarks
+    }
 }
 
 function isr-add-bookmarks {
     try {
-        $user = select-user
-
         $profiles = [ordered]@{}
         $chromeUserDataPath = "C:\Users\$($user["Name"])\AppData\Local\Google\Chrome\User Data"
+        if (!(Test-Path $chromeUserDataPath)) {
+            # throw "No user directory. It's likely the account has not had it's first sign-in yet." 
+            New-Item -ItemType Directory -Path $chromeUserDataPath
+        }
         $profileFolders = Get-ChildItem -Path $chromeUserDataPath -Directory
         if ($null -eq $profileFolders) { throw "Cannot find profiles for this Chrome installation." }
         foreach ($profileFolder in $profileFolders) {
             $preferencesFile = Join-Path -Path $profileFolder.FullName -ChildPath "Preferences"
             if (Test-Path -Path $preferencesFile) {
                 $preferencesContent = Get-Content -Path $preferencesFile -Raw | ConvertFrom-Json
-                $profileName = $preferencesContent.account_info.full_name
+                $profileName = $preferencesContent.account_info.email
+                if ($null -eq $preferencesContent.account_info.email) {
+                    $profileName = $preferencesContent.account_info.account_id
+                } 
                 $profiles["$profileName"] = $profileFolder.FullName
             }
         }
@@ -97,6 +119,26 @@ function isr-add-bookmarks {
     }
 }
 
+function install-brave {
+    $paths = @(
+        "$env:ProgramFiles\BraveSoftware\Brave-Browser\Application\brave.exe"
+    )
+
+    $url = "https://brave-browser-downloads.s3.brave.com/latest/brave_installer-x64.exe"
+    $appName = "Brave"
+    $installed = Find-ExistingInstall -Paths $paths -App $appName
+    if (!$installed) { Install-Program $url $appName "exe" "/silent" }
+}
+
+function Install-Cliq {
+    $paths = @(
+        "C:\Users\$($user["Name"])\AppData\Local\cliq\Cliq.exe"
+    )
+    $url = "https://downloads.zohocdn.com/chat-desktop/windows/Cliq_1.7.3_x64.exe"
+    $appName = "Cliq"
+    $installed = Find-ExistingInstall -Paths $paths -App $appName
+    if (!$installed) { Install-Program $url $appName "exe" "/silent" }
+}
 
 function Install-HWInfo {
     $paths = @(
@@ -228,7 +270,7 @@ function Install-Program {
                 }
             }
 
-            # Get-Item -ErrorAction SilentlyContinue "$env:SystemRoot\Temp\$output" | Remove-Item -ErrorAction SilentlyContinue
+            Get-Item -ErrorAction SilentlyContinue "$env:SystemRoot\Temp\$output" | Remove-Item -ErrorAction SilentlyContinue
             
             write-text -type "success" -text "$AppName successfully installed." -lineBefore
         } else {
