@@ -140,22 +140,12 @@ function write-help {
     switch ($type) {
         "" { 
             write-text -type 'header' -text "Running as $([System.Security.Principal.WindowsIdentity]::GetCurrent().Name)"
-            write-text -type "header" -text "DESCRIPTION:" -lineBefore
-            write-text -type "plain" -text "Chaste scripts aims to simplify tedious powershell commands and make common IT tasks" -Color "DarkGray"
-            write-text -type "plain" -text "simpler by keeping commands logical, intuitive and short. I also ensure that all" -Color "DarkGray"
-            write-text -type "plain" -text "of these scripts run silently, so they don't disturb the end user." -Color "DarkGray"
-            write-text -type "header" -text "DOCS:" -lineBefore 
-            write-text -type "plain" -text "ProfessorX" -Color "DarkGray"
             write-text -type "header" -text "STARTER COMMANDS:" -lineBefore
             write-text -type "plain" -text "menu         - Open the root menu. It has Windows functions." -Color "DarkGray"
             write-text -type "plain" -text "intech menu  - Open the InTech menu. It has InTech functions." -Color "DarkGray"
             write-text -type "plain" -text "nuvia menu   - Open the Nuvia menu. It has Nuvia functions." -Color "DarkGray"
             write-text -type "header" -text "PLUGINS:" -lineBefore
             write-text -type "plain" -text "plugins [plugin name]  - Useful scripts made by others. Try the 'help plugins' command." -Color "DarkGray"
-            Write-Host
-            Write-Host "    Skip entering more commands by entering the" -ForegroundColor "DarkGray" -NoNewLine
-            Write-Host " menu" -ForegroundColor "Gray" -NoNewLine
-            Write-Host " command." -ForegroundColor "DarkGray"
             Write-Host
         }
         "plugins" {
