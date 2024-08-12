@@ -18,7 +18,7 @@ function invoke-script {
         $console = $host.UI.RawUI
         $console.BackgroundColor = "Black"
         $console.ForegroundColor = "Gray"
-        $console.WindowTitle = "Chased Scripts"
+        $console.WindowTitle = "Chaste Scripts"
 
         if ($initialize) {
             # Display a stylized menu prompt
@@ -71,14 +71,12 @@ function read-command {
         }
 
         # Adjust command and paths
-        $subCommands = @("windows", "plugins", "intech", "nuvia");
+        $subCommands = @("plugins", "nuvia", "intech");
         $subPath = "windows"
         foreach ($sub in $subCommands) {
             if ($firstWord -eq $sub -and $firstWord -ne 'menu') { 
                 $command = $command -replace "^$firstWord \s*", "" 
                 $subPath = $sub
-            } elseif ($firstWord -eq 'menu') {
-                $subPath = "core"
             }
         }
 
@@ -87,17 +85,17 @@ function read-command {
         $fileFunc = $lowercaseCommand -replace ' ', '-'
 
         # Create the main script file
-        New-Item -Path "$env:TEMP\CHASED-Script.ps1" -ItemType File -Force | Out-Null
+        New-Item -Path "$env:SystemRoot\Temp\CHASTE-Script.ps1" -ItemType File -Force | Out-Null
 
         add-script -subPath $subPath -script $fileFunc
         add-script -subpath "core" -script "framework"
 
         # Add a final line that will invoke the desired function
-        Add-Content -Path "$env:TEMP\CHASED-Script.ps1" -Value "invoke-script '$fileFunc'"
+        Add-Content -Path "$env:SystemRoot\Temp\CHASTE-Script.ps1" -Value "invoke-script '$fileFunc'"
 
         # Execute the combined script
-        $chasedScript = Get-Content -Path "$env:TEMP\CHASED-Script.ps1" -Raw
-        Invoke-Expression $chasedScript
+        $chasteScript = Get-Content -Path "$env:SystemRoot\Temp\CHASTE-Script.ps1" -Raw
+        Invoke-Expression $chasteScript
     } catch {
         # Error handling: display an error message and prompt for a new command
         Write-Host "    $($_.Exception.Message) | init-$($_.InvocationInfo.ScriptLineNumber)" -ForegroundColor Red
@@ -115,18 +113,22 @@ function add-script {
         [string]$progressText
     )
 
-    $url = "https://raw.githubusercontent.com/badsyntaxx/intech-scripts/main"
+    if ($subPath -eq 'windows' -or $subPath -eq 'plugins') {
+        $url = "https://raw.githubusercontent.com/badsyntaxx/chaste-scripts/main"
+    } else {
+        $url = "https://raw.githubusercontent.com/badsyntaxx/intech-scripts/main"
+    }
 
     # Download the script
-    $download = get-download -Url "$url/$subPath/$script.ps1" -Target "$env:TEMP\$script.ps1" -failText "Could not acquire components...$url/$subPath/$script.ps1"
+    $download = get-download -Url "$url/$subPath/$script.ps1" -Target "$env:SystemRoot\Temp\$script.ps1" -failText "Could not acquire components...$url/$subPath/$script.ps1"
     if (!$download) { read-command }
 
     # Append the script to the main script
-    $rawScript = Get-Content -Path "$env:TEMP\$script.ps1" -Raw -ErrorAction SilentlyContinue
-    Add-Content -Path "$env:TEMP\CHASED-Script.ps1" -Value $rawScript
+    $rawScript = Get-Content -Path "$env:SystemRoot\Temp\$script.ps1" -Raw -ErrorAction SilentlyContinue
+    Add-Content -Path "$env:SystemRoot\Temp\CHASTE-Script.ps1" -Value $rawScript
 
     # Remove the script file
-    Get-Item -ErrorAction SilentlyContinue "$env:TEMP\$script.ps1" | Remove-Item -ErrorAction SilentlyContinue
+    Get-Item -ErrorAction SilentlyContinue "$env:SystemRoot\Temp\$script.ps1" | Remove-Item -ErrorAction SilentlyContinue
 }
 
 function write-help {
@@ -137,23 +139,13 @@ function write-help {
 
     switch ($type) {
         "" { 
-            write-text -type "header" -text "DESCRIPTION:" -lineBefore
-            write-text -type "plain" -text "Chased scripts aims to simplify tedious powershell commands and make common IT tasks" -Color "DarkGray"
-            write-text -type "plain" -text "simpler by keeping commands logical, intuitive and short." -Color "DarkGray"
-            write-text -type "header" -text "DOCS:" -lineBefore 
-            write-text -type "plain" -text "https://chased.dev/chased-scripts" -Color "DarkGray"
-            write-text -type "header" -text "COMMANDS:" -lineBefore
-            write-text -type "plain" -text "toggle admin                     - Toggle the Windows built-in administrator account." -Color "DarkGray"
-            write-text -type "plain" -text "add [local,domain] user          - Add a local or domain user to the system." -Color "DarkGray"
-            write-text -type "plain" -text "edit user [name,password,group]  - Edit user account settings." -Color "DarkGray"
-            write-text -type "plain" -text "edit net adapter                 - Edit network adapter settings like IP and DNS." -Color "DarkGray"
-            write-text -type "plain" -text "get wifi creds                   - View WiFi credentials saved on the system." -Color "DarkGray"
+            write-text -type 'header' -text "Running as $([System.Security.Principal.WindowsIdentity]::GetCurrent().Name)"
+            write-text -type "header" -text "STARTER COMMANDS:" -lineBefore
+            write-text -type "plain" -text "menu         - Open the root menu. It has Windows functions." -Color "DarkGray"
+            write-text -type "plain" -text "intech menu  - Open the InTech menu. It has InTech functions." -Color "DarkGray"
+            write-text -type "plain" -text "nuvia menu   - Open the Nuvia menu. It has Nuvia functions." -Color "DarkGray"
             write-text -type "header" -text "PLUGINS:" -lineBefore
             write-text -type "plain" -text "plugins [plugin name]  - Useful scripts made by others. Try the 'help plugins' command." -Color "DarkGray"
-            Write-Host
-            Write-Host "    Skip entering more commands by entering the" -ForegroundColor "DarkGray" -NoNewLine
-            Write-Host " menu" -ForegroundColor "Gray" -NoNewLine
-            Write-Host " command." -ForegroundColor "DarkGray"
             Write-Host
         }
         "plugins" {
@@ -664,7 +656,7 @@ function get-closing {
     $choice = read-option -options $([ordered]@{
             "Submit" = "Submit and apply your changes." 
             "Rest"   = "Discard changes and start this task over at the beginning."
-            "Exit"   = "Exit this task but remain in the CHASED Scripts CLI." 
+            "Exit"   = "Exit this task but remain in the CHASTE Scripts CLI." 
         }) -lineAfter
 
     if ($choice -eq 1) { 
