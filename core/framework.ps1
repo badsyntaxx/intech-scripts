@@ -30,7 +30,8 @@ function invoke-script {
         Invoke-Expression $script
     } catch {
         # Display error message and exit this script
-        exit-script -type "error" -text "invoke-script-$($_.InvocationInfo.ScriptLineNumber) | $($_.Exception.Message)" -lineAfter
+        write-text -type "error" -text "invoke-script-$($_.InvocationInfo.ScriptLineNumber) | $($_.Exception.Message)" -lineAfter
+        read-command
     }
 }
 
@@ -41,17 +42,12 @@ function read-command {
     )
 
     try {
-        # Get the command from the user
         if ($command -eq "") { 
-            # Right carrot icon, this is a prompt for a command in CHASED Scripts
-            Write-Host "  : " -ForegroundColor "Gray" -NoNewline 
+            Write-Host "  : " -NoNewline 
             $command = Read-Host 
         }
 
-        # Convert the command to lowercase
         $command = $command.ToLower()
-
-        # Trim leading and trailing spaces
         $command = $command.Trim()
 
         if ($command -eq 'help') {
@@ -62,8 +58,9 @@ function read-command {
             write-help -type 'plugins'
         }   
 
-        # Extract the first word
-        if ($command -ne "" -and $command -match "^(?-i)(\w+(-\w+)*)") { $firstWord = $matches[1] }
+        if ($command -ne "" -and $command -match "^(?-i)(\w+(-\w+)*)") { 
+            $firstWord = $matches[1] 
+        }
 
         if (Get-command $firstWord -ErrorAction SilentlyContinue) {
             Invoke-Expression $command
@@ -187,7 +184,7 @@ function write-text {
         }
         if ($type -eq "label") { Write-Host "    $text" -ForegroundColor "Yellow" }
         if ($type -eq 'success') { Write-Host "    $text"  -ForegroundColor "Green" }
-        if ($type -eq 'error') { Write-Host "    $text" -ForegroundColor "Red" }
+        if ($type -eq 'error') { Write-Host "  X $text" -ForegroundColor "Red" }
         if ($type -eq 'notice') { Write-Host "    $text" -ForegroundColor "Yellow" }
         if ($type -eq 'plain') { Write-Host "    $text" -ForegroundColor $Color }
         if ($type -eq 'list') { 
@@ -205,13 +202,13 @@ function write-text {
                 for ($i = 0; $i -lt $orderedKeys.Count; $i++) {
                     $key = $orderedKeys[$i]
                     $padding = " " * ($longestKeyLength - $key.Length)
-                    Write-Host "    $($key): $padding $($List[$key])" -ForegroundColor "DarkGray"
+                    Write-Host "    $($key): $padding $($List[$key])" -ForegroundColor $Color
                 }
             }
         }
 
         if ($type -eq 'fail') { 
-            Write-Host "  X " -ForegroundColor "Red" -NoNewline
+            Write-Host "    " -ForegroundColor "Red" -NoNewline
             Write-Host "$text" 
         }
 
@@ -230,51 +227,10 @@ function write-text {
         if ($lineAfter) { Write-Host }
     } catch {
         # Display error message and exit this script
-        exit-script -type "error" -text "write-text-$($_.InvocationInfo.ScriptLineNumber) | $($_.Exception.Message)" -lineAfter
+        write-text -type "error" -text "write-text-$($_.InvocationInfo.ScriptLineNumber) | $($_.Exception.Message)" -lineAfter
+        read-command
     }
 }
-
-function write-compare() {
-    param (
-        [parameter(Mandatory)]
-        [string]$oldData,
-        [parameter(Mandatory)]
-        [string]$newData
-    )
-
-    Write-Host "    $oldData" -ForegroundColor "DarkGray" -NoNewline
-    Write-Host " $([char]0x2192) " -ForegroundColor "Magenta" -NoNewline
-    Write-Host $newData -ForegroundColor "Gray"
-}
-
-function write-box {
-    param (
-        [parameter(Mandatory = $false)]
-        [array]$Text
-    )
-
-    $horizontalLine = [string][char]0x2500
-    $verticalLine = [string][char]0x2502
-    $topLeft = [string][char]0x250C
-    $topRight = [string][char]0x2510
-    $bottomLeft = [string][char]0x2514
-    $bottomRight = [string][char]0x2518
-    $longestString = $Text | Sort-Object Length -Descending | Select-Object -First 1
-    $count = $longestString.Length
-
-    Write-Host " $topLeft$($horizontalLine * ($count + 2))$topRight" -ForegroundColor Cyan
-
-    foreach ($line in $Text) {
-        Write-Host " $verticalLine" -ForegroundColor Cyan -NoNewline
-        
-        Write-Host " $($line.PadRight($count))" -ForegroundColor White -NoNewline
-        
-        Write-Host " $verticalLine" -ForegroundColor Cyan
-    }
-
-    Write-Host " $bottomLeft$($horizontalLine * ($count + 2))$bottomRight" -ForegroundColor Cyan
-}
-
 function write-welcome {
     param (
         [parameter(Mandatory = $false)]
@@ -295,27 +251,6 @@ function write-welcome {
     # Add a new line after output if specified
     if ($lineAfter) { Write-Host }
 }
-
-function exit-script {
-    param (
-        [parameter(Mandatory = $false)]
-        [string]$text = "",
-        [parameter(Mandatory = $false)]
-        [string]$type = "plain",
-        [parameter(Mandatory = $false)]
-        [switch]$lineBefore = $false, # Add a new line before output if specified
-        [parameter(Mandatory = $false)]
-        [switch]$lineAfter = $false # Add a new line after output if specified
-    )
-
-    # Add a new line before output if specified
-    if ($lineBefore) { Write-Host }
-    write-text -type $Type -text $Text
-    # Add a new line after output if specified
-    if ($lineAfter) { Write-Host }
-    read-command 
-}
-
 function get-download {
     param (
         [Parameter(Mandatory)]
@@ -463,7 +398,6 @@ function get-download {
         }   
     }
 }
-
 function read-input {
     param (
         [parameter(Mandatory = $false)]
@@ -488,11 +422,13 @@ function read-input {
         # Add a new line before prompt if specified
         if ($lineBefore) { Write-Host }
 
+        # Display prompt with a diamond symbol (optional secure input for passwords)
+        Write-Host "    $prompt" -ForegroundColor "Yellow"
+
         # Get current cursor position
         $currPos = $host.UI.RawUI.CursorPosition
 
-        # Display prompt with a diamond symbol (optional secure input for passwords)
-        Write-Host "  $([char]0x203A) $prompt" -NoNewline 
+        Write-Host "  : " -NoNewline
         if ($IsSecure) { $userInput = Read-Host -AsSecureString } 
         else { $userInput = Read-Host }
 
@@ -524,7 +460,7 @@ function read-input {
         # Display checkmark symbol and user input (masked for secure input)
         Write-Host "  $([char]0x2713) " -ForegroundColor "Green" -NoNewline
         if ($IsSecure -and ($userInput.Length -eq 0)) { Write-Host "$prompt                                                       " } 
-        else { Write-Host "$Prompt$userInput                                             " }
+        else { Write-Host "$userInput                                             " }
 
         # Add a new line after prompt if specified
         if ($lineAfter) { Write-Host }
@@ -536,17 +472,18 @@ function read-input {
         write-text -type "error" -text "Input Error: $($_.Exception.Message)"
     }
 }
-
 function read-option {
     param (
         [parameter(Mandatory = $true)]
         [System.Collections.Specialized.OrderedDictionary]$options,
         [parameter(Mandatory = $false)]
+        [string]$prompt, # Provide a specific prompt in necessary
+        [parameter(Mandatory = $false)]
         [switch]$returnKey = $false,
         [parameter(Mandatory = $false)]
         [switch]$ReturnValue = $false,
         [parameter(Mandatory = $false)]
-        [boolean]$lineBefore = $true,
+        [switch]$lineBefore = $false,
         [parameter(Mandatory = $false)]
         [switch]$lineAfter = $false
     )
@@ -554,6 +491,9 @@ function read-option {
     try {
         # Add a line break before the menu if lineBefore is specified
         if ($lineBefore) { Write-Host }
+
+        # Display prompt with a diamond symbol (optional secure input for passwords)
+        Write-Host "    $prompt" -ForegroundColor "Yellow"
 
         # Initialize variables for user input handling
         $vkeycode = 0
@@ -642,8 +582,7 @@ function read-option {
         write-text -type "error" -text "Error | read-option-$($_.InvocationInfo.ScriptLineNumber)"
     }
 }
-
-function get-closing {
+function read-closing {
     param (
         [parameter(Mandatory = $false)]
         [string]$script = "",
@@ -651,13 +590,11 @@ function get-closing {
         [string]$customText = "Are you sure?"
     ) 
 
-    write-text -type "label" -text $customText -lineBefore
-
     $choice = read-option -options $([ordered]@{
             "Submit" = "Submit and apply your changes." 
             "Rest"   = "Discard changes and start this task over at the beginning."
             "Exit"   = "Exit this task but remain in the CHASTE Scripts CLI." 
-        }) -lineAfter
+        }) -lineAfter -lineBefore -prompt $customText
 
     if ($choice -eq 1) { 
         if ($script -ne "") { invoke-script $script } 
@@ -665,7 +602,6 @@ function get-closing {
     }
     if ($choice -eq 2) { read-command }
 }
-
 function get-userdata {
     param (
         [parameter(Mandatory = $true)]
@@ -693,9 +629,22 @@ function get-userdata {
         write-text -type "error" -text "Error getting account info: $($_.Exception.Message)"
     }
 }
-
 function select-user {
+    param (
+        [parameter(Mandatory = $false)]
+        [string]$prompt = "Select an account.",
+        [parameter(Mandatory = $false)]
+        [switch]$lineBefore = $false,
+        [parameter(Mandatory = $false)]
+        [switch]$lineAfter = $false,
+        [parameter(Mandatory = $false)]
+        [switch]$writeResult = $false
+    )
+
     try {
+        # Add a line break before the menu if lineBefore is specified
+        if ($lineBefore) { Write-Host }
+         
         # Initialize empty array to store user names
         $userNames = @()
 
@@ -733,13 +682,19 @@ function select-user {
         }
 
         # Prompt user to select a user from the list and return the key (username)
-        $choice = read-option -options $accounts -returnKey -lineAfter
+        $choice = read-option -options $accounts -prompt $prompt -returnKey
 
         # Get user data using the selected username
         $data = get-userdata -Username $choice
 
-        # Display user data as a list
-        write-text -type "list" -List $data
+        if ($writeResult) {
+            Write-Host
+            # Display user data as a list
+            write-text -type "list" -List $data -Color "Green"
+        }
+
+        # Add a line break after the menu if lineAfter is specified
+        if ($lineAfter) { Write-Host }
 
         # Return the user data dictionary
         return $data
