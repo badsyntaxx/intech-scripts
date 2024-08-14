@@ -1,6 +1,5 @@
 function install-tscan {
     try {
-        write-welcome -Title "Install T-Scan" -Description "Install T-Scan for Nuvia" -Command "intech install isr ninja"
         write-text -type "header" -text "Installing T-Scan for Nuvia" -lineBefore -lineAfter
 
         add-tscan-folder
