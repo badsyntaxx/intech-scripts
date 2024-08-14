@@ -34,7 +34,6 @@ function invoke-script {
         read-command
     }
 }
-
 function read-command {
     param (
         [Parameter(Mandatory = $false)]
@@ -43,7 +42,7 @@ function read-command {
 
     try {
         if ($command -eq "") { 
-            Write-Host "  : " -NoNewline 
+            Write-Host " :: " -ForegroundColor "DarkCyan" -NoNewline
             $command = Read-Host 
         }
 
@@ -99,7 +98,6 @@ function read-command {
         read-command
     }
 }
-
 function add-script {
     param (
         [Parameter(Mandatory)]
@@ -127,7 +125,6 @@ function add-script {
     # Remove the script file
     Get-Item -ErrorAction SilentlyContinue "$env:SystemRoot\Temp\$script.ps1" | Remove-Item -ErrorAction SilentlyContinue
 }
-
 function write-help {
     param (
         [Parameter(Mandatory = $false)]
@@ -152,7 +149,6 @@ function write-help {
 
     read-command # Recursively call itself to prompt for a new command
 }
-
 function write-text {
     param (
         [parameter(Mandatory = $false)]
@@ -174,6 +170,7 @@ function write-text {
     )
 
     try {
+        Start-Sleep 1
         # Add a new line before output if specified
         if ($lineBefore) { Write-Host }
 
@@ -183,7 +180,7 @@ function write-text {
             Write-Host "$text" -ForegroundColor "White" 
         }
         if ($type -eq "label") { Write-Host "    $text" -ForegroundColor "Yellow" }
-        if ($type -eq 'success') { Write-Host "    $text"  -ForegroundColor "Green" }
+        if ($type -eq 'success') { Write-Host "    -----$text-----"  -ForegroundColor "Green" }
         if ($type -eq 'error') { Write-Host "  X $text" -ForegroundColor "Red" }
         if ($type -eq 'notice') { Write-Host "    $text" -ForegroundColor "Yellow" }
         if ($type -eq 'plain') { Write-Host "    $text" -ForegroundColor $Color }
