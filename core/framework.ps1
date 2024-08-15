@@ -42,7 +42,7 @@ function read-command {
 
     try {
         if ($command -eq "") { 
-            Write-Host " :: " -ForegroundColor "DarkCyan" -NoNewline
+            Write-Host "  $([char]0x203A) " -NoNewline
             $command = Read-Host 
         }
 
@@ -133,13 +133,16 @@ function write-help {
 
     switch ($type) {
         "" { 
-            write-text -type 'header' -text "Running as $([System.Security.Principal.WindowsIdentity]::GetCurrent().Name)"
-            write-text -type "header" -text "STARTER COMMANDS:" -lineBefore
-            write-text -type "plain" -text "menu         - Open the root menu. It has Windows functions." -Color "DarkGray"
-            write-text -type "plain" -text "intech menu  - Open the InTech menu. It has InTech functions." -Color "DarkGray"
-            write-text -type "plain" -text "nuvia menu   - Open the Nuvia menu. It has Nuvia functions." -Color "DarkGray"
+            write-text -type "header" -text "DOCS:"
+            write-text -type "plain" -text "https://guided.chaste.pro/dev/chaste-scripts" -Color "DarkGray"
+            write-text -type "header" -text "COMMANDS:" -lineBefore
+            write-text -type "plain" -text "toggle admin                     - Toggle the Windows built-in administrator account." -Color "DarkGray"
+            write-text -type "plain" -text "add [local,domain] user          - Add a local or domain user to the system." -Color "DarkGray"
+            write-text -type "plain" -text "edit user [name,password,group]  - Edit user account settings." -Color "DarkGray"
+            write-text -type "plain" -text "edit net adapter                 - Edit network adapter settings like IP and DNS." -Color "DarkGray"
+            write-text -type "plain" -text "get wifi creds                   - View WiFi credentials saved on the system." -Color "DarkGray"
             write-text -type "header" -text "PLUGINS:" -lineBefore
-            write-text -type "plain" -text "plugins [plugin name]  - Useful scripts made by others. Try the 'help plugins' command." -Color "DarkGray"
+            write-text -type "plain" -text "plugins [plugin name]  - Useful scripts made by others. Try the 'plugins help' command." -Color "DarkGray"
             Write-Host
         }
         "plugins" {
@@ -151,6 +154,8 @@ function write-help {
 }
 function write-text {
     param (
+        [parameter(Mandatory = $false)]
+        [string]$label = "",
         [parameter(Mandatory = $false)]
         [string]$text = "",
         [parameter(Mandatory = $false)]
@@ -170,7 +175,6 @@ function write-text {
     )
 
     try {
-        Start-Sleep -Milliseconds 150
         # Add a new line before output if specified
         if ($lineBefore) { Write-Host }
 
@@ -179,11 +183,27 @@ function write-text {
             Write-Host " ## " -ForegroundColor "Cyan" -NoNewline
             Write-Host "$text" -ForegroundColor "White" 
         }
-        if ($type -eq "label") { Write-Host "    $text" -ForegroundColor "Yellow" }
-        if ($type -eq 'success') { Write-Host "  $([char]0x2713) $text"  -ForegroundColor "Green" }
-        if ($type -eq 'error') { Write-Host "  X $text" -ForegroundColor "Red" }
-        if ($type -eq 'notice') { Write-Host "    $text" -ForegroundColor "Yellow" }
-        if ($type -eq 'plain') { Write-Host "    $text" -ForegroundColor $Color }
+        
+        if ($type -eq 'success') { 
+            Write-Host "  $([char]0x2713) $text"  -ForegroundColor "Green" 
+        }
+        if ($type -eq 'error') { 
+            Write-Host "  X $text" -ForegroundColor "Red" 
+        }
+        if ($type -eq 'notice') { 
+            Write-Host "    $text" -ForegroundColor "Yellow" 
+        }
+        if ($type -eq 'plain') {
+            if ($Color -eq "Gray") {
+                $Color = 'DarkCyan'
+            }
+            if ($label -ne "") { 
+                Write-Host "    $label`: " -NoNewline
+                Write-Host "$text" -ForegroundColor $Color 
+            } else {
+                Write-Host "    $text" -ForegroundColor $Color 
+            }
+        }
         if ($type -eq 'list') { 
             # Get a list of keys from the options dictionary
             $orderedKeys = $List.Keys | ForEach-Object { $_ }
@@ -213,7 +233,9 @@ function write-text {
         if ($type -eq 'compare') { 
             foreach ($data in $oldData.Keys) {
                 if ($oldData["$data"] -ne $newData["$data"]) {
-                    write-compare -oldData $oldData["$data"] -newData $newData["$data"]
+                    Write-Host "    $oldData[`"$data`"]" -ForegroundColor "DarkGray" -NoNewline
+                    Write-Host " $([char]0x2192) " -ForegroundColor "Magenta" -NoNewline
+                    Write-Host $newData["$data"] -ForegroundColor "Gray"
                 } else {
                     Write-Host "    $($oldData["$data"])"
                 }
@@ -403,7 +425,7 @@ function read-input {
         $currPos = $host.UI.RawUI.CursorPosition
 
         Write-Host "  ? " -NoNewline -ForegroundColor "Green"
-        Write-Host $prompt
+        Write-Host "$prompt " -NoNewline
 
         if ($IsSecure) { $userInput = Read-Host -AsSecureString } 
         else { $userInput = Read-Host }
@@ -434,9 +456,13 @@ function read-input {
         [Console]::SetCursorPosition($currPos.X, $currPos.Y)
         
         # Display checkmark symbol and user input (masked for secure input)
-        Write-Host "  $([char]0x2713) " -ForegroundColor "Green" -NoNewline
-        if ($IsSecure -and ($userInput.Length -eq 0)) { Write-Host "$prompt                                                       " } 
-        else { Write-Host "$userInput                                             " }
+        Write-Host "  ? " -ForegroundColor "Green" -NoNewline
+        if ($IsSecure -and ($userInput.Length -eq 0)) { 
+            Write-Host "$prompt                                                "
+        } else { 
+            Write-Host "$prompt " -NoNewline
+            Write-Host "$userInput                                             " -ForegroundColor "DarkCyan"
+        }
 
         # Add a new line after prompt if specified
         if ($lineAfter) { Write-Host }
@@ -468,8 +494,11 @@ function read-option {
         # Add a line break before the menu if lineBefore is specified
         if ($lineBefore) { Write-Host }
 
-        # Display prompt with a diamond symbol (optional secure input for passwords)
-        Write-Host "    $prompt" -ForegroundColor "Yellow"
+        # Get current cursor position
+        $promptPos = $host.UI.RawUI.CursorPosition
+
+        Write-Host "  ? " -NoNewline -ForegroundColor "Green"
+        Write-Host "$prompt "
 
         # Initialize variables for user input handling
         $vkeycode = 0
@@ -484,16 +513,16 @@ function read-option {
 
         # Display single option if only one exists
         if ($orderedKeys.Count -eq 1) {
-            Write-Host "  $([char]0x2192)" -ForegroundColor "Gray" -NoNewline
-            Write-Host " $($orderedKeys) $(" " * ($longestKeyLength - $orderedKeys.Length)) - $($options[$orderedKeys])" -ForegroundColor "Cyan"
+            Write-Host "  $([char]0x2192)" -ForegroundColor "DarkCyan" -NoNewline
+            Write-Host " $($orderedKeys) $(" " * ($longestKeyLength - $orderedKeys.Length)) - $($options[$orderedKeys])" -ForegroundColor "DarkCyan"
         } else {
             # Loop through each option and display with padding and color
             for ($i = 0; $i -lt $orderedKeys.Count; $i++) {
                 $key = $orderedKeys[$i]
                 $padding = " " * ($longestKeyLength - $key.Length)
                 if ($i -eq $pos) { 
-                    Write-Host "  $([char]0x2192)" -ForegroundColor "Gray" -NoNewline  
-                    Write-Host " $key $padding - $($options[$key])" -ForegroundColor "Cyan"
+                    Write-Host "  $([char]0x2192)" -ForegroundColor "DarkCyan" -NoNewline  
+                    Write-Host " $key $padding - $($options[$key])" -ForegroundColor "DarkCyan"
                 } else { Write-Host "    $key $padding - $($options[$key])" -ForegroundColor "Gray" }
             }
         }
@@ -524,13 +553,13 @@ function read-option {
                 $host.UI.RawUI.CursorPosition = $menuOldPos
                 Write-Host "    $($orderedKeys[$oldPos]) $(" " * ($longestKeyLength - $oldKey.Length)) - $($options[$orderedKeys[$oldPos]])" -ForegroundColor "Gray"
                 $host.UI.RawUI.CursorPosition = $menuNewPos
-                Write-Host "  $([char]0x2192)" -ForegroundColor "Gray" -NoNewline
-                Write-Host " $($orderedKeys[$pos]) $(" " * ($longestKeyLength - $newKey.Length)) - $($options[$orderedKeys[$pos]])" -ForegroundColor "Cyan"
+                Write-Host "  $([char]0x2192)" -ForegroundColor "DarkCyan" -NoNewline
+                Write-Host " $($orderedKeys[$pos]) $(" " * ($longestKeyLength - $newKey.Length)) - $($options[$orderedKeys[$pos]])" -ForegroundColor "DarkCyan"
                 $host.UI.RawUI.CursorPosition = $currPos
             }
         }
 
-        if ($orderedKeys.Count -ne 1) {
+        <# if ($orderedKeys.Count -ne 1) {
             $host.UI.RawUI.CursorPosition = $menuNewPos
         } else {
             $host.UI.RawUI.CursorPosition = New-Object System.Management.Automation.Host.Coordinates(0, ($currPos.Y - ($menuLen + 1)))
@@ -538,13 +567,29 @@ function read-option {
 
         if ($orderedKeys.Count -ne 1) {
             Write-Host "  $([char]0x2713)" -ForegroundColor "Green" -NoNewline
-            Write-Host " $($orderedKeys[$pos]) $(" " * ($longestKeyLength - $newKey.Length)) - $($options[$orderedKeys[$pos]])" -ForegroundColor "Cyan"
+            Write-Host " $($orderedKeys[$pos]) $(" " * ($longestKeyLength - $newKey.Length)) - $($options[$orderedKeys[$pos]])" -ForegroundColor "DarkCyan"
         } else {
             Write-Host "  $([char]0x2713)" -ForegroundColor "Green" -NoNewline
-            Write-Host " $($orderedKeys[$pos])" -ForegroundColor "Cyan"
+            Write-Host " $($orderedKeys[$pos])" -ForegroundColor "DarkCyan"
+        } #>
+
+        [Console]::SetCursorPosition($promptPos.X, $promptPos.Y)
+
+        if ($orderedKeys.Count -ne 1) {
+            Write-Host "  ?" -ForegroundColor "Green" -NoNewline
+            Write-Host " $prompt" -NoNewline
+            Write-Host " $($orderedKeys[$pos])" -ForegroundColor "DarkCyan"
+        } else {
+            Write-Host "  $([char]0x2713)" -ForegroundColor "Green" -NoNewline
+            Write-Host " $($orderedKeys[$pos])" -ForegroundColor "DarkCyan"
+        }
+
+        for ($i = 0; $i -lt $options.Count; $i++) {
+            Write-Host " $(" " * ($longestKeyLength * $options[$orderedKeys[$pos]].Length)) "
         }
         
-        $host.UI.RawUI.CursorPosition = $currPos
+        [Console]::SetCursorPosition($promptPos.X, $promptPos.Y)
+        Write-Host
 
         # Add a line break after the menu if lineAfter is specified
         if ($lineAfter) { Write-Host }
@@ -556,6 +601,7 @@ function read-option {
     } catch {
         # Display error message and exit this script
         write-text -type "error" -text "Error | read-option-$($_.InvocationInfo.ScriptLineNumber)"
+        read-command
     }
 }
 function read-closing {
@@ -608,7 +654,7 @@ function get-userdata {
 function select-user {
     param (
         [parameter(Mandatory = $false)]
-        [string]$prompt = "Select an account.",
+        [string]$prompt = "Select a user account:",
         [parameter(Mandatory = $false)]
         [switch]$lineBefore = $false,
         [parameter(Mandatory = $false)]
