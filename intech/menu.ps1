@@ -10,7 +10,8 @@ function menu {
 
         read-command -command $command
     } catch {
-        exit-script -type "error" -text "intech-menu-$($_.InvocationInfo.ScriptLineNumber) | $($_.Exception.Message)" -lineAfter
+        write-text -type "error" -text "intech-menu-$($_.InvocationInfo.ScriptLineNumber) | $($_.Exception.Message)" -lineAfter
+        read-command
     }
 }
 

@@ -18,9 +18,9 @@ function install-tscan {
         write-text "T-Scan installed."
         
         Get-Item -ErrorAction SilentlyContinue "$env:SystemRoot\Temp\tscan" | Remove-Item -ErrorAction SilentlyContinue -Confirm $false
-        exit-script
+        read-command
     } catch {
-        exit-script -type "error" -text "Install error: $($_.Exception.Message)"
+        write-text -type "error" -text "Install error: $($_.Exception.Message)"
     }
 }
 

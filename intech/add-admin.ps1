@@ -72,6 +72,7 @@ function add-admin {
         read-command
     } catch {
         # Display error message and end the script
-        exit-script -type "error" -text "add-intechadmin-$($_.InvocationInfo.ScriptLineNumber) | $($_.Exception.Message)" -lineAfter
+        write-text -type "error" -text "add-intechadmin-$($_.InvocationInfo.ScriptLineNumber) | $($_.Exception.Message)" -lineAfter
+        read-command
     }
 }

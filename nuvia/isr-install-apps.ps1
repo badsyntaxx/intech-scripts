@@ -30,10 +30,11 @@ function isr-install-apps {
         if ($installChoice -eq 10) { read-command }
 
         Initialize-Cleanup
-        exit-script
+        read-command
     } catch {
         # Display error message and end the script
-        exit-script -type "error" -text "isr-install-apps-$($_.InvocationInfo.ScriptLineNumber) | $($_.Exception.Message)" -lineAfter
+        write-text -type "error" -text "isr-install-apps-$($_.InvocationInfo.ScriptLineNumber) | $($_.Exception.Message)" -lineAfter
+        read-command
     }
 }
 
@@ -111,11 +112,13 @@ function isr-add-bookmarks {
         }
 
         if (Test-Path -Path $account) {
-            exit-script -type "success" -text "The bookmarks have been added." -lineAfter
+            write-text -type "success" -text "The bookmarks have been added." -lineAfter
+            read-command
         }
     } catch {
         # Display error message and end the script
-        exit-script -type "error" -text "isr-add-bookmarks-$($_.InvocationInfo.ScriptLineNumber) | $($_.Exception.Message)" -lineAfter
+        write-text -type "error" -text "isr-add-bookmarks-$($_.InvocationInfo.ScriptLineNumber) | $($_.Exception.Message)" -lineAfter
+        read-command
     }
 }
 
