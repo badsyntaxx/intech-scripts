@@ -41,6 +41,7 @@ function read-command {
     )
 
     try {
+        Write-Host
         if ($command -eq "") { 
             Write-Host " $([char]0x203A) " -NoNewline
             $command = Read-Host 
@@ -143,7 +144,6 @@ function write-help {
             write-text -type "plain" -text "get wifi creds                   - View WiFi credentials saved on the system." -Color "DarkGray"
             write-text -type "header" -text "PLUGINS:" -lineBefore
             write-text -type "plain" -text "plugins [plugin name]  - Useful scripts made by others. Try the 'plugins help' command." -Color "DarkGray"
-            Write-Host
         }
         "plugins" {
             write-text "plugins help unwritten"
@@ -233,7 +233,7 @@ function write-text {
         if ($lineAfter) { Write-Host }
     } catch {
         # Display error message and exit this script
-        write-text -type "error" -text "write-text-$($_.InvocationInfo.ScriptLineNumber) | $($_.Exception.Message)" -lineAfter
+        write-text -type "error" -text "write-text-$($_.InvocationInfo.ScriptLineNumber) | $($_.Exception.Message)"
         read-command
     }
 }
