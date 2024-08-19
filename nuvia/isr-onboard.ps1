@@ -65,7 +65,8 @@ function edit-hostname {
         }
     } catch {
         # Display error message and exit this script
-        exit-script -type "error" -text "edit-hostname-$($_.InvocationInfo.ScriptLineNumber) | $($_.Exception.Message)" -lineAfter
+        write-text -type "error" -text "edit-hostname-$($_.InvocationInfo.ScriptLineNumber) | $($_.Exception.Message)" -lineAfter
+        read-command
     }
 }
 
@@ -93,7 +94,8 @@ function isr-install-ninja {
         }
     } catch {
         # Display error message and end the script
-        exit-script -type "error" -text "isr-install-ninja-$($_.InvocationInfo.ScriptLineNumber) - $($_.Exception.Message)"
+        write-text -type "error" -text "isr-install-ninja-$($_.InvocationInfo.ScriptLineNumber) - $($_.Exception.Message)"
+        read-command
     }
 }
 
@@ -110,7 +112,8 @@ function isr-install-apps {
         Initialize-Cleanup
     } catch {
         # Display error message and end the script
-        exit-script -type "error" -text "Error | Install-Apps-$($_.InvocationInfo.ScriptLineNumber)"
+        write-text -type "error" -text "Error | Install-Apps-$($_.InvocationInfo.ScriptLineNumber)"
+        read-command
     }
 }
 
@@ -168,7 +171,8 @@ function add-admin {
         }
     } catch {
         # Display error message and end the script
-        exit-script -type "error" -text "add-intechadmin-$($_.InvocationInfo.ScriptLineNumber) | $($_.Exception.Message)" -lineAfter
+        write-text -type "error" -text "add-intechadmin-$($_.InvocationInfo.ScriptLineNumber) | $($_.Exception.Message)" -lineAfter
+        read-command
     }
 }
 
@@ -185,7 +189,10 @@ function install-bginfo {
         $target = "Nuvia" 
 
         $download = get-download -Url $url -Target "$env:SystemRoot\Temp\$target`_BGInfo.zip" -visible
-        if (!$download) { exit-script -type "error" -text "Couldn't download Bginfo." }
+        if (!$download) { 
+            write-text -type "error" -text "Couldn't download Bginfo." 
+            read-command
+        }
 
         # Set the wallpaper property
         Set-ItemProperty -Path "HKCU:\Control Panel\Desktop" -Name WallPaper -Value "" 
@@ -231,7 +238,8 @@ function install-bginfo {
         write-text -type "success" -text "BGInfo installed and applied."
     } catch {
         # Display error message and end the script
-        exit-script -type "error" -text "install-bginfo-$($_.InvocationInfo.ScriptLineNumber) | $($_.Exception.Message)" -lineAfter
+        write-text -type "error" -text "install-bginfo-$($_.InvocationInfo.ScriptLineNumber) | $($_.Exception.Message)" -lineAfter
+        read-command
     }
 }
 
@@ -294,7 +302,8 @@ function Add-ChromeBookmarks {
     }
 
     if (Test-Path -Path $account) {
-        exit-script -type "success" -text "The bookmarks have been added." -lineBefore
+        write-text -type "success" -text "The bookmarks have been added." -lineBefore
+        read-command
     }
 }
 
@@ -458,7 +467,8 @@ function toggle-context-menu {
         Start-Process explorer
     } catch {
         # Display error message and exit this script
-        exit-script -type "error" -text "enable-admin-$($_.InvocationInfo.ScriptLineNumber) | $($_.Exception.Message)" -lineAfter
+        write-text -type "error" -text "enable-admin-$($_.InvocationInfo.ScriptLineNumber) | $($_.Exception.Message)" -lineAfter
+        read-command
     }
 }
 
@@ -539,7 +549,8 @@ function reclaim {
 
     $tweaks | ForEach-Object { Invoke-Expression $_ }
 
-    exit-script -type "success" -text "Windows 11 has been made semi-decent." -lineAfter
+    write-text -type "success" -text "Windows 11 has been made semi-decent." -lineAfter
+    read-command
 }
 
 ##########

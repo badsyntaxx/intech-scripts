@@ -42,7 +42,7 @@ function read-command {
 
     try {
         if ($command -eq "") { 
-            Write-Host "  $([char]0x203A) " -NoNewline
+            Write-Host " $([char]0x203A) " -NoNewline
             $command = Read-Host 
         }
 
@@ -180,28 +180,28 @@ function write-text {
 
         # Format output based on the specified Type
         if ($type -eq "header") {
-            Write-Host " ## " -ForegroundColor "Cyan" -NoNewline
+            Write-Host "## " -ForegroundColor "Cyan" -NoNewline
             Write-Host "$text" -ForegroundColor "White" 
         }
         
         if ($type -eq 'success') { 
-            Write-Host "  $([char]0x2713) $text"  -ForegroundColor "Green" 
+            Write-Host " $([char]0x2713) $text"  -ForegroundColor "Green" 
         }
         if ($type -eq 'error') { 
-            Write-Host "  X $text" -ForegroundColor "Red" 
+            Write-Host " X $text" -ForegroundColor "Red" 
         }
         if ($type -eq 'notice') { 
-            Write-Host "    $text" -ForegroundColor "Yellow" 
+            Write-Host "   $text" -ForegroundColor "Yellow" 
         }
         if ($type -eq 'plain') {
             if ($Color -eq "Gray") {
                 $Color = 'DarkCyan'
             }
             if ($label -ne "") { 
-                Write-Host "    $label`: " -NoNewline
+                Write-Host "   $label`: " -NoNewline
                 Write-Host "$text" -ForegroundColor $Color 
             } else {
-                Write-Host "    $text" -ForegroundColor $Color 
+                Write-Host "   $text" -ForegroundColor $Color 
             }
         }
         if ($type -eq 'list') { 
@@ -225,21 +225,8 @@ function write-text {
         }
 
         if ($type -eq 'fail') { 
-            Write-Host "    " -ForegroundColor "Red" -NoNewline
-            Write-Host "$text" 
-        }
-
-        # Format output for data comparison
-        if ($type -eq 'compare') { 
-            foreach ($data in $oldData.Keys) {
-                if ($oldData["$data"] -ne $newData["$data"]) {
-                    Write-Host "    $oldData[`"$data`"]" -ForegroundColor "DarkGray" -NoNewline
-                    Write-Host " $([char]0x2192) " -ForegroundColor "Magenta" -NoNewline
-                    Write-Host $newData["$data"] -ForegroundColor "Gray"
-                } else {
-                    Write-Host "    $($oldData["$data"])"
-                }
-            }
+            Write-Host "   " -ForegroundColor "Red" -NoNewline
+            Write-Host $text
         }
 
         # Add a new line after output if specified
@@ -247,6 +234,199 @@ function write-text {
     } catch {
         # Display error message and exit this script
         write-text -type "error" -text "write-text-$($_.InvocationInfo.ScriptLineNumber) | $($_.Exception.Message)" -lineAfter
+        read-command
+    }
+}
+function read-input {
+    param (
+        [parameter(Mandatory = $false)]
+        [string]$Value = "", # A pre-fill value so the user can hit enter without typing command and get the current value if there is one
+        [parameter(Mandatory = $false)]
+        [string]$prompt, # Provide a specific prompt in necessary
+        [parameter(Mandatory = $false)]
+        [regex]$Validate = $null,
+        [parameter(Mandatory = $false)]
+        [string]$ErrorMessage = "", # Provide an optional error message
+        [parameter(Mandatory = $false)]
+        [switch]$IsSecure = $false, # If prompting for a password
+        [parameter(Mandatory = $false)]
+        [switch]$CheckExistingUser = $false,
+        [parameter(Mandatory = $false)]
+        [switch]$lineBefore = $false, # Add a new line before prompt if specified
+        [parameter(Mandatory = $false)]
+        [switch]$lineAfter = $false # Add a new line after prompt if specified
+    )
+
+    try {
+        # Add a new line before prompt if specified
+        if ($lineBefore) { Write-Host }
+
+        # Get current cursor position
+        $currPos = $host.UI.RawUI.CursorPosition
+
+        Write-Host " ? " -NoNewline -ForegroundColor "Yellow"
+        Write-Host "$prompt " -NoNewline
+
+        if ($IsSecure) { $userInput = Read-Host -AsSecureString } 
+        else { $userInput = Read-Host }
+
+        # Check for existing user if requested
+        if ($CheckExistingUser) {
+            $account = Get-LocalUser -Name $userInput -ErrorAction SilentlyContinue
+            if ($null -ne $account) { $ErrorMessage = "An account with that name already exists." }
+        }
+
+        # Validate user input against provided regular expression
+        if ($userInput -notmatch $Validate) { $ErrorMessage = "Invalid input. Please try again." } 
+
+        # Display error message if encountered
+        if ($ErrorMessage -ne "") {
+            write-text -type "error" -text $ErrorMessage
+            # Recursively call read-input if user exists
+            if ($CheckExistingUser) { return read-input -prompt $prompt -Validate $Validate -CheckExistingUser } 
+
+            # Otherwise, simply call again without CheckExistingUser
+            else { return read-input -prompt $prompt -Validate $Validate }
+        }
+
+        # Use provided default value if user enters nothing for a non-secure input
+        if ($userInput.Length -eq 0 -and $Value -ne "" -and !$IsSecure) { $userInput = $Value }
+
+        # Reset cursor position
+        [Console]::SetCursorPosition($currPos.X, $currPos.Y)
+        
+        # Display checkmark symbol and user input (masked for secure input)
+        Write-Host " ? " -ForegroundColor "Yellow" -NoNewline
+        if ($IsSecure -and ($userInput.Length -eq 0)) { 
+            Write-Host "$prompt                                                "
+        } else { 
+            Write-Host "$prompt " -NoNewline
+            Write-Host "$userInput                                             " -ForegroundColor "DarkCyan"
+        }
+
+        # Add a new line after prompt if specified
+        if ($lineAfter) { Write-Host }
+    
+        # Return the validated user input
+        return $userInput
+    } catch {
+        # Handle errors during input
+        write-text -type "error" -text "Input Error: $($_.Exception.Message)"
+    }
+}
+function read-option {
+    param (
+        [parameter(Mandatory = $true)]
+        [System.Collections.Specialized.OrderedDictionary]$options,
+        [parameter(Mandatory = $false)]
+        [string]$prompt, # Provide a specific prompt in necessary
+        [parameter(Mandatory = $false)]
+        [switch]$returnKey = $false,
+        [parameter(Mandatory = $false)]
+        [switch]$ReturnValue = $false,
+        [parameter(Mandatory = $false)]
+        [switch]$lineBefore = $false,
+        [parameter(Mandatory = $false)]
+        [switch]$lineAfter = $false
+    )
+
+    try {
+        # Add a line break before the menu if lineBefore is specified
+        if ($lineBefore) { Write-Host }
+
+        # Get current cursor position
+        $promptPos = $host.UI.RawUI.CursorPosition
+
+        Write-Host " ? " -NoNewline -ForegroundColor "Yellow"
+        Write-Host "$prompt "
+
+        # Initialize variables for user input handling
+        $vkeycode = 0
+        $pos = 0
+        $oldPos = 0
+
+        # Get a list of keys from the options dictionary
+        $orderedKeys = $options.Keys | ForEach-Object { $_ }
+
+        # Find the length of the longest key for padding
+        $longestKeyLength = ($orderedKeys | Measure-Object -Property Length -Maximum).Maximum
+
+        # Display single option if only one exists
+        if ($orderedKeys.Count -eq 1) {
+            Write-Host " $([char]0x2192)" -ForegroundColor "DarkCyan" -NoNewline
+            Write-Host " $($orderedKeys) $(" " * ($longestKeyLength - $orderedKeys.Length)) - $($options[$orderedKeys])" -ForegroundColor "DarkCyan"
+        } else {
+            # Loop through each option and display with padding and color
+            for ($i = 0; $i -lt $orderedKeys.Count; $i++) {
+                $key = $orderedKeys[$i]
+                $padding = " " * ($longestKeyLength - $key.Length)
+                if ($i -eq $pos) { 
+                    Write-Host " $([char]0x2192)" -ForegroundColor "DarkCyan" -NoNewline  
+                    Write-Host " $key $padding - $($options[$key])" -ForegroundColor "DarkCyan"
+                } else { Write-Host "   $key $padding - $($options[$key])" -ForegroundColor "Gray" }
+            }
+        }
+
+        # Get the current cursor position
+        $currPos = $host.UI.RawUI.CursorPosition
+
+        # Loop for user input to select an option
+        While ($vkeycode -ne 13) {
+            $press = $host.ui.rawui.readkey("NoEcho, IncludeKeyDown")
+            $vkeycode = $press.virtualkeycode
+            Write-host "$($press.character)" -NoNewLine
+            if ($orderedKeys.Count -ne 1) { 
+                $oldPos = $pos;
+                if ($vkeycode -eq 38) { $pos-- }
+                if ($vkeycode -eq 40) { $pos++ }
+                if ($pos -lt 0) { $pos = 0 }
+                if ($pos -ge $orderedKeys.Count) { $pos = $orderedKeys.Count - 1 }
+
+                # Calculate positions for redrawing menu items
+                $menuLen = $orderedKeys.Count
+                $menuOldPos = New-Object System.Management.Automation.Host.Coordinates(0, ($currPos.Y - ($menuLen - $oldPos)))
+                $menuNewPos = New-Object System.Management.Automation.Host.Coordinates(0, ($currPos.Y - ($menuLen - $pos)))
+                $oldKey = $orderedKeys[$oldPos]
+                $newKey = $orderedKeys[$pos]
+            
+                # Re-draw the previously selected and newly selected options
+                $host.UI.RawUI.CursorPosition = $menuOldPos
+                Write-Host "   $($orderedKeys[$oldPos]) $(" " * ($longestKeyLength - $oldKey.Length)) - $($options[$orderedKeys[$oldPos]])" -ForegroundColor "Gray"
+                $host.UI.RawUI.CursorPosition = $menuNewPos
+                Write-Host " $([char]0x2192)" -ForegroundColor "DarkCyan" -NoNewline
+                Write-Host " $($orderedKeys[$pos]) $(" " * ($longestKeyLength - $newKey.Length)) - $($options[$orderedKeys[$pos]])" -ForegroundColor "DarkCyan"
+                $host.UI.RawUI.CursorPosition = $currPos
+            }
+        }
+
+        [Console]::SetCursorPosition($promptPos.X, $promptPos.Y)
+
+        if ($orderedKeys.Count -ne 1) {
+            Write-Host " ? " -ForegroundColor "Yellow" -NoNewline
+            Write-Host $prompt -NoNewline
+            Write-Host " $($orderedKeys[$pos])" -ForegroundColor "DarkCyan"
+        } else {
+            Write-Host " $([char]0x2713)" -ForegroundColor "Yellow" -NoNewline
+            Write-Host " $($orderedKeys[$pos])" -ForegroundColor "DarkCyan"
+        }
+
+        for ($i = 0; $i -lt $options.Count; $i++) {
+            Write-Host " $(" " * ($longestKeyLength * $options[$orderedKeys[$pos]].Length)) "
+        }
+        
+        [Console]::SetCursorPosition($promptPos.X, $promptPos.Y)
+        Write-Host
+
+        # Add a line break after the menu if lineAfter is specified
+        if ($lineAfter) { Write-Host }
+
+        # Handle function return values (key, value, menu position) based on parameters
+        if ($returnKey) { if ($orderedKeys.Count -eq 1) { return $orderedKeys } else { return $orderedKeys[$pos] } } 
+        if ($ReturnValue) { if ($orderedKeys.Count -eq 1) { return $options[$pos] } else { return $options[$orderedKeys[$pos]] } }
+        else { return $pos }
+    } catch {
+        # Display error message and exit this script
+        write-text -type "error" -text "Error | read-option-$($_.InvocationInfo.ScriptLineNumber)"
         read-command
     }
 }
@@ -395,213 +575,6 @@ function get-download {
                 [GC]::Collect()
             } 
         }   
-    }
-}
-function read-input {
-    param (
-        [parameter(Mandatory = $false)]
-        [string]$Value = "", # A pre-fill value so the user can hit enter without typing command and get the current value if there is one
-        [parameter(Mandatory = $false)]
-        [string]$prompt, # Provide a specific prompt in necessary
-        [parameter(Mandatory = $false)]
-        [regex]$Validate = $null,
-        [parameter(Mandatory = $false)]
-        [string]$ErrorMessage = "", # Provide an optional error message
-        [parameter(Mandatory = $false)]
-        [switch]$IsSecure = $false, # If prompting for a password
-        [parameter(Mandatory = $false)]
-        [switch]$CheckExistingUser = $false,
-        [parameter(Mandatory = $false)]
-        [switch]$lineBefore = $false, # Add a new line before prompt if specified
-        [parameter(Mandatory = $false)]
-        [switch]$lineAfter = $false # Add a new line after prompt if specified
-    )
-
-    try {
-        # Add a new line before prompt if specified
-        if ($lineBefore) { Write-Host }
-
-        # Get current cursor position
-        $currPos = $host.UI.RawUI.CursorPosition
-
-        Write-Host "  ? " -NoNewline -ForegroundColor "Green"
-        Write-Host "$prompt " -NoNewline
-
-        if ($IsSecure) { $userInput = Read-Host -AsSecureString } 
-        else { $userInput = Read-Host }
-
-        # Check for existing user if requested
-        if ($CheckExistingUser) {
-            $account = Get-LocalUser -Name $userInput -ErrorAction SilentlyContinue
-            if ($null -ne $account) { $ErrorMessage = "An account with that name already exists." }
-        }
-
-        # Validate user input against provided regular expression
-        if ($userInput -notmatch $Validate) { $ErrorMessage = "Invalid input. Please try again." } 
-
-        # Display error message if encountered
-        if ($ErrorMessage -ne "") {
-            write-text -type "error" -text $ErrorMessage
-            # Recursively call read-input if user exists
-            if ($CheckExistingUser) { return read-input -prompt $prompt -Validate $Validate -CheckExistingUser } 
-
-            # Otherwise, simply call again without CheckExistingUser
-            else { return read-input -prompt $prompt -Validate $Validate }
-        }
-
-        # Use provided default value if user enters nothing for a non-secure input
-        if ($userInput.Length -eq 0 -and $Value -ne "" -and !$IsSecure) { $userInput = $Value }
-
-        # Reset cursor position
-        [Console]::SetCursorPosition($currPos.X, $currPos.Y)
-        
-        # Display checkmark symbol and user input (masked for secure input)
-        Write-Host "  ? " -ForegroundColor "Green" -NoNewline
-        if ($IsSecure -and ($userInput.Length -eq 0)) { 
-            Write-Host "$prompt                                                "
-        } else { 
-            Write-Host "$prompt " -NoNewline
-            Write-Host "$userInput                                             " -ForegroundColor "DarkCyan"
-        }
-
-        # Add a new line after prompt if specified
-        if ($lineAfter) { Write-Host }
-    
-        # Return the validated user input
-        return $userInput
-    } catch {
-        # Handle errors during input
-        write-text -type "error" -text "Input Error: $($_.Exception.Message)"
-    }
-}
-function read-option {
-    param (
-        [parameter(Mandatory = $true)]
-        [System.Collections.Specialized.OrderedDictionary]$options,
-        [parameter(Mandatory = $false)]
-        [string]$prompt, # Provide a specific prompt in necessary
-        [parameter(Mandatory = $false)]
-        [switch]$returnKey = $false,
-        [parameter(Mandatory = $false)]
-        [switch]$ReturnValue = $false,
-        [parameter(Mandatory = $false)]
-        [switch]$lineBefore = $false,
-        [parameter(Mandatory = $false)]
-        [switch]$lineAfter = $false
-    )
-
-    try {
-        # Add a line break before the menu if lineBefore is specified
-        if ($lineBefore) { Write-Host }
-
-        # Get current cursor position
-        $promptPos = $host.UI.RawUI.CursorPosition
-
-        Write-Host "  ? " -NoNewline -ForegroundColor "Green"
-        Write-Host "$prompt "
-
-        # Initialize variables for user input handling
-        $vkeycode = 0
-        $pos = 0
-        $oldPos = 0
-
-        # Get a list of keys from the options dictionary
-        $orderedKeys = $options.Keys | ForEach-Object { $_ }
-
-        # Find the length of the longest key for padding
-        $longestKeyLength = ($orderedKeys | Measure-Object -Property Length -Maximum).Maximum
-
-        # Display single option if only one exists
-        if ($orderedKeys.Count -eq 1) {
-            Write-Host "  $([char]0x2192)" -ForegroundColor "DarkCyan" -NoNewline
-            Write-Host " $($orderedKeys) $(" " * ($longestKeyLength - $orderedKeys.Length)) - $($options[$orderedKeys])" -ForegroundColor "DarkCyan"
-        } else {
-            # Loop through each option and display with padding and color
-            for ($i = 0; $i -lt $orderedKeys.Count; $i++) {
-                $key = $orderedKeys[$i]
-                $padding = " " * ($longestKeyLength - $key.Length)
-                if ($i -eq $pos) { 
-                    Write-Host "  $([char]0x2192)" -ForegroundColor "DarkCyan" -NoNewline  
-                    Write-Host " $key $padding - $($options[$key])" -ForegroundColor "DarkCyan"
-                } else { Write-Host "    $key $padding - $($options[$key])" -ForegroundColor "Gray" }
-            }
-        }
-
-        # Get the current cursor position
-        $currPos = $host.UI.RawUI.CursorPosition
-
-        # Loop for user input to select an option
-        While ($vkeycode -ne 13) {
-            $press = $host.ui.rawui.readkey("NoEcho, IncludeKeyDown")
-            $vkeycode = $press.virtualkeycode
-            Write-host "$($press.character)" -NoNewLine
-            if ($orderedKeys.Count -ne 1) { 
-                $oldPos = $pos;
-                if ($vkeycode -eq 38) { $pos-- }
-                if ($vkeycode -eq 40) { $pos++ }
-                if ($pos -lt 0) { $pos = 0 }
-                if ($pos -ge $orderedKeys.Count) { $pos = $orderedKeys.Count - 1 }
-
-                # Calculate positions for redrawing menu items
-                $menuLen = $orderedKeys.Count
-                $menuOldPos = New-Object System.Management.Automation.Host.Coordinates(0, ($currPos.Y - ($menuLen - $oldPos)))
-                $menuNewPos = New-Object System.Management.Automation.Host.Coordinates(0, ($currPos.Y - ($menuLen - $pos)))
-                $oldKey = $orderedKeys[$oldPos]
-                $newKey = $orderedKeys[$pos]
-            
-                # Re-draw the previously selected and newly selected options
-                $host.UI.RawUI.CursorPosition = $menuOldPos
-                Write-Host "    $($orderedKeys[$oldPos]) $(" " * ($longestKeyLength - $oldKey.Length)) - $($options[$orderedKeys[$oldPos]])" -ForegroundColor "Gray"
-                $host.UI.RawUI.CursorPosition = $menuNewPos
-                Write-Host "  $([char]0x2192)" -ForegroundColor "DarkCyan" -NoNewline
-                Write-Host " $($orderedKeys[$pos]) $(" " * ($longestKeyLength - $newKey.Length)) - $($options[$orderedKeys[$pos]])" -ForegroundColor "DarkCyan"
-                $host.UI.RawUI.CursorPosition = $currPos
-            }
-        }
-
-        <# if ($orderedKeys.Count -ne 1) {
-            $host.UI.RawUI.CursorPosition = $menuNewPos
-        } else {
-            $host.UI.RawUI.CursorPosition = New-Object System.Management.Automation.Host.Coordinates(0, ($currPos.Y - ($menuLen + 1)))
-        }
-
-        if ($orderedKeys.Count -ne 1) {
-            Write-Host "  $([char]0x2713)" -ForegroundColor "Green" -NoNewline
-            Write-Host " $($orderedKeys[$pos]) $(" " * ($longestKeyLength - $newKey.Length)) - $($options[$orderedKeys[$pos]])" -ForegroundColor "DarkCyan"
-        } else {
-            Write-Host "  $([char]0x2713)" -ForegroundColor "Green" -NoNewline
-            Write-Host " $($orderedKeys[$pos])" -ForegroundColor "DarkCyan"
-        } #>
-
-        [Console]::SetCursorPosition($promptPos.X, $promptPos.Y)
-
-        if ($orderedKeys.Count -ne 1) {
-            Write-Host "  ?" -ForegroundColor "Green" -NoNewline
-            Write-Host " $prompt" -NoNewline
-            Write-Host " $($orderedKeys[$pos])" -ForegroundColor "DarkCyan"
-        } else {
-            Write-Host "  $([char]0x2713)" -ForegroundColor "Green" -NoNewline
-            Write-Host " $($orderedKeys[$pos])" -ForegroundColor "DarkCyan"
-        }
-
-        for ($i = 0; $i -lt $options.Count; $i++) {
-            Write-Host " $(" " * ($longestKeyLength * $options[$orderedKeys[$pos]].Length)) "
-        }
-        
-        [Console]::SetCursorPosition($promptPos.X, $promptPos.Y)
-        Write-Host
-
-        # Add a line break after the menu if lineAfter is specified
-        if ($lineAfter) { Write-Host }
-
-        # Handle function return values (key, value, menu position) based on parameters
-        if ($returnKey) { if ($orderedKeys.Count -eq 1) { return $orderedKeys } else { return $orderedKeys[$pos] } } 
-        if ($ReturnValue) { if ($orderedKeys.Count -eq 1) { return $options[$pos] } else { return $options[$orderedKeys[$pos]] } }
-        else { return $pos }
-    } catch {
-        # Display error message and exit this script
-        write-text -type "error" -text "Error | read-option-$($_.InvocationInfo.ScriptLineNumber)"
-        read-command
     }
 }
 function read-closing {
