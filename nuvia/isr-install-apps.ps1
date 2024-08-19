@@ -15,7 +15,7 @@ function isr-install-apps {
             })
 
         if ($installChoice -ne 10) { 
-            $script:user = select-user -CustomHeader "Select user to install apps for"
+            $script:user = select-user -prompt "Select user to install apps for"
         }
 
         if ($installChoice -eq 1 -or $installChoice -eq 0) { install-chrome }
