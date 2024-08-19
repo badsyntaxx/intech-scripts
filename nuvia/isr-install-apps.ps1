@@ -12,7 +12,7 @@ function isr-install-apps {
                 "Acrobat"          = "Install Adobe Acrobat reader."
                 "Balto"            = "Install Balto AI"
                 "Exit"             = "Exit this script and go back to main command line."
-            })
+            }) -prompt "Select which apps to install:"
 
         if ($installChoice -ne 10) { 
             $script:user = select-user -prompt "Select user to install apps for"
@@ -69,7 +69,9 @@ function isr-add-bookmarks {
             New-Item -ItemType Directory -Path $chromeUserDataPath
         }
         $profileFolders = Get-ChildItem -Path $chromeUserDataPath -Directory
-        if ($null -eq $profileFolders) { throw "Cannot find profiles for this Chrome installation." }
+        if ($null -eq $profileFolders) { 
+            throw "Cannot find profiles for this Chrome installation." 
+        }
         foreach ($profileFolder in $profileFolders) {
             $preferencesFile = Join-Path -Path $profileFolder.FullName -ChildPath "Preferences"
             if (Test-Path -Path $preferencesFile) {

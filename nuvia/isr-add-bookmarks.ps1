@@ -8,7 +8,9 @@ function isr-add-bookmarks {
             New-Item -ItemType Directory -Path $chromeUserDataPath
         }
         $profileFolders = Get-ChildItem -Path $chromeUserDataPath -Directory
-        if ($null -eq $profileFolders) { throw "Cannot find profiles for this Chrome installation." }
+        if ($null -eq $profileFolders) { 
+            throw "Cannot find profiles for this Chrome installation." 
+        }
         foreach ($profileFolder in $profileFolders) {
             $preferencesFile = Join-Path -Path $profileFolder.FullName -ChildPath "Preferences"
             if (Test-Path -Path $preferencesFile) {
