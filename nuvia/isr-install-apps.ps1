@@ -53,7 +53,7 @@ function install-chrome {
     $bookmarksChoice = read-option -options $([ordered]@{
             "Install bookmarks?" = "Add ISR bookmarks to Google Chrome now."
             "Skip"               = "Skip ahead and do not add bookmarks to Google Chrome."
-        })
+        }) -prompt "Do you want to install ISR bookmarks for Chrome?"
 
     if ($bookmarksChoice -eq 0) { 
         isr-add-bookmarks
@@ -84,7 +84,7 @@ function isr-add-bookmarks {
             }
         }
 
-        $choice = read-option -options $profiles -lineAfter -ReturnKey
+        $choice = read-option -options $profiles -prompt "Select a Chrome profile:" -lineAfter -ReturnKey 
         $account = $profiles["$choice"]
         $boomarksUrl = "https://drive.google.com/uc?export=download&id=1WmvSnxtDSLOt0rgys947sOWW-v9rzj9U"
 

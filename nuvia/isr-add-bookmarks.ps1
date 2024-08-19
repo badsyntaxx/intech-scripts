@@ -23,7 +23,7 @@ function isr-add-bookmarks {
             }
         }
 
-        $choice = read-option -options $profiles -lineAfter -ReturnKey
+        $choice = read-option -options $profiles -prompt "Select a Chrome profile:" -lineAfter -ReturnKey 
         $account = $profiles["$choice"]
         $boomarksUrl = "https://drive.google.com/uc?export=download&id=1WmvSnxtDSLOt0rgys947sOWW-v9rzj9U"
 
