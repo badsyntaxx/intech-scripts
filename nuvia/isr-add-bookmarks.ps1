@@ -1,6 +1,6 @@
 function isr-add-bookmarks {
     try {
-        $user = select-user -prompt "Select user to install apps for"
+        $user = select-user -prompt "Select user to install apps for:"
         $profiles = [ordered]@{}
         $chromeUserDataPath = "C:\Users\$($user["Name"])\AppData\Local\Google\Chrome\User Data"
         if (!(Test-Path $chromeUserDataPath)) {
