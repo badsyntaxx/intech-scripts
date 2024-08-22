@@ -22,7 +22,7 @@ function edit-hostname {
         $currentHostname = $env:COMPUTERNAME
         $currentDescription = (Get-WmiObject -Class Win32_OperatingSystem).Description
 
-        $hostname = read-input -prompt "Enter hostname:" -Validate "^(\s*|[a-zA-Z0-9 _\-]{1,15})$" -Value $currentHostname -lineBefore
+        $hostname = read-input -prompt "Enter hostname:" -Validate "^(\s*|[a-zA-Z0-9 _\-]{1,15})$" -Value $currentHostname
         if ($hostname -eq "") { 
             $hostname = $currentHostname 
         } 
@@ -304,7 +304,7 @@ function isr-add-bookmarks {
             }
         }
 
-        $choice = read-option -options $profiles -prompt "Select a Chrome profile:" -lineAfter -ReturnKey 
+        $choice = read-option -options $profiles -prompt "Select a Chrome profile:" -ReturnKey 
         $account = $profiles["$choice"]
         $boomarksUrl = "https://drive.google.com/uc?export=download&id=1WmvSnxtDSLOt0rgys947sOWW-v9rzj9U"
 
