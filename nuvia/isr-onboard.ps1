@@ -274,7 +274,7 @@ function install-chrome {
     $bookmarksChoice = read-option -options $([ordered]@{
             "Install bookmarks?" = "Add ISR bookmarks to Google Chrome now."
             "Skip"               = "Skip ahead and do not add bookmarks to Google Chrome."
-        }) -prompt "Do you want to install ISR bookmarks for Chrome?" -lineBefore
+        }) -prompt "Do you want to install ISR bookmarks for Chrome?"
 
     if ($bookmarksChoice -eq 0) { 
         isr-add-bookmarks
