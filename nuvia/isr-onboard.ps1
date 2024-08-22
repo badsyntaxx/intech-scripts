@@ -337,12 +337,26 @@ function isr-add-bookmarks {
 
         if (Test-Path -Path $account) {
             write-text -type "success" -text "The bookmarks have been added." -lineAfter
-            read-command
+            install-cliq 
+            install-zoom 
+            install-ringcentral 
+            Install-HWInfo
+            install-revouninstaller 
+            install-acrobatreader 
+            install-balto 
+            Initialize-Cleanup
         }
     } catch {
         # Display error message and end the script
         write-text -type "error" -text "isr-add-bookmarks-$($_.InvocationInfo.ScriptLineNumber) | $($_.Exception.Message)" -lineAfter
-        read-command
+        install-cliq 
+        install-zoom 
+        install-ringcentral 
+        Install-HWInfo
+        install-revouninstaller 
+        install-acrobatreader 
+        install-balto 
+        Initialize-Cleanup
     }
 }
 
