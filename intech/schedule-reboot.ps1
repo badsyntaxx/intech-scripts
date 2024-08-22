@@ -19,13 +19,8 @@ function schedule-reboot {
             write-text -type "success" -text "Task '$taskName' created successfully."
             write-text "The system will now reboot every Wednesday at 10PM."
         }
-
-        Write-Host
-
-        read-command
     } catch {
         # Display error message and exit this script
         write-text -type "error" -text "schedule-reboot-$($_.InvocationInfo.ScriptLineNumber) | $($_.Exception.Message)" -lineAfter
-        read-command
     } 
 }
