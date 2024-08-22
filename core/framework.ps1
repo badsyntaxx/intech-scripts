@@ -98,8 +98,6 @@ function read-command {
         # Error handling: display an error message and prompt for a new command
         Write-Host "    $($_.Exception.Message) | init-$($_.InvocationInfo.ScriptLineNumber)" -ForegroundColor Red
         read-command
-    } finally {
-        read-command
     }
 }
 function add-script {
