@@ -257,6 +257,8 @@ function Install-Program {
                 $process = Start-Process -FilePath "$env:SystemRoot\Temp\$output" -ArgumentList "$Args" -PassThru
             }
 
+            $curPos = $host.UI.RawUI.CursorPosition
+
             $dots = ""
             $counter = 0
             while (!$process.HasExited) {
@@ -270,9 +272,11 @@ function Install-Program {
                 }
             }
 
+            [Console]::SetCursorPosition($curPos.X, $curPos.Y)
+
             Get-Item -ErrorAction SilentlyContinue "$env:SystemRoot\Temp\$output" | Remove-Item -ErrorAction SilentlyContinue
             
-            write-text -type "success" -text "$AppName successfully installed." -lineBefore
+            write-text -type "success" -text "$AppName successfully installed.          " -lineBefore
         } else {
             write-text -type "error" -text "Download failed. Skipping."
         }
