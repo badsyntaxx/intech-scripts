@@ -13,6 +13,7 @@ function isr-onboard {
 
     foreach ($func in $funcs) {
         add-func -command $func
+        Add-Content -Path "$env:SystemRoot\Temp\CHASTE-Script.ps1" -Value "Write-Text"
     }
 
     add-onboardScript -subpath "core" -script "framework"
