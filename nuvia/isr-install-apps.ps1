@@ -3,7 +3,6 @@ function isr-install-apps {
         $installChoice = read-option -options $([ordered]@{
                 "All"              = "Install all the apps that an ISR will need."
                 "Chrome"           = "Install Google Chrome"
-                "Brave"            = "Install Brave browser."
                 "Zoom"             = "Install Microsoft Zoom."
                 "RingCentral"      = "Install RingCentral."
                 "Cliq"             = "Install Cliq."
@@ -17,17 +16,33 @@ function isr-install-apps {
         if ($installChoice -ne 10) { 
             $script:user = select-user -prompt "Select user to install apps for:"
         }
-
-        if ($installChoice -eq 1 -or $installChoice -eq 0) { install-chrome }
-        if ($installChoice -eq 2 -or $installChoice -eq 0) { install-brave }
-        if ($installChoice -eq 3 -or $installChoice -eq 0) { install-zoom }
-        if ($installChoice -eq 4 -or $installChoice -eq 0) { install-ringcentral }
-        if ($installChoice -eq 5 -or $installChoice -eq 0) { install-Cliq }
-        if ($installChoice -eq 6 -or $installChoice -eq 0) { install-HWInfo }
-        if ($installChoice -eq 7 -or $installChoice -eq 0) { install-revouninstaller }
-        if ($installChoice -eq 8 -or $installChoice -eq 0) { install-acrobatreader }
-        if ($installChoice -eq 9 -or $installChoice -eq 0) { install-balto }
-        if ($installChoice -eq 10) { read-command }
+        if ($installChoice -eq 1 -or $installChoice -eq 0) { 
+            install-chrome 
+        }
+        if ($installChoice -eq 2 -or $installChoice -eq 0) { 
+            install-zoom
+        }
+        if ($installChoice -eq 3 -or $installChoice -eq 0) { 
+            install-ringcentral
+        }
+        if ($installChoice -eq 4 -or $installChoice -eq 0) { 
+            install-Cliq
+        }
+        if ($installChoice -eq 5 -or $installChoice -eq 0) { 
+            install-HWInfo
+        }
+        if ($installChoice -eq 6 -or $installChoice -eq 0) { 
+            install-revouninstaller
+        }
+        if ($installChoice -eq 7 -or $installChoice -eq 0) { 
+            install-acrobatreader
+        }
+        if ($installChoice -eq 8 -or $installChoice -eq 0) { 
+            install-balto
+        }
+        if ($installChoice -eq 9) { 
+            read-command
+        }
 
         Initialize-Cleanup
     } catch {
@@ -82,7 +97,7 @@ function isr-add-bookmarks {
             }
         }
 
-        $choice = read-option -options $profiles -prompt "Select a Chrome profile:" -lineAfter -ReturnKey 
+        $choice = read-option -options $profiles -prompt "Select a Chrome profile:" -ReturnKey 
         $account = $profiles["$choice"]
         $boomarksUrl = "https://drive.google.com/uc?export=download&id=1WmvSnxtDSLOt0rgys947sOWW-v9rzj9U"
 
