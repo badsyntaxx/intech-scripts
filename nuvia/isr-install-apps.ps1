@@ -22,8 +22,8 @@ function isr-install-apps {
         if ($installChoice -eq 2 -or $installChoice -eq 0) { install-brave }
         if ($installChoice -eq 3 -or $installChoice -eq 0) { install-zoom }
         if ($installChoice -eq 4 -or $installChoice -eq 0) { install-ringcentral }
-        if ($installChoice -eq 5 -or $installChoice -eq 0) { Install-Cliq }
-        if ($installChoice -eq 6 -or $installChoice -eq 0) { Install-HWInfo }
+        if ($installChoice -eq 5 -or $installChoice -eq 0) { install-Cliq }
+        if ($installChoice -eq 6 -or $installChoice -eq 0) { install-HWInfo }
         if ($installChoice -eq 7 -or $installChoice -eq 0) { install-revouninstaller }
         if ($installChoice -eq 8 -or $installChoice -eq 0) { install-acrobatreader }
         if ($installChoice -eq 9 -or $installChoice -eq 0) { install-balto }
@@ -135,17 +135,15 @@ function install-brave {
     if (!$installed) { Install-Program $url $appName "exe" "/silent" }
 }
 
-function Install-Cliq {
-    $paths = @(
-        "C:\Users\$($user["Name"])\AppData\Local\cliq\Cliq.exe"
-    )
-    $url = "https://downloads.zohocdn.com/chat-desktop/windows/Cliq_1.7.3_x64.exe"
+function install-cliq {
+    $paths = @("$env:USERPROFILE\AppData\Local\cliq\app-1.7.1")
+    $url = "https://downloads.zohocdn.com/chat-desktop/windows/Cliq-1.7.3-x64.msi"
     $appName = "Cliq"
     $installed = Find-ExistingInstall -Paths $paths -App $appName
-    if (!$installed) { Install-Program $url $appName "exe" "/silent" }
+    if (!$installed) { Install-Program $url $appName "msi" "/qn" }
 }
 
-function Install-HWInfo {
+function install-HWInfo {
     $paths = @(
         "C:\Program Files\HWiNFO64\HWiNFO64.exe"
     )
