@@ -262,14 +262,16 @@ function Install-Program {
             $dots = ""
             $counter = 0
             while (!$process.HasExited) {
+                $dotPos = $host.UI.RawUI.CursorPosition
                 $dots += "."
-                Write-Host -NoNewLine "`r  Installing$dots    "
+                Write-Host -NoNewLine "`r  Installing$dots"
                 Start-Sleep -Milliseconds 500
                 $counter++
                 if ($counter -eq 5) { 
                     $dots = "" 
                     $counter = 0
                 }
+                [Console]::SetCursorPosition($dotPos.X, $dotPos.Y)
             }
 
             [Console]::SetCursorPosition($curPos.X, $curPos.Y)
