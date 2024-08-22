@@ -72,7 +72,20 @@ function edit-hostname {
 
 function isr-install-ninja {
     try {
-        $url = "https://app.ninjarmm.com/agent/installer/0274c0c3-3ec8-44fc-93cb-79e96f191e07/nuviaisrcenteroremut-5.9.9652-windows-installer.msi"
+        $choice = read-option -options $([ordered]@{
+                "Inventory"   = "Install for inventory."
+                "Orem Center" = "Install for the Orem ISR center."
+                "Remote"      = "Install for a remote ISR."
+            }) -prompt "Install for the Orem ISR center or other?"
+
+        $location = "nuviainventory"
+
+        switch ($choice) {
+            1 { $location = "nuviaisrcenteroremut" }
+            2 { $location = "nuviaisrcenterremote" }
+        }
+
+        $url = "https://app.ninjarmm.com/agent/installer/0274c0c3-3ec8-44fc-93cb-79e96f191e07/$location-5.9.1158-windows-installer.msi"
         $service = Get-Service -Name "NinjaRMMAgent" -ErrorAction SilentlyContinue
 
         write-text -type "notice" -text "Accessing nuviaisrcenteroremut-5.9.9652-windows-installer.msi" -lineBefore -lineAfter
@@ -319,10 +332,10 @@ function Install-HWInfo {
 
 function install-cliq {
     $paths = @("$env:USERPROFILE\AppData\Local\cliq\app-1.7.1")
-    $url = "https://downloads.zohocdn.com/chat-desktop/windows/Cliq_1.7.1_x64.exe"
+    $url = "https://downloads.zohocdn.com/chat-desktop/windows/Cliq-1.7.3-x64.msi"
     $appName = "Cliq"
     $installed = Find-ExistingInstall -Paths $paths -App $appName
-    if (!$installed) { Install-Program $url $appName "exe" "/silent" }
+    if (!$installed) { Install-Program $url $appName "msi" "/qn" }
 }
 
 function install-zoom {
