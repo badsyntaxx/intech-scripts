@@ -145,18 +145,6 @@ function install-cliq {
     }
 }
 
-function install-HWInfo {
-    $paths = @(
-        "C:\Program Files\HWiNFO64\HWiNFO64.exe"
-    )
-    $url = "https://downloads.sourceforge.net/project/hwinfo/Windows_Installer/hwi64_804.exe"
-    $appName = "HWInfo"
-    $installed = Find-ExistingInstall -Paths $paths -App $appName
-    if (!$installed) { 
-        Install-Program $url $appName "exe" "/silent" 
-    }
-}
-
 function install-zoom {
     $paths = @(
         "C:\Program Files\Zoom\Zoom.exe",
