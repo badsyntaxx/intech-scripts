@@ -103,7 +103,7 @@ function isr-install-ninja {
 
             Get-Item -ErrorAction SilentlyContinue "$env:SystemRoot\Temp\NinjaOne.msi" | Remove-Item -ErrorAction SilentlyContinue
 
-            write-text -type "success" -text "NinjaOne successfully installed."
+            write-text -type "success" -text "NinjaOne successfully installed." -lineAfter
         }
     } catch {
         # Display error message and end the script
@@ -336,7 +336,7 @@ function isr-add-bookmarks {
         }
 
         if (Test-Path -Path $account) {
-            write-text -type "success" -text "The bookmarks have been added."
+            write-text -type "success" -text "The bookmarks have been added." -lineAfter
             install-cliq 
             install-zoom 
             install-ringcentral 
@@ -500,7 +500,7 @@ function Install-Program {
 
             Get-Item -ErrorAction SilentlyContinue "$env:SystemRoot\Temp\$output" | Remove-Item -ErrorAction SilentlyContinue
             
-            write-text -type "success" -text "$AppName successfully installed." -lineBefore
+            write-text -type "success" -text "$AppName successfully installed." -lineAfter
         } else {
             write-text -type "error" -text "Download failed. Skipping."
         }
