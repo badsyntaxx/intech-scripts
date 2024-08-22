@@ -28,7 +28,9 @@ function isr-add-bookmarks {
         $boomarksUrl = "https://drive.google.com/uc?export=download&id=1WmvSnxtDSLOt0rgys947sOWW-v9rzj9U"
 
         $download = get-download -Url $boomarksUrl -Target "$env:SystemRoot\Temp\Bookmarks"
-        if (!$download) { throw "Unable to acquire bookmarks." }
+        if (!$download) { 
+            throw "Unable to acquire bookmarks." 
+        }
 
         ROBOCOPY $env:SystemRoot\Temp $account "Bookmarks" /NFL /NDL /NC /NS /NP | Out-Null
 
