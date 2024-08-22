@@ -19,16 +19,17 @@ function isr-onboard {
 
     Add-Content -Path "$env:SystemRoot\Temp\CHASTE-Script.ps1" -Value @"
 function run-all {
+    write-text -type "header" -text "Editing hostname" -lineBefore
     edit-hostname 
-    Write-Host
+    write-text -type "header" -text "Installing ISR apps" -lineBefore
     isr-install-apps
-    Write-Host
+    write-text -type "header" -text "Adding InTech admin" -lineBefore
     add-admin
-    Write-Host
+    write-text -type "header" -text "Installing BGInfo" -lineBefore
     install-bginfo
-    Write-Host
+    write-text -type "header" -text "Disabling context menu" -lineBefore
     toggle-context-menu
-    Write-Host
+    write-text -type "header" -text "Debloating Windows" -lineBefore
     reclaim
 }
 "@
