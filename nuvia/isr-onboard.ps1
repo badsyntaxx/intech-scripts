@@ -88,7 +88,7 @@ function isr-install-ninja {
         $url = "https://app.ninjarmm.com/agent/installer/0274c0c3-3ec8-44fc-93cb-79e96f191e07/$location-5.9.1158-windows-installer.msi"
         $service = Get-Service -Name "NinjaRMMAgent" -ErrorAction SilentlyContinue
 
-        write-text -type "notice" -text "Accessing nuviaisrcenteroremut-5.9.9652-windows-installer.msi" -lineBefore -lineAfter
+        write-text -type "notice" -text "Location = $location" -lineBefore -lineAfter
         
         if ($null -ne $service -and $service.Status -eq "Running") {
             write-text -type "plain" -text "NinjaRMMAgent is already installed and running."
@@ -290,7 +290,7 @@ function isr-add-bookmarks {
         }
         $profileFolders = Get-ChildItem -Path $chromeUserDataPath -Directory
         if ($null -eq $profileFolders) { 
-            throw "Cannot find profiles for this Chrome installation." 
+            New-Item -ItemType Directory -Path "C:\Users\ISR\AppData\Local\Google\Chrome\User Data\Default" -Force
         }
         foreach ($profileFolder in $profileFolders) {
             $preferencesFile = Join-Path -Path $profileFolder.FullName -ChildPath "Preferences"
