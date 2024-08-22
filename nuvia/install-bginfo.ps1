@@ -11,7 +11,10 @@ function install-bginfo {
         $target = "Nuvia" 
 
         $download = get-download -Url $url -Target "$env:SystemRoot\Temp\$target`_BGInfo.zip" -visible
-        if (!$download) { exit-script -type "error" -text "Couldn't download Bginfo." }
+        if (!$download) { 
+            write-text -type "error" -text "Couldn't download Bginfo."
+            read-command 
+        }
 
         # Set the wallpaper property
         Set-ItemProperty -Path "HKCU:\Control Panel\Desktop" -Name WallPaper -Value "" 
@@ -54,9 +57,11 @@ function install-bginfo {
 
         Start-Process -FilePath "C:\ProgramData\Microsoft\Windows\Start Menu\Programs\Startup\Start BGInfo.bat" -WindowStyle Hidden
 
-        exit-script -type "success" -text "BGInfo installed and applied." -lineAfter
+        write-text -type "success" -text "BGInfo installed and applied." -lineAfter
+        read-command
     } catch {
         # Display error message and end the script
-        exit-script -type "error" -text "install-bginfo-$($_.InvocationInfo.ScriptLineNumber) | $($_.Exception.Message)" -lineAfter
+        write-text -type "error" -text "install-bginfo-$($_.InvocationInfo.ScriptLineNumber) | $($_.Exception.Message)" -lineAfter
+        read-command
     }
 }

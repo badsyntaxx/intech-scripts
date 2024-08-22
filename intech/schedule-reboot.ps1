@@ -25,6 +25,7 @@ function schedule-reboot {
         read-command
     } catch {
         # Display error message and exit this script
-        exit-script -type "error" -text "schedule-reboot-$($_.InvocationInfo.ScriptLineNumber) | $($_.Exception.Message)" -lineAfter
+        write-text -type "error" -text "schedule-reboot-$($_.InvocationInfo.ScriptLineNumber) | $($_.Exception.Message)" -lineAfter
+        read-command
     } 
 }

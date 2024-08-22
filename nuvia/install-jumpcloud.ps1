@@ -25,7 +25,8 @@ function install-jumpcloud {
         }
         Function DownloadAndInstallAgent() {
             If (Test-Path -Path "$($AGENT_PATH)\$($AGENT_BINARY_NAME)") {
-                exit-script -type 'success' -text 'JumpCloud Agent Already Installed'
+                write-text -type 'success' -text 'JumpCloud Agent Already Installed'
+                read-command
             } else {
                 write-text 'Downloading JCAgent Installer'
                 # Download Installer
@@ -59,9 +60,11 @@ function install-jumpcloud {
 
         DownloadAndInstallAgent
 
-        exit-script -type "success" -text "JumpCloud successfully installed." -lineAfter
+        write-text -type "success" -text "JumpCloud successfully installed." -lineAfter
+        read-command
     } catch {
         # Display error message and end the script
-        exit-script -type "error" -text "isr-install-ninja-$($_.InvocationInfo.ScriptLineNumber) - $($_.Exception.Message)"
+        write-text -type "error" -text "isr-install-ninja-$($_.InvocationInfo.ScriptLineNumber) - $($_.Exception.Message)"
+        read-command
     }
 }

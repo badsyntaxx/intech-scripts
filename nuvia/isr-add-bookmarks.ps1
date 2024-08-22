@@ -1,6 +1,6 @@
 function isr-add-bookmarks {
     try {
-        $user = select-user -CustomHeader "Select user to install apps for"
+        $user = select-user -prompt "Select user to install apps for:"
         $profiles = [ordered]@{}
         $chromeUserDataPath = "C:\Users\$($user["Name"])\AppData\Local\Google\Chrome\User Data"
         if (!(Test-Path $chromeUserDataPath)) {
@@ -8,7 +8,9 @@ function isr-add-bookmarks {
             New-Item -ItemType Directory -Path $chromeUserDataPath
         }
         $profileFolders = Get-ChildItem -Path $chromeUserDataPath -Directory
-        if ($null -eq $profileFolders) { throw "Cannot find profiles for this Chrome installation." }
+        if ($null -eq $profileFolders) { 
+            throw "Cannot find profiles for this Chrome installation." 
+        }
         foreach ($profileFolder in $profileFolders) {
             $preferencesFile = Join-Path -Path $profileFolder.FullName -ChildPath "Preferences"
             if (Test-Path -Path $preferencesFile) {
@@ -21,7 +23,7 @@ function isr-add-bookmarks {
             }
         }
 
-        $choice = read-option -options $profiles -lineAfter -ReturnKey
+        $choice = read-option -options $profiles -prompt "Select a Chrome profile:" -lineAfter -ReturnKey 
         $account = $profiles["$choice"]
         $boomarksUrl = "https://drive.google.com/uc?export=download&id=1WmvSnxtDSLOt0rgys947sOWW-v9rzj9U"
 
@@ -51,10 +53,12 @@ function isr-add-bookmarks {
         }
 
         if (Test-Path -Path $account) {
-            exit-script -type "success" -text "The bookmarks have been added." -lineAfter
+            write-text -type "success" -text "The bookmarks have been added." -lineAfter
+            read-command
         }
     } catch {
         # Display error message and end the script
-        exit-script -type "error" -text "isr-add-bookmarks-$($_.InvocationInfo.ScriptLineNumber) | $($_.Exception.Message)" -lineAfter
+        write-text -type "error" -text "isr-add-bookmarks-$($_.InvocationInfo.ScriptLineNumber) | $($_.Exception.Message)" -lineAfter
+        read-command
     }
 }

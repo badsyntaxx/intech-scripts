@@ -22,10 +22,12 @@ function install-ninja {
 
         Get-Item -ErrorAction SilentlyContinue "$env:SystemRoot\Temp\NinjaOne.msi" | Remove-Item -ErrorAction SilentlyContinue
 
-        exit-script -type "success" -text "NinjaOne successfully installed." -lineAfter
+        write-text -type "success" -text "NinjaOne successfully installed." -lineAfter
+        read-command
     } catch {
         # Display error message and end the script
-        exit-script -type "error" -text "isr-install-ninja-$($_.InvocationInfo.ScriptLineNumber) - $($_.Exception.Message)"
+        write-text -type "error" -text "isr-install-ninja-$($_.InvocationInfo.ScriptLineNumber) - $($_.Exception.Message)"
+        read-command
     }
 }
 
