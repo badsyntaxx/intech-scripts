@@ -1,6 +1,5 @@
 function isr-add-bookmarks {
     try {
-        $user = select-user -prompt "Select user to install apps for:"
         $profiles = [ordered]@{}
         $chromeUserDataPath = "C:\Users\$($user["Name"])\AppData\Local\Google\Chrome\User Data"
         if (!(Test-Path $chromeUserDataPath)) {
@@ -55,12 +54,10 @@ function isr-add-bookmarks {
         }
 
         if (Test-Path -Path $account) {
-            write-text -type "success" -text "The bookmarks have been added." -lineAfter
-            read-command
+            write-text -type "success" -text "The bookmarks have been added."
         }
     } catch {
         # Display error message and end the script
-        write-text -type "error" -text "isr-add-bookmarks-$($_.InvocationInfo.ScriptLineNumber) | $($_.Exception.Message)" -lineAfter
-        read-command
+        write-text -type "error" -text "isr-add-bookmarks-$($_.InvocationInfo.ScriptLineNumber) | $($_.Exception.Message)"
     }
 }

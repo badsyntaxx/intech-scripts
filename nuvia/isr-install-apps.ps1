@@ -46,7 +46,6 @@ function isr-install-apps {
         write-text -type "error" -text "isr-install-apps-$($_.InvocationInfo.ScriptLineNumber) | $($_.Exception.Message)" -lineAfter
     }
 }
-
 function install-chrome {
     $paths = @(
         "$env:ProgramFiles\Google\Chrome\Application\chrome.exe",
@@ -70,7 +69,6 @@ function install-chrome {
         isr-add-bookmarks
     }
 }
-
 function isr-add-bookmarks {
     try {
         $profiles = [ordered]@{}
@@ -134,7 +132,6 @@ function isr-add-bookmarks {
         write-text -type "error" -text "isr-add-bookmarks-$($_.InvocationInfo.ScriptLineNumber) | $($_.Exception.Message)"
     }
 }
-
 function install-cliq {
     $paths = @("$env:USERPROFILE\AppData\Local\cliq\app-1.7.1")
     $url = "https://downloads.zohocdn.com/chat-desktop/windows/Cliq-1.7.3-x64.msi"
@@ -144,7 +141,6 @@ function install-cliq {
         Install-Program $url $appName "msi" "/qn" 
     }
 }
-
 function install-zoom {
     $paths = @(
         "C:\Program Files\Zoom\Zoom.exe",
@@ -158,7 +154,6 @@ function install-zoom {
         Install-Program $url $appName "msi" "/qn" 
     }
 }
-
 function install-ringcentral {
     $paths = @(
         "C:\Program Files\RingCentral\RingCentral.exe",
@@ -171,7 +166,6 @@ function install-ringcentral {
         Install-Program $url $appName "msi" "/qn" 
     }
 }
-
 function install-revouninstaller {
     $paths = @("C:\Program Files\VS Revo Group\Revo Uninstaller\RevoUnin.exe")
     $url = "https://download.revouninstaller.com/download/revosetup.exe"
@@ -181,7 +175,6 @@ function install-revouninstaller {
         Install-Program $url $appName "exe" "/verysilent" 
     }
 }
-
 function install-acrobatreader {
     $paths = @(
         "C:\Program Files\Adobe\Acrobat DC\Acrobat\Acrobat.exe"
@@ -194,7 +187,6 @@ function install-acrobatreader {
         Install-Program $url $appName "exe" "/sAll /rs /msi EULA_ACCEPT=YES" 
     }
 }
-
 function install-balto {
     $paths = @("C:\Users\$($user["Name"])\AppData\Local\Programs\Balto\Balto.exe")
     $url = "https://download.baltocloud.com/Balto+Setup+6.2.2.exe"
@@ -204,7 +196,6 @@ function install-balto {
         Install-Program $url $appName "exe" "/silent" 
     }
 }
-
 function Initialize-Cleanup {
     Remove-Item "$env:SystemRoot\Temp\Revo Uninstaller.lnk" -Force -ErrorAction SilentlyContinue
     Remove-Item "C:\Users\Public\Desktop\Revo Uninstaller.lnk" -Force -ErrorAction SilentlyContinue
@@ -213,7 +204,6 @@ function Initialize-Cleanup {
     Remove-Item "$env:SystemRoot\Temp\Microsoft Edge.lnk" -Force -ErrorAction SilentlyContinue
     Remove-Item "C:\Users\Public\Desktop\Microsoft Edge.lnk" -Force -ErrorAction SilentlyContinue
 }
-
 function Find-ExistingInstall {
     param (
         [parameter(Mandatory = $true)]
@@ -239,7 +229,6 @@ function Find-ExistingInstall {
 
     return $installationFound
 }
-
 function Install-Program {
     param (
         [parameter(Mandatory = $true)]
@@ -292,4 +281,3 @@ function Install-Program {
         write-text "Skipping $AppName installation."
     }
 }
-
