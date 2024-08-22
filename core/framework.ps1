@@ -180,18 +180,18 @@ function write-text {
 
         # Format output based on the specified Type
         if ($type -eq "header") {
-            Write-Host "## " -ForegroundColor "Cyan" -NoNewline
+            Write-Host "# " -ForegroundColor "Cyan" -NoNewline
             Write-Host "$text" -ForegroundColor "White" 
         }
         
         if ($type -eq 'success') { 
-            Write-Host " $([char]0x2713) $text"  -ForegroundColor "Green" 
+            Write-Host "$([char]0x2713) $text"  -ForegroundColor "Green" 
         }
         if ($type -eq 'error') { 
-            Write-Host " X $text" -ForegroundColor "Red" 
+            Write-Host "X $text" -ForegroundColor "Red" 
         }
         if ($type -eq 'notice') { 
-            Write-Host "   $text" -ForegroundColor "Yellow" 
+            Write-Host " $text" -ForegroundColor "Yellow" 
         }
         if ($type -eq 'plain') {
             
@@ -199,10 +199,10 @@ function write-text {
                 if ($Color -eq "Gray") {
                     $Color = 'DarkCyan'
                 }
-                Write-Host "   $label`: " -NoNewline -ForegroundColor "Gray"
+                Write-Host " $label`: " -NoNewline -ForegroundColor "Gray"
                 Write-Host "$text" -ForegroundColor $Color 
             } else {
-                Write-Host "   $text" -ForegroundColor $Color 
+                Write-Host " $text" -ForegroundColor $Color 
             }
         }
         if ($type -eq 'list') { 
@@ -226,7 +226,7 @@ function write-text {
         }
 
         if ($type -eq 'fail') { 
-            Write-Host "   " -ForegroundColor "Red" -NoNewline
+            Write-Host " " -ForegroundColor "Red" -NoNewline
             Write-Host $text
         }
 
@@ -265,7 +265,7 @@ function read-input {
         # Get current cursor position
         $currPos = $host.UI.RawUI.CursorPosition
 
-        Write-Host " ? " -NoNewline -ForegroundColor "Yellow"
+        Write-Host "? " -NoNewline -ForegroundColor "Yellow"
         Write-Host "$prompt " -NoNewline
 
         if ($IsSecure) { $userInput = Read-Host -AsSecureString } 
@@ -297,7 +297,7 @@ function read-input {
         [Console]::SetCursorPosition($currPos.X, $currPos.Y)
         
         # Display checkmark symbol and user input (masked for secure input)
-        Write-Host " ? " -ForegroundColor "Yellow" -NoNewline
+        Write-Host "? " -ForegroundColor "Yellow" -NoNewline
         if ($IsSecure -and ($userInput.Length -eq 0)) { 
             Write-Host "$prompt                                                "
         } else { 
@@ -338,7 +338,7 @@ function read-option {
         # Get current cursor position
         $promptPos = $host.UI.RawUI.CursorPosition
 
-        Write-Host " ? " -NoNewline -ForegroundColor "Yellow"
+        Write-Host "? " -NoNewline -ForegroundColor "Yellow"
         Write-Host "$prompt "
 
         # Initialize variables for user input handling
@@ -360,7 +360,7 @@ function read-option {
 
         # Display single option if only one exists
         if ($orderedKeys.Count -eq 1) {
-            Write-Host " $([char]0x2192)" -ForegroundColor "DarkCyan" -NoNewline
+            Write-Host "$([char]0x2192)" -ForegroundColor "DarkCyan" -NoNewline
             Write-Host " $($orderedKeys) $(" " * ($longestKeyLength - $orderedKeys.Length)) - $($options[$orderedKeys])" -ForegroundColor "DarkCyan"
         } else {
             # Loop through each option and display with padding and color
@@ -398,9 +398,9 @@ function read-option {
             
                 # Re-draw the previously selected and newly selected options
                 $host.UI.RawUI.CursorPosition = $menuOldPos
-                Write-Host "   $($orderedKeys[$oldPos]) $(" " * ($longestKeyLength - $oldKey.Length)) - $($options[$orderedKeys[$oldPos]])" -ForegroundColor "Gray"
+                Write-Host "  $($orderedKeys[$oldPos]) $(" " * ($longestKeyLength - $oldKey.Length)) - $($options[$orderedKeys[$oldPos]])" -ForegroundColor "Gray"
                 $host.UI.RawUI.CursorPosition = $menuNewPos
-                Write-Host " $([char]0x2192)" -ForegroundColor "DarkCyan" -NoNewline
+                Write-Host "$([char]0x2192)" -ForegroundColor "DarkCyan" -NoNewline
                 Write-Host " $($orderedKeys[$pos]) $(" " * ($longestKeyLength - $newKey.Length)) - $($options[$orderedKeys[$pos]])" -ForegroundColor "DarkCyan"
                 $host.UI.RawUI.CursorPosition = $currPos
             }
@@ -409,17 +409,17 @@ function read-option {
         [Console]::SetCursorPosition($promptPos.X, $promptPos.Y)
 
         if ($orderedKeys.Count -ne 1) {
-            Write-Host " ? " -ForegroundColor "Yellow" -NoNewline
+            Write-Host "? " -ForegroundColor "Yellow" -NoNewline
             Write-Host $prompt -NoNewline
             Write-Host " $($orderedKeys[$pos])" -ForegroundColor "DarkCyan"
         } else {
-            Write-Host " ? " -ForegroundColor "Yellow" -NoNewline
+            Write-Host "? " -ForegroundColor "Yellow" -NoNewline
             Write-Host $prompt -NoNewline
             Write-Host " $($orderedKeys) $(" " * ($longestKeyLength - $orderedKeys.Length))" -ForegroundColor "DarkCyan"
         }
 
         for ($i = 0; $i -lt $options.Count; $i++) {
-            Write-Host "       $(" " * ($longestKeyLength + $longestValueLength))"
+            Write-Host "     $(" " * ($longestKeyLength + $longestValueLength))"
         }
         
         [Console]::SetCursorPosition($promptPos.X, $promptPos.Y)
@@ -486,9 +486,9 @@ function get-download {
             $progbar = $progbar.PadRight($BarSize, [char]9617)
 
             if (!$Complete.IsPresent) {
-                Write-Host -NoNewLine "`r   $ProgressText $progbar $($percentComplete.ToString("##0.00").PadLeft(6))%"
+                Write-Host -NoNewLine "`r $ProgressText $progbar $($percentComplete.ToString("##0.00").PadLeft(6))%"
             } else {
-                Write-Host -NoNewLine "`r   $ProgressText $progbar $($percentComplete.ToString("##0.00").PadLeft(6))%"                    
+                Write-Host -NoNewLine "`r $ProgressText $progbar $($percentComplete.ToString("##0.00").PadLeft(6))%"                    
             }              
              
         }
