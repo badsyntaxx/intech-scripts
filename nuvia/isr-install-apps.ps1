@@ -231,27 +231,27 @@ function Find-ExistingInstall {
 }
 function Install-Program {
     param (
-        [parameter(Mandatory = $true)]
+        [Parameter(Mandatory = $true)]
         [string]$Url,
-        [parameter(Mandatory = $true)]
+        [Parameter(Mandatory = $true)]
         [string]$AppName,
-        [parameter(Mandatory = $true)]
-        [string]$Extenstion,
-        [parameter(Mandatory = $true)]
+        [Parameter(Mandatory = $true)]
+        [string]$Extension,
+        [Parameter(Mandatory = $true)]
         [string]$Args
     )
 
     try {
-        if ($Extenstion -eq "msi") {
-            $output = "$AppName.msi" 
+        if ($Extension -eq "msi") {
+            $output = "$AppName.msi"
         } else {
-            $output = "$AppName.exe" 
+            $output = "$AppName.exe"
         }
-        
+
         $download = get-download -Url $Url -Target "$env:SystemRoot\Temp\$output" -visible
 
         if ($download) {
-            if ($Extenstion -eq "msi") {
+            if ($Extension -eq "msi") {
                 $process = Start-Process -FilePath "msiexec" -ArgumentList "/i `"$env:SystemRoot\Temp\$output`" $Args" -PassThru
             } else {
                 $process = Start-Process -FilePath "$env:SystemRoot\Temp\$output" -ArgumentList "$Args" -PassThru
@@ -266,16 +266,21 @@ function Install-Program {
                 Write-Host -NoNewLine "`r  Installing$dots"
                 Start-Sleep -Milliseconds 500
                 $counter++
-                if ($counter -eq 15) { 
-                    $dots = "" 
+                if ($counter -eq 15) {
+                    $dots = ""
                     $counter = 0
                 }
+
+                # Clear the previous line before writing the new one
+                Write-Host -NoNewLine "`r                                  " -ForegroundColor White
+                Write-Host -NoNewLine "`r  Installing$dots" -ForegroundColor White
             }
 
+            # Restore the cursor position after the installation is complete
             [Console]::SetCursorPosition($curPos.X, $curPos.Y)
 
             Get-Item -ErrorAction SilentlyContinue "$env:SystemRoot\Temp\$output" | Remove-Item -ErrorAction SilentlyContinue
-            
+
             write-text -type "success" -text "$AppName successfully installed.          " -lineBefore
         } else {
             write-text -type "error" -text "Download failed. Skipping."
