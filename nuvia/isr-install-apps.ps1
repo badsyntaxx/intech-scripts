@@ -231,7 +231,9 @@ function Find-ExistingInstall {
         }
     }
 
-    if ($installationFound) { write-text -type "success" -text "$App already installed." }
+    if ($installationFound) { 
+        write-text -type "success" -text "$App already installed." -lineAfter
+    }
 
     return $installationFound
 }
