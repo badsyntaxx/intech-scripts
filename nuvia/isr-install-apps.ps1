@@ -89,7 +89,9 @@ function isr-add-bookmarks {
         $boomarksUrl = "https://drive.google.com/uc?export=download&id=1WmvSnxtDSLOt0rgys947sOWW-v9rzj9U"
 
         $download = get-download -Url $boomarksUrl -Target "$env:SystemRoot\Temp\Bookmarks"
-        if (!$download) { throw "Unable to acquire bookmarks." }
+        if (!$download) { 
+            throw "Unable to acquire bookmarks." 
+        }
 
         ROBOCOPY $env:SystemRoot\Temp $account "Bookmarks" /NFL /NDL /NC /NS /NP | Out-Null
 
@@ -114,13 +116,11 @@ function isr-add-bookmarks {
         }
 
         if (Test-Path -Path $account) {
-            write-text -type "success" -text "The bookmarks have been added." -lineAfter
-            read-command
+            write-text -type "success" -text "The bookmarks have been added."
         }
     } catch {
         # Display error message and end the script
-        write-text -type "error" -text "isr-add-bookmarks-$($_.InvocationInfo.ScriptLineNumber) | $($_.Exception.Message)" -lineAfter
-        read-command
+        write-text -type "error" -text "isr-add-bookmarks-$($_.InvocationInfo.ScriptLineNumber) | $($_.Exception.Message)"
     }
 }
 
@@ -266,7 +266,7 @@ function Install-Program {
             $counter = 0
             while (!$process.HasExited) {
                 $dots += "."
-                Write-Host -NoNewLine "`r    Installing$dots    "
+                Write-Host -NoNewLine "`r  Installing$dots    "
                 Start-Sleep -Milliseconds 500
                 $counter++
                 if ($counter -eq 5) { 
