@@ -61,7 +61,9 @@ function install-chrome {
     $url = "https://dl.google.com/dl/chrome/install/googlechromestandaloneenterprise64.msi"
     $appName = "Google Chrome"
     $installed = Find-ExistingInstall -Paths $paths -App $appName
-    if (!$installed) { Install-Program $url $appName "msi" "/qn" }
+    if (!$installed) { 
+        Install-Program $url $appName "msi" "/qn" 
+    }
 
     $bookmarksChoice = read-option -options $([ordered]@{
             "Install bookmarks" = "Add ISR bookmarks to Google Chrome now."
@@ -137,23 +139,14 @@ function isr-add-bookmarks {
     }
 }
 
-function install-brave {
-    $paths = @(
-        "$env:ProgramFiles\BraveSoftware\Brave-Browser\Application\brave.exe"
-    )
-
-    $url = "https://brave-browser-downloads.s3.brave.com/latest/brave_installer-x64.exe"
-    $appName = "Brave"
-    $installed = Find-ExistingInstall -Paths $paths -App $appName
-    if (!$installed) { Install-Program $url $appName "exe" "/silent" }
-}
-
 function install-cliq {
     $paths = @("$env:USERPROFILE\AppData\Local\cliq\app-1.7.1")
     $url = "https://downloads.zohocdn.com/chat-desktop/windows/Cliq-1.7.3-x64.msi"
     $appName = "Cliq"
     $installed = Find-ExistingInstall -Paths $paths -App $appName
-    if (!$installed) { Install-Program $url $appName "msi" "/qn" }
+    if (!$installed) { 
+        Install-Program $url $appName "msi" "/qn" 
+    }
 }
 
 function install-HWInfo {
@@ -163,7 +156,9 @@ function install-HWInfo {
     $url = "https://downloads.sourceforge.net/project/hwinfo/Windows_Installer/hwi64_804.exe"
     $appName = "HWInfo"
     $installed = Find-ExistingInstall -Paths $paths -App $appName
-    if (!$installed) { Install-Program $url $appName "exe" "/silent" }
+    if (!$installed) { 
+        Install-Program $url $appName "exe" "/silent" 
+    }
 }
 
 function install-zoom {
@@ -175,7 +170,9 @@ function install-zoom {
     $url = "https://zoom.us/client/latest/ZoomInstallerFull.msi?archType=x64"
     $appName = "Zoom"
     $installed = Find-ExistingInstall -Paths $paths -App $appName
-    if (!$installed) { Install-Program $url $appName "msi" "/qn" }
+    if (!$installed) { 
+        Install-Program $url $appName "msi" "/qn" 
+    }
 }
 
 function install-ringcentral {
@@ -186,7 +183,9 @@ function install-ringcentral {
     $url = "https://app.ringcentral.com/download/squirrel-windows/RingCentral-Setup.msi"
     $appName = "Ring Central"
     $installed = Find-ExistingInstall -Paths $paths -App $appName
-    if (!$installed) { Install-Program $url $appName "msi" "/qn" }
+    if (!$installed) { 
+        Install-Program $url $appName "msi" "/qn" 
+    }
 }
 
 function install-revouninstaller {
@@ -194,7 +193,9 @@ function install-revouninstaller {
     $url = "https://download.revouninstaller.com/download/revosetup.exe"
     $appName = "Revo Uninstaller"
     $installed = Find-ExistingInstall -Paths $paths -App $appName
-    if (!$installed) { Install-Program $url $appName "exe" "/verysilent" }
+    if (!$installed) { 
+        Install-Program $url $appName "exe" "/verysilent" 
+    }
 }
 
 function install-acrobatreader {
@@ -205,7 +206,9 @@ function install-acrobatreader {
     $url = "https://ardownload2.adobe.com/pub/adobe/reader/win/AcrobatDC/2300820555/AcroRdrDC2300820555_en_US.exe"
     $appName = "Adobe Acrobat Reader"
     $installed = Find-ExistingInstall -Paths $paths -App $appName
-    if (!$installed) { Install-Program $url $appName "exe" "/sAll /rs /msi EULA_ACCEPT=YES" }
+    if (!$installed) { 
+        Install-Program $url $appName "exe" "/sAll /rs /msi EULA_ACCEPT=YES" 
+    }
 }
 
 function install-balto {
@@ -213,7 +216,9 @@ function install-balto {
     $url = "https://download.baltocloud.com/Balto+Setup+6.2.2.exe"
     $appName = "Balto"
     $installed = Find-ExistingInstall -Paths $paths -App $appName
-    if (!$installed) { Install-Program $url $appName "exe" "/silent" }
+    if (!$installed) { 
+        Install-Program $url $appName "exe" "/silent" 
+    }
 }
 
 function Initialize-Cleanup {
@@ -264,7 +269,11 @@ function Install-Program {
     )
 
     try {
-        if ($Extenstion -eq "msi") { $output = "$AppName.msi" } else { $output = "$AppName.exe" }
+        if ($Extenstion -eq "msi") {
+            $output = "$AppName.msi" 
+        } else {
+            $output = "$AppName.exe" 
+        }
         
         $download = get-download -Url $Url -Target "$env:SystemRoot\Temp\$output" -visible
 

@@ -63,16 +63,12 @@ function add-admin {
         }
         
         if (-not (Test-Path -Path "$env:SystemRoot\Temp\PHRASE.txt")) {
-            write-text -text "Encryption phrase deleted." -lineAfter
+            write-text -text "Encryption phrase deleted."
         } else {
-            write-text -text "Encryption phrase not deleted!" -lineAfter
+            write-text -text "Encryption phrase not deleted!"
         }
-
-        # Function successful wait for new commands
-        read-command
     } catch {
         # Display error message and end the script
-        write-text -type "error" -text "add-intechadmin-$($_.InvocationInfo.ScriptLineNumber) | $($_.Exception.Message)" -lineAfter
-        read-command
+        write-text -type "error" -text "add-intechadmin-$($_.InvocationInfo.ScriptLineNumber) | $($_.Exception.Message)"
     }
 }
