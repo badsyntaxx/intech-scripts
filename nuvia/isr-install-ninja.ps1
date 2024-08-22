@@ -1,9 +1,22 @@
 function isr-install-ninja {
     try {
-        $url = "https://app.ninjarmm.com/agent/installer/0274c0c3-3ec8-44fc-93cb-79e96f191e07/nuviaisrcenterremote-5.9.1158-windows-installer.msi"
+        $choice = read-option -options $([ordered]@{
+                "Inventory"   = "Install for inventory."
+                "Orem Center" = "Install for the Orem ISR center."
+                "Remote"      = "Install for a remote ISR."
+            }) -prompt "Install for the Orem ISR center or other?"
+
+        $location = "nuviainventory"
+
+        switch ($choice) {
+            1 { $location = "nuviaisrcenteroremut" }
+            2 { $location = "nuviaisrcenterremote" }
+        }
+
+        $url = "https://app.ninjarmm.com/agent/installer/0274c0c3-3ec8-44fc-93cb-79e96f191e07/$location-5.9.1158-windows-installer.msi"
         $service = Get-Service -Name "NinjaRMMAgent" -ErrorAction SilentlyContinue
 
-        write-text -type "notice" -text "nuviaisrcenterremote-5.9.1158-windows-installer.msi" -lineBefore
+        write-text -type "notice" -text "$location-5.9.1158-windows-installer.msi" -lineBefore
         
         if ($null -ne $service -and $service.Status -eq "Running") {
             write-text -type "plain" -text "NinjaRMMAgent is already installed and running."
