@@ -191,7 +191,7 @@ function write-text {
             Write-Host "X $text" -ForegroundColor "Red" 
         }
         if ($type -eq 'notice') { 
-            Write-Host " $text" -ForegroundColor "Yellow" 
+            Write-Host "  $text" -ForegroundColor "Yellow" 
         }
         if ($type -eq 'plain') {
             
@@ -486,9 +486,9 @@ function get-download {
             $progbar = $progbar.PadRight($BarSize, [char]9617)
 
             if (!$Complete.IsPresent) {
-                Write-Host -NoNewLine "`r $ProgressText $progbar $($percentComplete.ToString("##0.00").PadLeft(6))%"
+                Write-Host -NoNewLine "`r  $ProgressText $progbar $($percentComplete.ToString("##0.00").PadLeft(6))%"
             } else {
-                Write-Host -NoNewLine "`r $ProgressText $progbar $($percentComplete.ToString("##0.00").PadLeft(6))%"                    
+                Write-Host -NoNewLine "`r  $ProgressText $progbar $($percentComplete.ToString("##0.00").PadLeft(6))%"                    
             }              
              
         }
