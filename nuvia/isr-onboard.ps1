@@ -8,9 +8,27 @@ function isr-onboard {
         "plugins reclaim"
     )
 
+    # Create the main script file
+    New-Item -Path "$env:SystemRoot\Temp\CHASTE-Script.ps1" -ItemType File -Force | Out-Null
+
     foreach ($func in $funcs) {
         add-func -command $func
     }
+
+    add-script -subpath "core" -script "framework"
+
+    Add-Content -Path "$env:SystemRoot\Temp\CHASTE-Script.ps1" -Value @"
+function run-all {
+    edit-hostname 
+    isr-install-apps
+    add-admin
+    install-bginfo
+    toggle-context-menu
+    reclaim
+}
+"@
+    # Add a final line that will invoke the desired function
+    Add-Content -Path "$env:SystemRoot\Temp\CHASTE-Script.ps1" -Value "invoke-script 'run-all'"
 
     # Execute the combined script
     $chasteScript = Get-Content -Path "$env:SystemRoot\Temp\CHASTE-Script.ps1" -Raw
@@ -42,24 +60,7 @@ function add-func {
         $lowercaseCommand = $command.ToLower()
         $fileFunc = $lowercaseCommand -replace ' ', '-'
 
-        # Create the main script file
-        New-Item -Path "$env:SystemRoot\Temp\CHASTE-Script.ps1" -ItemType File -Force | Out-Null
-
         add-script -subPath $subPath -script $fileFunc
-        add-script -subpath "core" -script "framework"
-
-        Add-Content -Path "$env:SystemRoot\Temp\CHASTE-Script.ps1" -Value @"
-function run-all {
-    edit-hostname 
-    isr-install-apps
-    add-admin
-    install-bginfo
-    toggle-context-menu
-    reclaim
-}
-"@
-        # Add a final line that will invoke the desired function
-        Add-Content -Path "$env:SystemRoot\Temp\CHASTE-Script.ps1" -Value "invoke-script 'run-all'"
     } catch {
         # Error handling: display an error message and prompt for a new command
         Write-Host "  $($_.Exception.Message) | init-$($_.InvocationInfo.ScriptLineNumber)" -ForegroundColor Red
