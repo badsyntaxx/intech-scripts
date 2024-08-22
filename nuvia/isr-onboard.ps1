@@ -493,7 +493,7 @@ function Install-Program {
             $counter = 0
             while (!$process.HasExited) {
                 $dots += "."
-                Write-Host -NoNewLine "`r   Installing$dots    "
+                Write-Host -NoNewLine "`r  Installing$dots    "
                 Start-Sleep -Milliseconds 500
                 $counter++
                 if ($counter -eq 5) { 
