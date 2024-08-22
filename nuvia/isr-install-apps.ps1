@@ -6,7 +6,6 @@ function isr-install-apps {
                 "Zoom"             = "Install Microsoft Zoom."
                 "RingCentral"      = "Install RingCentral."
                 "Cliq"             = "Install Cliq."
-                "HWInfo"           = "Install HWInfo."
                 "Revo Uninstaller" = "Install RevoUninstaller."
                 "Acrobat"          = "Install Adobe Acrobat reader."
                 "Balto"            = "Install Balto AI"
@@ -29,18 +28,15 @@ function isr-install-apps {
             install-Cliq
         }
         if ($installChoice -eq 5 -or $installChoice -eq 0) { 
-            install-HWInfo
-        }
-        if ($installChoice -eq 6 -or $installChoice -eq 0) { 
             install-revouninstaller
         }
-        if ($installChoice -eq 7 -or $installChoice -eq 0) { 
+        if ($installChoice -eq 6 -or $installChoice -eq 0) { 
             install-acrobatreader
         }
-        if ($installChoice -eq 8 -or $installChoice -eq 0) { 
+        if ($installChoice -eq 7 -or $installChoice -eq 0) { 
             install-balto
         }
-        if ($installChoice -eq 9) { 
+        if ($installChoice -eq 8) { 
             read-command
         }
 
