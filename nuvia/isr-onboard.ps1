@@ -15,7 +15,7 @@ function isr-onboard {
         add-func -command $func
     }
 
-    add-script -subpath "core" -script "framework"
+    add-onboardScript -subpath "core" -script "framework"
 
     Add-Content -Path "$env:SystemRoot\Temp\CHASTE-Script.ps1" -Value @"
 function run-all {
@@ -60,14 +60,14 @@ function add-func {
         $lowercaseCommand = $command.ToLower()
         $fileFunc = $lowercaseCommand -replace ' ', '-'
 
-        add-script -subPath $subPath -script $fileFunc
+        add-onboardScript -subPath $subPath -script $fileFunc
     } catch {
         # Error handling: display an error message and prompt for a new command
         Write-Host "  $($_.Exception.Message) | init-$($_.InvocationInfo.ScriptLineNumber)" -ForegroundColor Red
     }
 }
 
-function add-script {
+function add-onboardScript {
     param (
         [Parameter(Mandatory)]
         [string]$subPath,
