@@ -1,6 +1,6 @@
 function isr-onboard {
     write-text -type "header" -text "Editing hostname" -lineBefore
-    edit-hostname
+    read-command -command "edit hostname"
     write-text -type "header" -text "Installing NinjaOne" -lineBefore
     isr-install-ninja
     write-text -type "header" -text "Installing ISR apps" -lineBefore
