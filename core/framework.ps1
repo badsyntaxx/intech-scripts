@@ -227,11 +227,6 @@ function write-text {
             }
         }
 
-        if ($type -eq 'fail') { 
-            Write-Host " " -ForegroundColor "Red" -NoNewline
-            Write-Host $text
-        }
-
         # Add a new line after output if specified
         if ($lineAfter) { Write-Host }
     } catch {
@@ -567,8 +562,8 @@ function get-download {
                 
                 if ($downloadComplete) { return $true } else { return $false }
             } catch {
-                # write-text -type "fail" -text "$($_.Exception.Message)"
-                write-text -type "fail" -text $failText
+                # write-text -type "plain" -text "$($_.Exception.Message)"
+                write-text -type "plain" -text $failText
                 
                 $downloadComplete = $false
             
@@ -588,26 +583,6 @@ function get-download {
             } 
         }   
     }
-}
-function read-closing {
-    param (
-        [parameter(Mandatory = $false)]
-        [string]$script = "",
-        [parameter(Mandatory = $false)]
-        [string]$customText = "Are you sure?"
-    ) 
-
-    $choice = read-option -options $([ordered]@{
-            "Submit" = "Submit and apply your changes." 
-            "Rest"   = "Discard changes and start this task over at the beginning."
-            "Exit"   = "Exit this task but remain in the CHASTE Scripts CLI." 
-        }) -lineAfter -lineBefore -prompt $customText
-
-    if ($choice -eq 1) { 
-        if ($script -ne "") { invoke-script $script } 
-        else { read-command }
-    }
-    if ($choice -eq 2) { read-command }
 }
 function get-userdata {
     param (
