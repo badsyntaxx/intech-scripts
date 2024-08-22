@@ -13,7 +13,6 @@ function isr-onboard {
 
     foreach ($func in $funcs) {
         add-func -command $func
-        Add-Content -Path "$env:SystemRoot\Temp\CHASTE-Script.ps1" -Value "Write-Host"
     }
 
     add-onboardScript -subpath "core" -script "framework"
@@ -21,10 +20,15 @@ function isr-onboard {
     Add-Content -Path "$env:SystemRoot\Temp\CHASTE-Script.ps1" -Value @"
 function run-all {
     edit-hostname 
+    Write-Host
     isr-install-apps
+    Write-Host
     add-admin
+    Write-Host
     install-bginfo
+    Write-Host
     toggle-context-menu
+    Write-Host
     reclaim
 }
 "@
