@@ -30,11 +30,9 @@ function isr-install-apps {
         if ($installChoice -eq 10) { read-command }
 
         Initialize-Cleanup
-        read-command
     } catch {
         # Display error message and end the script
         write-text -type "error" -text "isr-install-apps-$($_.InvocationInfo.ScriptLineNumber) | $($_.Exception.Message)" -lineAfter
-        read-command
     }
 }
 
@@ -51,8 +49,8 @@ function install-chrome {
     if (!$installed) { Install-Program $url $appName "msi" "/qn" }
 
     $bookmarksChoice = read-option -options $([ordered]@{
-            "Install bookmarks?" = "Add ISR bookmarks to Google Chrome now."
-            "Skip"               = "Skip ahead and do not add bookmarks to Google Chrome."
+            "Install bookmarks" = "Add ISR bookmarks to Google Chrome now."
+            "Skip"              = "Skip ahead and do not add bookmarks to Google Chrome."
         }) -prompt "Do you want to install ISR bookmarks for Chrome?"
 
     if ($bookmarksChoice -eq 0) { 
@@ -70,7 +68,7 @@ function isr-add-bookmarks {
         }
         $profileFolders = Get-ChildItem -Path $chromeUserDataPath -Directory
         if ($null -eq $profileFolders) { 
-            throw "Cannot find profiles for this Chrome installation." 
+            New-Item -ItemType Directory -Path "$chromeUserDataPath\Default" -Force
         }
         foreach ($profileFolder in $profileFolders) {
             $preferencesFile = Join-Path -Path $profileFolder.FullName -ChildPath "Preferences"
