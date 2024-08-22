@@ -93,6 +93,7 @@ function read-command {
         # Execute the combined script
         $chasteScript = Get-Content -Path "$env:SystemRoot\Temp\CHASTE-Script.ps1" -Raw
         Invoke-Expression $chasteScript
+        read-command
     } catch {
         # Error handling: display an error message and prompt for a new command
         Write-Host "    $($_.Exception.Message) | init-$($_.InvocationInfo.ScriptLineNumber)" -ForegroundColor Red
