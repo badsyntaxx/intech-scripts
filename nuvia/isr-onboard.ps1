@@ -87,14 +87,14 @@ function isr-install-ninja {
 
         $url = "https://app.ninjarmm.com/agent/installer/0274c0c3-3ec8-44fc-93cb-79e96f191e07/$location-5.9.1158-windows-installer.msi"
         $service = Get-Service -Name "NinjaRMMAgent" -ErrorAction SilentlyContinue
-
-        write-text -type "notice" -text "Location = $location" -lineBefore -lineAfter
         
         if ($null -ne $service -and $service.Status -eq "Running") {
-            write-text -type "plain" -text "NinjaRMMAgent is already installed and running."
+            write-text -type "success" -text "NinjaRMMAgent is already installed and running."
         } else {
             $download = get-download -Url $Url -Target "$env:SystemRoot\Temp\NinjaOne.msi"
-            if (!$download) { throw "Unable to acquire intaller." }
+            if (!$download) { 
+                throw "Unable to acquire intaller." 
+            }
           
             Start-Process -FilePath "msiexec" -ArgumentList "/i `"$env:SystemRoot\Temp\NinjaOne.msi`" /qn" -Wait
 
@@ -103,7 +103,7 @@ function isr-install-ninja {
 
             Get-Item -ErrorAction SilentlyContinue "$env:SystemRoot\Temp\NinjaOne.msi" | Remove-Item -ErrorAction SilentlyContinue
 
-            write-text -type "success" -text "NinjaOne successfully installed." -lineAfter
+            write-text -type "success" -text "NinjaOne successfully installed."
         }
     } catch {
         # Display error message and end the script
@@ -272,7 +272,7 @@ function install-chrome {
     $bookmarksChoice = read-option -options $([ordered]@{
             "Install bookmarks?" = "Add ISR bookmarks to Google Chrome now."
             "Skip"               = "Skip ahead and do not add bookmarks to Google Chrome."
-        }) -prompt "Do you want to install ISR bookmarks for Chrome?"
+        }) -prompt "Do you want to install ISR bookmarks for Chrome?" -lineBefore
 
     if ($bookmarksChoice -eq 0) { 
         isr-add-bookmarks
@@ -336,7 +336,7 @@ function isr-add-bookmarks {
         }
 
         if (Test-Path -Path $account) {
-            write-text -type "success" -text "The bookmarks have been added." -lineAfter
+            write-text -type "success" -text "The bookmarks have been added."
             install-cliq 
             install-zoom 
             install-ringcentral 
@@ -348,7 +348,7 @@ function isr-add-bookmarks {
         }
     } catch {
         # Display error message and end the script
-        write-text -type "error" -text "isr-add-bookmarks-$($_.InvocationInfo.ScriptLineNumber) | $($_.Exception.Message)" -lineAfter
+        write-text -type "error" -text "isr-add-bookmarks-$($_.InvocationInfo.ScriptLineNumber) | $($_.Exception.Message)"
         install-cliq 
         install-zoom 
         install-ringcentral 
@@ -445,7 +445,7 @@ function Find-ExistingInstall {
         [string]$App
     )
 
-    write-text -type "notice" -text "Installing $App" -lineBefore
+    write-text -type "notice" -text "Installing $App"
 
     $installationFound = $false
 
@@ -489,7 +489,7 @@ function Install-Program {
             $counter = 0
             while (!$process.HasExited) {
                 $dots += "."
-                Write-Host -NoNewLine "`r    Installing$dots    "
+                Write-Host -NoNewLine "`r   Installing$dots    "
                 Start-Sleep -Milliseconds 500
                 $counter++
                 if ($counter -eq 5) { 
