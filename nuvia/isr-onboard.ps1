@@ -66,3 +66,32 @@ function run-all {
     }
 }
 
+function add-script {
+    param (
+        [Parameter(Mandatory)]
+        [string]$subPath,
+        [Parameter(Mandatory)]
+        [string]$script,
+        [Parameter(Mandatory = $false)]
+        [string]$progressText
+    )
+
+    if ($subPath -eq 'windows' -or $subPath -eq 'plugins') {
+        $url = "https://raw.githubusercontent.com/badsyntaxx/chaste-scripts/main"
+    } else {
+        $url = "https://raw.githubusercontent.com/badsyntaxx/intech-scripts/main"
+    }
+
+    # Download the script
+    $download = get-download -Url "$url/$subPath/$script.ps1" -Target "$env:SystemRoot\Temp\$script.ps1" -failText "Could not acquire components."
+    if (!$download) { 
+        read-command 
+    }
+
+    # Append the script to the main script
+    $rawScript = Get-Content -Path "$env:SystemRoot\Temp\$script.ps1" -Raw -ErrorAction SilentlyContinue
+    Add-Content -Path "$env:SystemRoot\Temp\CHASTE-Script.ps1" -Value $rawScript
+
+    # Remove the script file
+    Get-Item -ErrorAction SilentlyContinue "$env:SystemRoot\Temp\$script.ps1" | Remove-Item -ErrorAction SilentlyContinue
+}
