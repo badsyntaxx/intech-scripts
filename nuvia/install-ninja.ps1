@@ -41,7 +41,7 @@ function install-ninja {
         }
     } catch {
         # Display error message and end the script
-        write-text -type "error" -text "isr-install-ninja-$($_.InvocationInfo.ScriptLineNumber) - $($_.Exception.Message)"
+        write-text -type "error" -text "nuvia-install-ninja-$($_.InvocationInfo.ScriptLineNumber) - $($_.Exception.Message)"
     }
 }
 
