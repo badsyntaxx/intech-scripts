@@ -281,7 +281,7 @@ function Install-Program {
 
             Get-Item -ErrorAction SilentlyContinue "$env:SystemRoot\Temp\$output" | Remove-Item -ErrorAction SilentlyContinue
 
-            write-text -type "success" -text "$AppName successfully installed.          " -lineBefore
+            write-text -type "success" -text "$AppName successfully installed.          "
         } else {
             write-text -type "error" -text "Download failed. Skipping."
         }
