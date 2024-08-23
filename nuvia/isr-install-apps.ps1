@@ -332,6 +332,3 @@ function Set-DefaultBrowser {
         Write-Error "Failed to set default browser: $_"
     }
 }
-
-# Example usage:
-# Set-DefaultBrowser -BrowserName "chrome.exe"
