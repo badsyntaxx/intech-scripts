@@ -1,30 +1,16 @@
 function add-admin {
     try {
-        # Define the account name for the admin user
         $accountName = "InTechAdmin"
-
-        # Define a hashtable to store download URLs and their target paths for the encrypted password
         $downloads = [ordered]@{
             "$env:SystemRoot\Temp\KEY.txt"    = "https://drive.google.com/uc?export=download&id=1EGASU9cvnl5E055krXXcXUcgbr4ED4ry"
             "$env:SystemRoot\Temp\PHRASE.txt" = "https://drive.google.com/uc?export=download&id=1jbppZfGusqAUM2aU7V4IeK0uHG2OYgoY"
         }
 
-        # Loop through each download in the hashtable
         foreach ($d in $downloads.Keys) { $download = get-download -Url $downloads[$d] -Target $d -visible } 
-        if (!$download) { throw "Unable to acquire credentials." }
-
-        # Check if the KEY.txt file exists (indicating successful download)
-        if (Test-Path -Path "$env:SystemRoot\Temp\KEY.txt") {
-            write-text -type "success" -text "The key was acquired." -lineBefore
+        if (!$download) { 
+            throw "Unable to acquire credentials." 
         }
 
-        # Check if the PHRASE.txt file exists (indicating successful download)
-        if (Test-Path -Path "$env:SystemRoot\Temp\PHRASE.txt") {
-            write-text -type "success" -text "The phrase was acquired."
-        } 
-
-        # Read the password phrase from PHRASE.txt and convert it to a secure string
-        # using the key from KEY.txt
         $password = Get-Content -Path "$env:SystemRoot\Temp\PHRASE.txt" | ConvertTo-SecureString -Key (Get-Content -Path "$env:SystemRoot\Temp\KEY.txt")
 
         write-text -type "done" -text "Phrase converted."
