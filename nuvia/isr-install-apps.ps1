@@ -12,7 +12,7 @@ function isr-install-apps {
                 "Exit"             = "Exit this script and go back to main command line."
             }) -prompt "Select which apps to install:"
 
-        if ($installChoice -ne 10) { 
+        if ($installChoice -ne 8) { 
             $script:user = select-user -prompt "Select user to install apps for:"
         }
         if ($installChoice -eq 1 -or $installChoice -eq 0) { 
