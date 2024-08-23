@@ -23,7 +23,7 @@ function run-all {
     write-text -type "header" -text "Editing hostname" -lineBefore
     edit-hostname
     write-text -type "header" -text "Installing NinjaRMM" -lineBefore
-    isr-install-ninja 
+    install-ninja 
     write-text -type "header" -text "Installing ISR apps" -lineBefore
     isr-install-apps
     write-text -type "header" -text "Adding InTech admin" -lineBefore
