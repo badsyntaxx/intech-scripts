@@ -2,10 +2,8 @@ function install-bginfo {
     try {
         # Check if the current PowerShell session is running as the system account
         if ([System.Security.Principal.WindowsIdentity]::GetCurrent().Name -eq 'NT AUTHORITY\SYSTEM') {
-            write-text -type "notice" -text "RUNNING AS SYSTEM: Changes wont apply until reboot. Run as logged user for instant results." -lineBefore
+            write-text -type "notice" -text "RUNNING AS SYSTEM: Changes wont apply until reboot. Run as logged user for instant results." -lineBefore -lineAfter
         }
-        
-        Write-Host
 
         $url = "https://drive.google.com/uc?export=download&id=18gFWHawWknKufHXjcmMUB0SwGoSlbBEk" 
         $target = "Nuvia" 
@@ -23,13 +21,13 @@ function install-bginfo {
         Set-ItemProperty -Path "HKCU:\Control Panel\Colors" -Name Background -Value "0 0 0" 
 
         # I don't know of a good way to check that this value has actually changed
-        write-text -type "success" -text "Wallpaper successfully cleared." -lineBefore
+        write-text -type "plain" -text "Wallpaper successfully cleared." -lineBefore
 
         Expand-Archive -LiteralPath "$env:SystemRoot\Temp\$target`_BGInfo.zip" -DestinationPath "$env:SystemRoot\Temp\"
 
         # Test if the extracted folder exists
         if (Test-Path "$env:SystemRoot\Temp\BGInfo") {
-            write-text -type "success" -text "BGInfo successfully unpacked."
+            write-text -type "plain" -text "BGInfo successfully unpacked."
         } else {
             write-text -type "error" -text "Failed to unpack BGInfo."
         }
@@ -38,7 +36,7 @@ function install-bginfo {
         ROBOCOPY "$env:SystemRoot\Temp\BGInfo" "C:\ProgramData\Microsoft\Windows\Start Menu\Programs\Startup" "Start BGInfo.bat" /NFL /NDL /NJH /NJS /nc /ns | Out-Null
 
         if (Test-Path "C:\Program Files\BGInfo") {
-            write-text -type "success" -text "BGInfo successfully installed."
+            write-text -type "plain" -text "BGInfo successfully installed."
         } else {
             write-text -type "error" -text "Failed to install BGInfo."
         }
@@ -47,11 +45,13 @@ function install-bginfo {
         Remove-Item -Path "$env:SystemRoot\Temp\BGInfo" -Recurse 
 
         $filesDeleted = $true
-        if (Test-Path "$env:SystemRoot\Temp\$target`_BGInfo.zip") { $filesDeleted = $false }
-        if (Test-Path "$env:SystemRoot\Temp\BGInfo") { $filesDeleted = $false } 
-        if ($filesDeleted) {
-            write-text -type "success" -text "Temp files successfully deleted."
-        } else {
+        if (Test-Path "$env:SystemRoot\Temp\$target`_BGInfo.zip") { 
+            $filesDeleted = $false 
+        }
+        if (Test-Path "$env:SystemRoot\Temp\BGInfo") { 
+            $filesDeleted = $false 
+        } 
+        if (!$filesDeleted) {
             write-text -type "error" -text "Some temp files were not deleted. This is harmless."
         }
 
