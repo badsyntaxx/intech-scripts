@@ -2,7 +2,7 @@ function isr-onboard {
     $funcs = @(
         "edit hostname" 
         "nuvia install ninja"
-        "nuvia install apps"
+        "nuvia isr install apps"
         "intech add admin"
         "nuvia install bginfo"
         "toggle context menu"
