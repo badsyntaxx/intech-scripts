@@ -1,5 +1,6 @@
 function isr-add-bookmarks {
     try {
+        $script:user = select-user -prompt "Select user to add bookmarks for:"
         $profiles = [ordered]@{}
         $chromeUserDataPath = "C:\Users\$($user["Name"])\AppData\Local\Google\Chrome\User Data"
         if (!(Test-Path $chromeUserDataPath)) {
