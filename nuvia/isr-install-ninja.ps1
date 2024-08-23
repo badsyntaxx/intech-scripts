@@ -19,22 +19,24 @@ function isr-install-ninja {
         write-text -type "notice" -text "$location-5.9.1158-windows-installer.msi" -lineBefore
         
         if ($null -ne $service -and $service.Status -eq "Running") {
-            write-text -type "success" -text "NinjaRMMAgent is already installed and running."s
-        } 
-
-        $download = get-download -Url $Url -Target "$env:SystemRoot\Temp\NinjaOne.msi" -visible
-        if (!$download) { throw "Unable to acquire intaller." }
+            write-text -type "success" -text "NinjaRMMAgent is already installed and running."
+        } else {
+            $download = get-download -Url $Url -Target "$env:SystemRoot\Temp\NinjaOne.msi" -visible
+            if (!$download) { 
+                throw "Unable to acquire intaller." 
+            }
           
-        Start-Process -FilePath "msiexec" -ArgumentList "/i `"$env:SystemRoot\Temp\NinjaOne.msi`" /qn" -Wait
+            Start-Process -FilePath "msiexec" -ArgumentList "/i `"$env:SystemRoot\Temp\NinjaOne.msi`" /qn" -Wait
 
-        Start-Sleep -Seconds 3
+            Start-Sleep -Seconds 3
 
-        $service = Get-Service -Name "NinjaRMMAgent" -ErrorAction SilentlyContinue
-        if ($null -eq $service -or $service.Status -ne "Running") { throw "NinjaOne did not successfully install." }
+            $service = Get-Service -Name "NinjaRMMAgent" -ErrorAction SilentlyContinue
+            if ($null -eq $service -or $service.Status -ne "Running") { throw "NinjaOne did not successfully install." }
 
-        Get-Item -ErrorAction SilentlyContinue "$env:SystemRoot\Temp\NinjaOne.msi" | Remove-Item -ErrorAction SilentlyContinue
+            Get-Item -ErrorAction SilentlyContinue "$env:SystemRoot\Temp\NinjaOne.msi" | Remove-Item -ErrorAction SilentlyContinue
 
-        write-text -type "success" -text "NinjaOne successfully installed." -lineAfter
+            write-text -type "success" -text "NinjaOne successfully installed." -lineAfter
+        }
     } catch {
         # Display error message and end the script
         write-text -type "error" -text "isr-install-ninja-$($_.InvocationInfo.ScriptLineNumber) - $($_.Exception.Message)"
