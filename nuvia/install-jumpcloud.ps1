@@ -1,7 +1,3 @@
-# msiexec /i https://app.ninjarmm.com/agent/installer/0274c0c3-3ec8-44fc-93cb-79e96f191e07/nuvianuviacentralsupport-5.9.9652-windows-installer.msi /qb
-
-# cd $env:temp | Invoke-Expression; Invoke-RestMethod -Method Get -URI https://raw.githubusercontent.com/TheJumpCloud/support/master/scripts/windows/InstallWindowsAgent.ps1 -OutFile InstallWindowsAgent.ps1 | Invoke-Expression; ./InstallWindowsAgent.ps1 -JumpCloudConnectKey "fe8929df5bbccb8aceb58385b88aba034b7d69f7"
-
 function install-jumpcloud {
     try {
         ipconfig /FlushDNS
