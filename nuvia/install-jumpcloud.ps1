@@ -1,6 +1,6 @@
 function install-jumpcloud {
     try {
-        ipconfig /FlushDNS
+        ipconfig /FlushDNS | Out-Null
         $AGENT_PATH = Join-Path ${env:ProgramFiles} "JumpCloud"
         $AGENT_BINARY_NAME = "jumpcloud-agent.exe"
         if (Test-Path -Path "$($AGENT_PATH)\$($AGENT_BINARY_NAME)") {
