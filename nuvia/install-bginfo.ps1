@@ -21,13 +21,13 @@ function install-bginfo {
         Set-ItemProperty -Path "HKCU:\Control Panel\Colors" -Name Background -Value "0 0 0" 
 
         # I don't know of a good way to check that this value has actually changed
-        write-text -type "plain" -text "Wallpaper successfully cleared." -lineBefore
+        write-text -type "plain" -text "Wallpaper cleared."
 
         Expand-Archive -LiteralPath "$env:SystemRoot\Temp\$target`_BGInfo.zip" -DestinationPath "$env:SystemRoot\Temp\"
 
         # Test if the extracted folder exists
         if (Test-Path "$env:SystemRoot\Temp\BGInfo") {
-            write-text -type "plain" -text "BGInfo successfully unpacked."
+            write-text -type "plain" -text "BGInfo unpacked."
         } else {
             write-text -type "error" -text "Failed to unpack BGInfo."
         }
@@ -36,7 +36,7 @@ function install-bginfo {
         ROBOCOPY "$env:SystemRoot\Temp\BGInfo" "C:\ProgramData\Microsoft\Windows\Start Menu\Programs\Startup" "Start BGInfo.bat" /NFL /NDL /NJH /NJS /nc /ns | Out-Null
 
         if (Test-Path "C:\Program Files\BGInfo") {
-            write-text -type "plain" -text "BGInfo successfully installed."
+            write-text -type "plain" -text "BGInfo installed."
         } else {
             write-text -type "error" -text "Failed to install BGInfo."
         }
