@@ -19,18 +19,6 @@ function install-jumpcloud {
         $JumpCloudConnectKey = "fe8929df5bbccb8aceb58385b88aba034b7d69f7";
         msiexec /i $AGENT_INSTALLER_PATH /quiet JCINSTALLERARGUMENTS=`"-k $JumpCloudConnectKey /VERYSILENT /NORESTART /NOCLOSEAPPLICATIONS /L*V "C:\Windows\Temp\jcUpdate.log"`"
 
-
-        <# for ($i = 0; $i -lt 300; $i++) {
-            Start-Sleep -Seconds 1
-            #Output the errors encountered
-            $AgentService = Get-Service -Name "jumpcloud-agent" -ErrorAction SilentlyContinue
-            if ($AgentService.Status -eq "Running") {
-                
-                break
-            } else {
-                write-text -type "error" -text "JumpCloud Agent Failed to Install"
-            }
-        } #>
         $curPos = $host.UI.RawUI.CursorPosition
         $dots = ""
         $counter = 0
