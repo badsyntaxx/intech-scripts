@@ -1,21 +1,19 @@
 function menu {
     try {
         $choice = read-option -options $([ordered]@{
+                "ISR menu"          = "Go to the Nuvia ISR menu."
                 "Install TScan"     = "Install TScan software."
-                "ISR Onboard"       = "Collection of functions to onboard and ISR computer."
-                "ISR Install Apps"  = "Install all the apps an ISR needs to work."
-                "ISR Install Ninja" = "Install Ninja for ISR computers."
-                "ISR Add Bookmarks" = "Add ISR bookmarks to Chrome."
+                "Install Ninja"     = "Install Ninja for Nuvia computers."
+                "Install JumpCloud" = "Install JumpCloud for Nuvia computers."
                 "Cancel"            = "Select nothing and exit this menu."
             }) -prompt "Select a Nuvia function:"
 
         switch ($choice) {
-            0 { $command = "nuvia install tscan" }
-            1 { $command = "nuvia isr onboard" }
-            2 { $command = "nuvia isr install apps" }
-            3 { $command = "nuvia isr install ninja" }
-            4 { $command = "nuvia isr add bookmarks" }
-            5 { read-command }
+            0 { $command = "nuvia isr menu" }
+            1 { $command = "nuvia install-tscan" }
+            2 { $command = "nuvia install ninja" }
+            3 { $command = "nuvia install jumpcloud" }
+            4 { read-command }
         }
 
         Write-Host
