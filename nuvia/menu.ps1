@@ -6,6 +6,7 @@ function menu {
                 "ISR Install Apps"  = "Install all the apps an ISR needs to work."
                 "ISR Install Ninja" = "Install Ninja for ISR computers."
                 "ISR Add Bookmarks" = "Add ISR bookmarks to Chrome."
+                "Cancel"            = "Select nothing and exit this menu."
             }) -prompt "Select a Nuvia function:"
 
         switch ($choice) {
@@ -14,6 +15,7 @@ function menu {
             2 { $command = "nuvia isr install apps" }
             3 { $command = "nuvia isr install ninja" }
             4 { $command = "nuvia isr add bookmarks" }
+            5 { read-command }
         }
 
         Write-Host
