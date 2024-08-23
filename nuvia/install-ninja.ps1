@@ -4,6 +4,7 @@ function install-ninja {
                 "Inventory"   = "Install for inventory."
                 "Orem Center" = "Install for the Orem ISR center."
                 "ISR Remote"  = "Install for a remote ISR."
+                "Cancel"      = "Install nothing and exit this function."
             }) -prompt "Install for the Orem ISR center or other?"
 
         $location = "nuviainventory"
@@ -11,6 +12,7 @@ function install-ninja {
         switch ($choice) {
             1 { $location = "nuviaisrcenteroremut" }
             2 { $location = "nuviaisrcenterremote" }
+            3 { read-command }
         }
 
         $url = "https://app.ninjarmm.com/agent/installer/0274c0c3-3ec8-44fc-93cb-79e96f191e07/$location-5.9.1158-windows-installer.msi"
