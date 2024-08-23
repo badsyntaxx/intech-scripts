@@ -60,6 +60,8 @@ function install-chrome {
         Install-Program $url $appName "msi" "/qn" 
     }
 
+    Set-DefaultBrowser -BrowserName "chrome.exe"
+
     $bookmarksChoice = read-option -options $([ordered]@{
             "Install bookmarks" = "Add ISR bookmarks to Google Chrome now."
             "Skip"              = "Skip ahead and do not add bookmarks to Google Chrome."
@@ -289,4 +291,31 @@ function Install-Program {
         write-text -type "error" -text "Installation error: $($_.Exception.Message)"
         write-text "Skipping $AppName installation."
     }
+}
+
+function Set-DefaultBrowser {
+    param (
+        [Parameter(Mandatory = $true)]
+        [ValidateSet("IEXPLORE.EXE", "firefox.exe", "chrome.exe", "msedge.exe")]
+        [string]$BrowserName
+    )
+
+    # Ensure running as administrator
+    if (-NOT ([Security.Principal.WindowsPrincipal][Security.Principal.WindowsIdentity]::GetCurrent()).IsInRole([Security.Principal.WindowsBuiltInRole] "Administrator")) {   
+        Write-Warning "You do not have Administrator rights to run this script!`nPlease re-run this script as an Administrator!"
+        return
+    }
+
+    # Registry paths
+    $UserChoicePath = "HKCU:\Software\Microsoft\Windows\Shell\Associations\UrlAssociations\http\UserChoice"
+    $ProgIdPath = "HKLM:\SOFTWARE\Classes\$BrowserName\shell\open\command"
+
+    # Get ProgId for the browser
+    $ProgId = (Get-ItemProperty -Path $ProgIdPath -Name "(Default)")."(Default)"
+    $ProgId = $ProgId.Split('"')[1]
+
+    # Set default browser
+    Set-ItemProperty -Path $UserChoicePath -Name "ProgId" -Value $ProgId
+
+    Write-Host "Default browser set to $BrowserName"
 }

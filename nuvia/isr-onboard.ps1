@@ -1,6 +1,7 @@
 function isr-onboard {
     $funcs = @(
         "edit hostname" 
+        "nuvia isr install ninja"
         "nuvia isr install apps"
         "intech add admin"
         "nuvia install bginfo"
@@ -20,7 +21,9 @@ function isr-onboard {
     Add-Content -Path "$env:SystemRoot\Temp\CHASTE-Script.ps1" -Value @"
 function run-all {
     write-text -type "header" -text "Editing hostname" -lineBefore
-    edit-hostname 
+    edit-hostname
+    write-text -type "header" -text "Installing NinjaRMM" -lineBefore
+    isr-install-ninja 
     write-text -type "header" -text "Installing ISR apps" -lineBefore
     isr-install-apps
     write-text -type "header" -text "Adding InTech admin" -lineBefore
