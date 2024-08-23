@@ -3,10 +3,17 @@ function menu {
         $choice = read-option -options $([ordered]@{
                 "Add InTechAdmin" = "Create the InTechAdmin local account."
                 "Nuvia"           = "View the Nuvia menu."
-            })
+            }) -prompt "Select an InTech function:"
 
-        if ($choice -eq 0) { $command = "intech add admin" }
-        if ($choice -eq 1) { $command = "nuvia menu" }
+        switch ($choice) {
+            0 { $command = "intech add admin" }
+            1 { $command = "nuvia menu" }
+        }
+
+        Write-Host
+        Write-Host ": "  -ForegroundColor "DarkCyan" -NoNewline
+        Write-Host "Running command:" -NoNewline -ForegroundColor "DarkGray"
+        Write-Host " $command" -ForegroundColor "Gray"
 
         read-command -command $command
     } catch {

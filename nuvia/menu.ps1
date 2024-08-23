@@ -6,13 +6,20 @@ function menu {
                 "ISR Install Apps"  = "Install all the apps an ISR needs to work."
                 "ISR Install Ninja" = "Install Ninja for ISR computers."
                 "ISR Add Bookmarks" = "Add ISR bookmarks to Chrome."
-            })
+            }) -prompt "Select a Nuvia function:"
 
-        if ($choice -eq 0) { $command = "nuvia install tscan" }
-        if ($choice -eq 1) { $command = "nuvia isr onboard" }
-        if ($choice -eq 2) { $command = "nuvia isr install apps" }
-        if ($choice -eq 3) { $command = "nuvia isr install ninja" }
-        if ($choice -eq 4) { $command = "nuvia isr add bookmarks" }
+        switch ($choice) {
+            0 { $command = "nuvia install tscan" }
+            1 { $command = "nuvia isr onboard" }
+            2 { $command = "nuvia isr install apps" }
+            3 { $command = "nuvia isr install ninja" }
+            4 { $command = "nuvia isr add bookmarks" }
+        }
+
+        Write-Host
+        Write-Host ": "  -ForegroundColor "DarkCyan" -NoNewline
+        Write-Host "Running command:" -NoNewline -ForegroundColor "DarkGray"
+        Write-Host " $command" -ForegroundColor "Gray"
 
         read-command -command $command
     } catch {
