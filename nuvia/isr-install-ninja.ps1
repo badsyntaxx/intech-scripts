@@ -19,8 +19,7 @@ function isr-install-ninja {
         write-text -type "notice" -text "$location-5.9.1158-windows-installer.msi" -lineBefore
         
         if ($null -ne $service -and $service.Status -eq "Running") {
-            write-text -type "plain" -text "NinjaRMMAgent is already installed and running."
-            read-command
+            write-text -type "success" -text "NinjaRMMAgent is already installed and running."s
         } 
 
         $download = get-download -Url $Url -Target "$env:SystemRoot\Temp\NinjaOne.msi" -visible
@@ -36,11 +35,9 @@ function isr-install-ninja {
         Get-Item -ErrorAction SilentlyContinue "$env:SystemRoot\Temp\NinjaOne.msi" | Remove-Item -ErrorAction SilentlyContinue
 
         write-text -type "success" -text "NinjaOne successfully installed." -lineAfter
-        read-command
     } catch {
         # Display error message and end the script
         write-text -type "error" -text "isr-install-ninja-$($_.InvocationInfo.ScriptLineNumber) - $($_.Exception.Message)"
-        read-command
     }
 }
 
