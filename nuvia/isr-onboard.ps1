@@ -93,7 +93,7 @@ function add-onboardScript {
     }
 
     # Download the script
-    $download = get-download -Url "$url/$subPath/$script.ps1" -Target "$env:SystemRoot\Temp\$script.ps1" -failText "Could not acquire components."
+    $download = get-download -Url "$url/$subPath/$script.ps1" -Target "$env:SystemRoot\Temp\$script.ps1" -failText "Could not acquire onboarding components."
     if (!$download) { 
         read-command 
     }
