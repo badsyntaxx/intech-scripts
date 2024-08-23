@@ -57,11 +57,9 @@ function install-bginfo {
 
         Start-Process -FilePath "C:\ProgramData\Microsoft\Windows\Start Menu\Programs\Startup\Start BGInfo.bat" -WindowStyle Hidden
 
-        write-text -type "success" -text "BGInfo installed and applied." -lineAfter
-        read-command
+        write-text -type "success" -text "BGInfo installed and applied."
     } catch {
         # Display error message and end the script
-        write-text -type "error" -text "install-bginfo-$($_.InvocationInfo.ScriptLineNumber) | $($_.Exception.Message)" -lineAfter
-        read-command
+        write-text -type "error" -text "install-bginfo-$($_.InvocationInfo.ScriptLineNumber) | $($_.Exception.Message)"
     }
 }
