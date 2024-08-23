@@ -308,14 +308,30 @@ function Set-DefaultBrowser {
 
     # Registry paths
     $UserChoicePath = "HKCU:\Software\Microsoft\Windows\Shell\Associations\UrlAssociations\http\UserChoice"
-    $ProgIdPath = "HKLM:\SOFTWARE\Classes\$BrowserName\shell\open\command"
 
-    # Get ProgId for the browser
-    $ProgId = (Get-ItemProperty -Path $ProgIdPath -Name "(Default)")."(Default)"
-    $ProgId = $ProgId.Split('"')[1]
+    # Define ProgIds for different browsers
+    $BrowserProgIds = @{
+        "IEXPLORE.EXE" = "IE.HTTP"
+        "firefox.exe"  = "FirefoxURL"
+        "chrome.exe"   = "ChromeHTML"
+        "msedge.exe"   = "EdgeHTML"
+    }
+
+    $ProgId = $BrowserProgIds[$BrowserName]
+
+    if (-not $ProgId) {
+        Write-Error "Unable to find ProgId for $BrowserName"
+        return
+    }
 
     # Set default browser
-    Set-ItemProperty -Path $UserChoicePath -Name "ProgId" -Value $ProgId
-
-    Write-Host "Default browser set to $BrowserName"
+    try {
+        Set-ItemProperty -Path $UserChoicePath -Name "ProgId" -Value $ProgId -ErrorAction Stop
+        Write-Host "Default browser set to $BrowserName"
+    } catch {
+        Write-Error "Failed to set default browser: $_"
+    }
 }
+
+# Example usage:
+# Set-DefaultBrowser -BrowserName "chrome.exe"
