@@ -73,7 +73,6 @@ function read-command {
         foreach ($sub in $subCommands) {
             if ($firstWord -eq "isr") {
                 $firstWord = "nuvia"
-                $command = "isr $command"
             }
             if ($firstWord -eq $sub -and $firstWord -ne 'menu') { 
                 $command = $command -replace "^$firstWord \s*", "" 

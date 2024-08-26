@@ -6,12 +6,12 @@ function isr-add-bookmarks {
         $choice = read-option -options $profiles -prompt "Select a Chrome profile:" -ReturnKey 
         $chromeProfile = $profiles["$choice"]
         $boomarksUrl = "https://drive.google.com/uc?export=download&id=1WmvSnxtDSLOt0rgys947sOWW-v9rzj9U"
-        
+
         get-download -Url $boomarksUrl -Target "$env:SystemRoot\Temp\Bookmarks"
         ROBOCOPY $env:SystemRoot\Temp $chromeProfile "Bookmarks" /NFL /NDL /NC /NS /NP | Out-Null
         Remove-Item -Path "$env:SystemRoot\Temp\Bookmarks" -Force
 
-        updateChromePreferences -profile $chromeProfile
+        # updateChromePreferences -profile $chromeProfile
 
         if (Test-Path -Path $chromeProfile) {
             write-text -type "success" -text "The bookmarks have been added."
@@ -51,9 +51,11 @@ function getChromeProfiles {
         if (Test-Path -Path $preferencesFile) {
             $preferencesContent = Get-Content -Path $preferencesFile -Raw | ConvertFrom-Json
             $profileName = $preferencesContent.account_info.email
+
             if ($null -eq $preferencesContent.account_info.email) {
                 $profileName = $preferencesContent.account_info.account_id
             } 
+
             $folderName = Split-Path -Path $profileFolder.FullName -Leaf
 
             if ($null -eq $profileName) {
@@ -86,7 +88,5 @@ function updateChromePreferences {
         }
 
         $preferences | ConvertTo-Json -Depth 100 | Set-Content -Path $preferencesFilePath
-    } else {
-        throw "Preferences file not found."
     }
 }
