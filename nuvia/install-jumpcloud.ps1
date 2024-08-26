@@ -24,7 +24,7 @@ function install-jumpcloud {
         while (!$process.HasExited) {
             $AgentService = Get-Service -Name "jumpcloud-agent" -ErrorAction SilentlyContinue
             if ($AgentService.Status -eq "Running") {
-                write-text -type "success" -text "`r  JumpCloud Agent Installed."
+                write-text -type "success" -text "`r$([char]0x2713) JumpCloud Agent Installed."
                 break
             } else {
                 Write-Host -NoNewLine "`r  Installing |"
