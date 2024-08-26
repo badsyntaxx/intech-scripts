@@ -25,6 +25,7 @@ function run-all {
     edit-hostname
     write-text -type "header" -text "Installing NinjaRMM" -lineBefore
     install-ninja 
+    Write-Host
     write-text -type "header" -text "Installing JumpCloud" -lineBefore
     install-jumpcloud 
     write-text -type "header" -text "Installing ISR apps" -lineBefore
