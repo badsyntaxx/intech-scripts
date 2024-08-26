@@ -71,6 +71,10 @@ function read-command {
         $subCommands = @("plugins", "nuvia", "intech");
         $subPath = "windows"
         foreach ($sub in $subCommands) {
+            if ($firstWord -eq "isr") {
+                $firstWord = "nuvia"
+                $command = "isr $command"
+            }
             if ($firstWord -eq $sub -and $firstWord -ne 'menu') { 
                 $command = $command -replace "^$firstWord \s*", "" 
                 $subPath = $sub
