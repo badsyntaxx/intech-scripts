@@ -261,15 +261,15 @@ function Install-Program {
 
             while (!$process.HasExited) {
                 Write-Host -NoNewLine "`r  Installing |"
-                Start-Sleep -Milliseconds 500
+                Start-Sleep -Milliseconds 150
                 Write-Host -NoNewLine "`r  Installing /"
-                Start-Sleep -Milliseconds 500
-                Write-Host -NoNewLine "`r  Installing $([char]0x23AF)"
-                Start-Sleep -Milliseconds 500
+                Start-Sleep -Milliseconds 150
+                Write-Host -NoNewLine "`r  Installing $([char]0x2015)"
+                Start-Sleep -Milliseconds 150
                 Write-Host -NoNewLine "`r  Installing \"
-                Start-Sleep -Milliseconds 500
+                Start-Sleep -Milliseconds 150
                 Write-Host -NoNewLine "`r  Installing |"
-                Start-Sleep -Milliseconds 500
+                Start-Sleep -Milliseconds 150
                 Write-Host -NoNewLine "`r  Installing /"
             }
 
