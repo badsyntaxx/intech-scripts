@@ -248,37 +248,34 @@ function Install-Program {
             $output = "$AppName.exe"
         }
 
-        $download = get-download -Url $Url -Target "$env:SystemRoot\Temp\$output" -visible
-
-        if ($download) {
-            if ($Extension -eq "msi") {
-                $process = Start-Process -FilePath "msiexec" -ArgumentList "/i `"$env:SystemRoot\Temp\$output`" $Args" -PassThru
-            } else {
-                $process = Start-Process -FilePath "$env:SystemRoot\Temp\$output" -ArgumentList "$Args" -PassThru
-            }
-
-            $curPos = $host.UI.RawUI.CursorPosition
-
-            while (!$process.HasExited) {
-                Write-Host -NoNewLine "`r  Installing |"
-                Start-Sleep -Milliseconds 150
-                Write-Host -NoNewLine "`r  Installing /"
-                Start-Sleep -Milliseconds 150
-                Write-Host -NoNewLine "`r  Installing $([char]0x2015)"
-                Start-Sleep -Milliseconds 150
-                Write-Host -NoNewLine "`r  Installing \"
-                Start-Sleep -Milliseconds 150
-            }
-
-            # Restore the cursor position after the installation is complete
-            [Console]::SetCursorPosition($curPos.X, $curPos.Y)
-
-            Get-Item -ErrorAction SilentlyContinue "$env:SystemRoot\Temp\$output" | Remove-Item -ErrorAction SilentlyContinue
-
-            write-text -type "success" -text "$AppName successfully installed."
+        get-download -Url $Url -Target "$env:SystemRoot\Temp\$output" -visible
+        
+        if ($Extension -eq "msi") {
+            $process = Start-Process -FilePath "msiexec" -ArgumentList "/i `"$env:SystemRoot\Temp\$output`" $Args" -PassThru
         } else {
-            write-text -type "error" -text "Download failed. Skipping."
+            $process = Start-Process -FilePath "$env:SystemRoot\Temp\$output" -ArgumentList "$Args" -PassThru
         }
+
+        $curPos = $host.UI.RawUI.CursorPosition
+
+        while (!$process.HasExited) {
+            Write-Host -NoNewLine "`r  Installing |"
+            Start-Sleep -Milliseconds 150
+            Write-Host -NoNewLine "`r  Installing /"
+            Start-Sleep -Milliseconds 150
+            Write-Host -NoNewLine "`r  Installing $([char]0x2015)"
+            Start-Sleep -Milliseconds 150
+            Write-Host -NoNewLine "`r  Installing \"
+            Start-Sleep -Milliseconds 150
+        }
+
+        # Restore the cursor position after the installation is complete
+        [Console]::SetCursorPosition($curPos.X, $curPos.Y)
+
+        Get-Item -ErrorAction SilentlyContinue "$env:SystemRoot\Temp\$output" | Remove-Item -ErrorAction SilentlyContinue
+
+        write-text -type "success" -text "$AppName successfully installed."
+        
     } catch {
         write-text -type "error" -text "Installation error: $($_.Exception.Message)"
         write-text "Skipping $AppName installation."
