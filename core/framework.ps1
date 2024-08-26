@@ -262,7 +262,7 @@ function read-input {
         # Get current cursor position
         $currPos = $host.UI.RawUI.CursorPosition
 
-        Write-Host "? " -NoNewline -ForegroundColor "Yellow"
+        Write-Host "? " -NoNewline -ForegroundColor "Green"
         Write-Host "$prompt " -NoNewline
 
         if ($IsSecure) { $userInput = Read-Host -AsSecureString } 
@@ -294,7 +294,7 @@ function read-input {
         [Console]::SetCursorPosition($currPos.X, $currPos.Y)
         
         # Display checkmark symbol and user input (masked for secure input)
-        Write-Host "? " -ForegroundColor "Yellow" -NoNewline
+        Write-Host "? " -ForegroundColor "Green" -NoNewline
         if ($IsSecure -and ($userInput.Length -eq 0)) { 
             Write-Host "$prompt                                                "
         } else { 
@@ -335,7 +335,7 @@ function read-option {
         # Get current cursor position
         $promptPos = $host.UI.RawUI.CursorPosition
 
-        Write-Host "? " -NoNewline -ForegroundColor "Yellow"
+        Write-Host "? " -NoNewline -ForegroundColor "Green"
         Write-Host "$prompt "
 
         # Initialize variables for user input handling
@@ -408,11 +408,11 @@ function read-option {
         [Console]::SetCursorPosition($promptPos.X, $promptPos.Y)
 
         if ($orderedKeys.Count -ne 1) {
-            Write-Host "? " -ForegroundColor "Yellow" -NoNewline
+            Write-Host "? " -ForegroundColor "Green" -NoNewline
             Write-Host $prompt -NoNewline
             Write-Host " $($orderedKeys[$pos])" -ForegroundColor "DarkCyan"
         } else {
-            Write-Host "? " -ForegroundColor "Yellow" -NoNewline
+            Write-Host "? " -ForegroundColor "Green" -NoNewline
             Write-Host $prompt -NoNewline
             Write-Host " $($orderedKeys) $(" " * ($longestKeyLength - $orderedKeys.Length))" -ForegroundColor "DarkCyan"
         }
@@ -583,6 +583,26 @@ function get-download {
             } 
         }   
     }
+}
+function read-closing {
+    param (
+        [parameter(Mandatory = $false)]
+        [string]$script = "",
+        [parameter(Mandatory = $false)]
+        [string]$customText = "Are you sure?"
+    ) 
+
+    $choice = read-option -options $([ordered]@{
+            "Submit" = "Submit and apply your changes." 
+            "Rest"   = "Discard changes and start this task over at the beginning."
+            "Exit"   = "Exit this task but remain in the CHASTE Scripts CLI." 
+        }) -lineAfter -lineBefore -prompt $customText
+
+    if ($choice -eq 1) { 
+        if ($script -ne "") { invoke-script $script } 
+        else { read-command }
+    }
+    if ($choice -eq 2) { read-command }
 }
 function get-userdata {
     param (
