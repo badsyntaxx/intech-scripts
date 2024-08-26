@@ -67,8 +67,6 @@ function read-command {
             read-command
         }
 
-        $lowercaseCommand = $command.ToLower()
-
         # Adjust command and paths
         $subCommands = @("plugins", "nuvia", "intech");
         $subPath = "windows"
@@ -77,12 +75,12 @@ function read-command {
                 $firstWord = "nuvia"
             }
             if ($firstWord -eq $sub -and $firstWord -ne 'menu') { 
-                $lowercaseCommand = $lowercaseCommand -replace "^$firstWord \s*", "" 
+                $command = $command -replace "^$firstWord \s*", "" 
                 $subPath = $sub
             }
         }
 
-        $fileFunc = $lowercaseCommand -replace ' ', '-'
+        $fileFunc = $command -replace ' ', '-'
 
         # Create the main script file
         New-Item -Path "$env:SystemRoot\Temp\CHASTE-Script.ps1" -ItemType File -Force | Out-Null
@@ -98,7 +96,6 @@ function read-command {
         $chasteScript = Get-Content -Path "$env:SystemRoot\Temp\CHASTE-Script.ps1" -Raw
         Invoke-Expression $chasteScript
     } catch {
-        # Error handling: display an error message and prompt for a new command
         Write-Host "    $($_.Exception.Message) | init-$($_.InvocationInfo.ScriptLineNumber)" -ForegroundColor Red
         read-command
     }
