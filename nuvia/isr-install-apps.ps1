@@ -259,21 +259,16 @@ function Install-Program {
 
             $curPos = $host.UI.RawUI.CursorPosition
 
-            $dots = ""
-            $counter = 0
             while (!$process.HasExited) {
-                Write-Host -NoNewLine "`r  Installing$dots"
-                $dots += "."
-                Start-Sleep -Milliseconds 100
-                $counter++
-                if ($counter -eq 7) {
-                    $dots = ""
-                    $counter = 0
-                }
-
-                # Clear the previous line before writing the new one
-                Write-Host -NoNewLine "`r                                  " -ForegroundColor White
-                Write-Host -NoNewLine "`r  Installing$dots" -ForegroundColor White
+                Write-Host -NoNewLine "`r  Installing |"
+                Start-Sleep -Milliseconds 500
+                Write-Host -NoNewLine "`r  Installing /"
+                Start-Sleep -Milliseconds 500
+                Write-Host -NoNewLine "`r  Installing -"
+                Start-Sleep -Milliseconds 500
+                Write-Host -NoNewLine "`r  Installing |"
+                Start-Sleep -Milliseconds 500
+                Write-Host -NoNewLine "`r  Installing \"
             }
 
             # Restore the cursor position after the installation is complete
