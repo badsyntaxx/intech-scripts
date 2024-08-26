@@ -115,14 +115,16 @@ function add-script {
     }
 
     # Download the script
-    get-download -Url "$url/$subPath/$script.ps1" -Target "$env:SystemRoot\Temp\$script.ps1" -failText "Could not acquire components.$url/$subPath/$script.ps1"
+    $download = get-download -Url "$url/$subPath/$script.ps1" -Target "$env:SystemRoot\Temp\$script.ps1" -failText "Could not acquire components.$url/$subPath/$script.ps1"
 
-    # Append the script to the main script
-    $rawScript = Get-Content -Path "$env:SystemRoot\Temp\$script.ps1" -Raw -ErrorAction SilentlyContinue
-    Add-Content -Path "$env:SystemRoot\Temp\CHASTE-Script.ps1" -Value $rawScript
+    if ($download) {
+        # Append the script to the main script
+        $rawScript = Get-Content -Path "$env:SystemRoot\Temp\$script.ps1" -Raw -ErrorAction SilentlyContinue
+        Add-Content -Path "$env:SystemRoot\Temp\CHASTE-Script.ps1" -Value $rawScript
 
-    # Remove the script file
-    Get-Item -ErrorAction SilentlyContinue "$env:SystemRoot\Temp\$script.ps1" | Remove-Item -ErrorAction SilentlyContinue
+        # Remove the script file
+        Get-Item -ErrorAction SilentlyContinue "$env:SystemRoot\Temp\$script.ps1" | Remove-Item -ErrorAction SilentlyContinue
+    }
 }
 function write-help {
     param (
@@ -484,7 +486,6 @@ function get-download {
             } else {
                 Write-Host -NoNewLine "`r  $ProgressText $progbar $($percentComplete.ToString("##0.00").PadLeft(6))%"                    
             }              
-             
         }
     }
     Process {
