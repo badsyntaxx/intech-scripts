@@ -19,7 +19,6 @@ function isr-add-bookmarks {
                 write-text -type "success" -text "The bookmarks have been added."
             }
         }
-        
     } catch {
         write-text -type "error" -text "isr-add-bookmarks-$($_.InvocationInfo.ScriptLineNumber) | $($_.Exception.Message)"
     }
@@ -30,7 +29,7 @@ function getOrCreateUserPath {
         [string]$username
     )
 
-    $chromeUserDataPath = "C:\Users\$($user["Name"])\AppData\Local\Google\Chrome\User Data"
+    $chromeUserDataPath = "C:\Users\$username\AppData\Local\Google\Chrome\User Data"
     if (!(Test-Path $chromeUserDataPath)) {
         # throw "No user directory. It's likely the account has not had it's first sign-in yet." 
         New-Item -ItemType Directory -Path $chromeUserDataPath
