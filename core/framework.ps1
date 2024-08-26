@@ -64,7 +64,6 @@ function read-command {
 
         if (Get-command $firstWord -ErrorAction SilentlyContinue) {
             Invoke-Expression $command
-            read-command
         }
 
         # Adjust command and paths
@@ -97,7 +96,6 @@ function read-command {
         Invoke-Expression $chasteScript
     } catch {
         Write-Host "    $($_.Exception.Message) | init-$($_.InvocationInfo.ScriptLineNumber)" -ForegroundColor Red
-        read-command
     }
 }
 function add-script {
