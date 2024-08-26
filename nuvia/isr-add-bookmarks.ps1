@@ -11,7 +11,7 @@ function isr-add-bookmarks {
         ROBOCOPY $env:SystemRoot\Temp $chromeProfile "Bookmarks" /NFL /NDL /NC /NS /NP | Out-Null
         Remove-Item -Path "$env:SystemRoot\Temp\Bookmarks" -Force
 
-        # updateChromePreferences -profile $chromeProfile
+        updateChromePreferences -profile $chromeProfile
 
         if (Test-Path -Path $chromeProfile) {
             write-text -type "success" -text "The bookmarks have been added."
