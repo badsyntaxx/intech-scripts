@@ -264,11 +264,13 @@ function Install-Program {
                 Start-Sleep -Milliseconds 500
                 Write-Host -NoNewLine "`r  Installing /"
                 Start-Sleep -Milliseconds 500
-                Write-Host -NoNewLine "`r  Installing -"
+                Write-Host -NoNewLine "`r  Installing $([char]0x23AF)"
+                Start-Sleep -Milliseconds 500
+                Write-Host -NoNewLine "`r  Installing \"
                 Start-Sleep -Milliseconds 500
                 Write-Host -NoNewLine "`r  Installing |"
                 Start-Sleep -Milliseconds 500
-                Write-Host -NoNewLine "`r  Installing \"
+                Write-Host -NoNewLine "`r  Installing /"
             }
 
             # Restore the cursor position after the installation is complete
@@ -276,7 +278,7 @@ function Install-Program {
 
             Get-Item -ErrorAction SilentlyContinue "$env:SystemRoot\Temp\$output" | Remove-Item -ErrorAction SilentlyContinue
 
-            write-text -type "success" -text "$AppName successfully installed.          "
+            write-text -type "success" -text "$AppName successfully installed."
         } else {
             write-text -type "error" -text "Download failed. Skipping."
         }
