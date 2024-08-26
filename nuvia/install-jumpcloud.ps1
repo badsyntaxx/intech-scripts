@@ -20,26 +20,21 @@ function install-jumpcloud {
         msiexec /i $AGENT_INSTALLER_PATH /quiet JCINSTALLERARGUMENTS=`"-k $JumpCloudConnectKey /VERYSILENT /NORESTART /NOCLOSEAPPLICATIONS /L*V "C:\Windows\Temp\jcUpdate.log"`"
 
         $curPos = $host.UI.RawUI.CursorPosition
-        $dots = ""
-        $counter = 0
+
         while (!$process.HasExited) {
             $AgentService = Get-Service -Name "jumpcloud-agent" -ErrorAction SilentlyContinue
             if ($AgentService.Status -eq "Running") {
                 write-text -type "success" -text "`rJumpCloud Agent Installed."
                 break
             } else {
-                Write-Host -NoNewLine "`r  Installing$dots"
-                $dots += "."
-                Start-Sleep -Milliseconds 100
-                $counter++
-                if ($counter -eq 7) {
-                    $dots = ""
-                    $counter = 0
-                }
-
-                # Clear the previous line before writing the new one
-                Write-Host -NoNewLine "`r                                  " -ForegroundColor White
-                Write-Host -NoNewLine "`r  Installing$dots" -ForegroundColor White
+                Write-Host -NoNewLine "`r  Installing |"
+                Start-Sleep -Milliseconds 150
+                Write-Host -NoNewLine "`r  Installing /"
+                Start-Sleep -Milliseconds 150
+                Write-Host -NoNewLine "`r  Installing $([char]0x2015)"
+                Start-Sleep -Milliseconds 150
+                Write-Host -NoNewLine "`r  Installing \"
+                Start-Sleep -Milliseconds 150
             }
         }
 
