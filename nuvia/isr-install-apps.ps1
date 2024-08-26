@@ -267,10 +267,6 @@ function Install-Program {
                 Write-Host -NoNewLine "`r  Installing $([char]0x2015)"
                 Start-Sleep -Milliseconds 150
                 Write-Host -NoNewLine "`r  Installing \"
-                Start-Sleep -Milliseconds 150
-                Write-Host -NoNewLine "`r  Installing |"
-                Start-Sleep -Milliseconds 150
-                Write-Host -NoNewLine "`r  Installing /"
             }
 
             # Restore the cursor position after the installation is complete
