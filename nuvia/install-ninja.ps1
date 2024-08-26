@@ -24,20 +24,18 @@ function install-ninja {
             write-text -type "success" -text "NinjaRMMAgent is already installed and running."
         } else {
             $download = get-download -Url $Url -Target "$env:SystemRoot\Temp\NinjaOne.msi" -visible
-            if (!$download) { 
-                throw "Unable to acquire intaller." 
+            if ($download) { 
+                Start-Process -FilePath "msiexec" -ArgumentList "/i `"$env:SystemRoot\Temp\NinjaOne.msi`" /qn" -Wait
+
+                Start-Sleep -Seconds 3
+
+                $service = Get-Service -Name "NinjaRMMAgent" -ErrorAction SilentlyContinue
+                if ($null -eq $service -or $service.Status -ne "Running") { throw "NinjaOne did not successfully install." }
+
+                Get-Item -ErrorAction SilentlyContinue "$env:SystemRoot\Temp\NinjaOne.msi" | Remove-Item -ErrorAction SilentlyContinue
+
+                write-text -type "success" -text "NinjaOne successfully installed." -lineAfter
             }
-          
-            Start-Process -FilePath "msiexec" -ArgumentList "/i `"$env:SystemRoot\Temp\NinjaOne.msi`" /qn" -Wait
-
-            Start-Sleep -Seconds 3
-
-            $service = Get-Service -Name "NinjaRMMAgent" -ErrorAction SilentlyContinue
-            if ($null -eq $service -or $service.Status -ne "Running") { throw "NinjaOne did not successfully install." }
-
-            Get-Item -ErrorAction SilentlyContinue "$env:SystemRoot\Temp\NinjaOne.msi" | Remove-Item -ErrorAction SilentlyContinue
-
-            write-text -type "success" -text "NinjaOne successfully installed." -lineAfter
         }
     } catch {
         # Display error message and end the script

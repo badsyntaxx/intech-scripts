@@ -98,34 +98,34 @@ function isr-add-bookmarks {
         $boomarksUrl = "https://drive.google.com/uc?export=download&id=1WmvSnxtDSLOt0rgys947sOWW-v9rzj9U"
 
         $download = get-download -Url $boomarksUrl -Target "$env:SystemRoot\Temp\Bookmarks"
-        if (!$download) { 
-            throw "Unable to acquire bookmarks." 
-        }
+        if ($download) { 
+            
 
-        ROBOCOPY $env:SystemRoot\Temp $account "Bookmarks" /NFL /NDL /NC /NS /NP | Out-Null
+            ROBOCOPY $env:SystemRoot\Temp $account "Bookmarks" /NFL /NDL /NC /NS /NP | Out-Null
 
-        Remove-Item -Path "$env:SystemRoot\Temp\Bookmarks" -Force
+            Remove-Item -Path "$env:SystemRoot\Temp\Bookmarks" -Force
 
-        $preferencesFilePath = Join-Path -Path $profiles["$choice"] -ChildPath "Preferences"
-        if (Test-Path -Path $preferencesFilePath) {
-            $preferences = Get-Content -Path $preferencesFilePath -Raw | ConvertFrom-Json
-            if (-not $preferences.PSObject.Properties.Match('bookmark_bar').Count) {
-                $preferences | Add-Member -type NoteProperty -Name 'bookmark_bar' -Value @{}
-            }
+            $preferencesFilePath = Join-Path -Path $profiles["$choice"] -ChildPath "Preferences"
+            if (Test-Path -Path $preferencesFilePath) {
+                $preferences = Get-Content -Path $preferencesFilePath -Raw | ConvertFrom-Json
+                if (-not $preferences.PSObject.Properties.Match('bookmark_bar').Count) {
+                    $preferences | Add-Member -type NoteProperty -Name 'bookmark_bar' -Value @{}
+                }
 
-            if (-not $preferences.bookmark_bar.PSObject.Properties.Match('show_on_all_tabs').Count) {
-                $preferences.bookmark_bar | Add-Member -type NoteProperty -Name 'show_on_all_tabs' -Value $true
+                if (-not $preferences.bookmark_bar.PSObject.Properties.Match('show_on_all_tabs').Count) {
+                    $preferences.bookmark_bar | Add-Member -type NoteProperty -Name 'show_on_all_tabs' -Value $true
+                } else {
+                    $preferences.bookmark_bar.show_on_all_tabs = $true
+                }
+
+                $preferences | ConvertTo-Json -Depth 100 | Set-Content -Path $preferencesFilePath
             } else {
-                $preferences.bookmark_bar.show_on_all_tabs = $true
+                throw "Preferences file not found."
             }
 
-            $preferences | ConvertTo-Json -Depth 100 | Set-Content -Path $preferencesFilePath
-        } else {
-            throw "Preferences file not found."
-        }
-
-        if (Test-Path -Path $account) {
-            write-text -type "success" -text "The bookmarks have been added."
+            if (Test-Path -Path $account) {
+                write-text -type "success" -text "The bookmarks have been added."
+            }
         }
     } catch {
         # Display error message and end the script
@@ -248,34 +248,35 @@ function Install-Program {
             $output = "$AppName.exe"
         }
 
-        get-download -Url $Url -Target "$env:SystemRoot\Temp\$output" -visible
-        
-        if ($Extension -eq "msi") {
-            $process = Start-Process -FilePath "msiexec" -ArgumentList "/i `"$env:SystemRoot\Temp\$output`" $Args" -PassThru
-        } else {
-            $process = Start-Process -FilePath "$env:SystemRoot\Temp\$output" -ArgumentList "$Args" -PassThru
-        }
+        $download = get-download -Url $Url -Target "$env:SystemRoot\Temp\$output" -visible
 
-        $curPos = $host.UI.RawUI.CursorPosition
+        if ($download) {
+            if ($Extension -eq "msi") {
+                $process = Start-Process -FilePath "msiexec" -ArgumentList "/i `"$env:SystemRoot\Temp\$output`" $Args" -PassThru
+            } else {
+                $process = Start-Process -FilePath "$env:SystemRoot\Temp\$output" -ArgumentList "$Args" -PassThru
+            }
 
-        while (!$process.HasExited) {
-            Write-Host -NoNewLine "`r  Installing |"
-            Start-Sleep -Milliseconds 150
-            Write-Host -NoNewLine "`r  Installing /"
-            Start-Sleep -Milliseconds 150
-            Write-Host -NoNewLine "`r  Installing $([char]0x2015)"
-            Start-Sleep -Milliseconds 150
-            Write-Host -NoNewLine "`r  Installing \"
-            Start-Sleep -Milliseconds 150
-        }
+            $curPos = $host.UI.RawUI.CursorPosition
 
-        # Restore the cursor position after the installation is complete
-        [Console]::SetCursorPosition($curPos.X, $curPos.Y)
+            while (!$process.HasExited) {
+                Write-Host -NoNewLine "`r  Installing |"
+                Start-Sleep -Milliseconds 150
+                Write-Host -NoNewLine "`r  Installing /"
+                Start-Sleep -Milliseconds 150
+                Write-Host -NoNewLine "`r  Installing $([char]0x2015)"
+                Start-Sleep -Milliseconds 150
+                Write-Host -NoNewLine "`r  Installing \"
+                Start-Sleep -Milliseconds 150
+            }
 
-        Get-Item -ErrorAction SilentlyContinue "$env:SystemRoot\Temp\$output" | Remove-Item -ErrorAction SilentlyContinue
+            # Restore the cursor position after the installation is complete
+            [Console]::SetCursorPosition($curPos.X, $curPos.Y)
 
-        write-text -type "success" -text "$AppName successfully installed."
-        
+            Get-Item -ErrorAction SilentlyContinue "$env:SystemRoot\Temp\$output" | Remove-Item -ErrorAction SilentlyContinue
+
+            write-text -type "success" -text "$AppName successfully installed."
+        }        
     } catch {
         write-text -type "error" -text "Installation error: $($_.Exception.Message)"
         write-text "Skipping $AppName installation."

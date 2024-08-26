@@ -7,15 +7,19 @@ function isr-add-bookmarks {
         $chromeProfile = $profiles["$choice"]
         $boomarksUrl = "https://drive.google.com/uc?export=download&id=1WmvSnxtDSLOt0rgys947sOWW-v9rzj9U"
 
-        get-download -Url $boomarksUrl -Target "$env:SystemRoot\Temp\Bookmarks"
-        ROBOCOPY $env:SystemRoot\Temp $chromeProfile "Bookmarks" /NFL /NDL /NC /NS /NP | Out-Null
-        Remove-Item -Path "$env:SystemRoot\Temp\Bookmarks" -Force
+        $download = get-download -Url $boomarksUrl -Target "$env:SystemRoot\Temp\Bookmarks"
 
-        updateChromePreferences -profile $chromeProfile
+        if ($download) {
+            ROBOCOPY $env:SystemRoot\Temp $chromeProfile "Bookmarks" /NFL /NDL /NC /NS /NP | Out-Null
+            Remove-Item -Path "$env:SystemRoot\Temp\Bookmarks" -Force
 
-        if (Test-Path -Path $chromeProfile) {
-            write-text -type "success" -text "The bookmarks have been added."
+            updateChromePreferences -profile $chromeProfile
+
+            if (Test-Path -Path $chromeProfile) {
+                write-text -type "success" -text "The bookmarks have been added."
+            }
         }
+        
     } catch {
         write-text -type "error" -text "isr-add-bookmarks-$($_.InvocationInfo.ScriptLineNumber) | $($_.Exception.Message)"
     }
