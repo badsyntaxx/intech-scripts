@@ -95,7 +95,7 @@ function read-command {
         $chasteScript = Get-Content -Path "$env:SystemRoot\Temp\CHASTE-Script.ps1" -Raw
         Invoke-Expression $chasteScript
     } catch {
-        Write-Host "    $($_.Exception.Message) | init-$($_.InvocationInfo.ScriptLineNumber)" -ForegroundColor Red
+        write-text -type "error" -text "$($_.Exception.Message) | init-$($_.InvocationInfo.ScriptLineNumber)" -ForegroundColor Red
     }
 }
 function add-script {
@@ -115,10 +115,7 @@ function add-script {
     }
 
     # Download the script
-    $download = get-download -Url "$url/$subPath/$script.ps1" -Target "$env:SystemRoot\Temp\$script.ps1" -failText "Could not acquire components.$url/$subPath/$script.ps1"
-    if (!$download) { 
-        read-command 
-    }
+    get-download -Url "$url/$subPath/$script.ps1" -Target "$env:SystemRoot\Temp\$script.ps1" -failText "Could not acquire components.$url/$subPath/$script.ps1"
 
     # Append the script to the main script
     $rawScript = Get-Content -Path "$env:SystemRoot\Temp\$script.ps1" -Raw -ErrorAction SilentlyContinue
