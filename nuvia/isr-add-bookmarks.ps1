@@ -31,9 +31,10 @@ function getOrCreateUserPath {
 
     $chromeUserDataPath = "C:\Users\$username\AppData\Local\Google\Chrome\User Data"
     if (!(Test-Path $chromeUserDataPath)) {
-        # throw "No user directory. It's likely the account has not had it's first sign-in yet." 
+        write-Host 'no user path'
         New-Item -ItemType Directory -Path $chromeUserDataPath
     }
+    write-host $chromeUserDataPath
     return $chromeUserDataPath
 }
 function getChromeProfiles {
