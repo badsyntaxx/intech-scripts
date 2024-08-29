@@ -50,14 +50,6 @@ function read-command {
         $command = $command.ToLower()
         $command = $command.Trim()
 
-        if ($command -eq 'help') {
-            write-help
-        }
-
-        if ($command -eq 'help plugins') {
-            write-help -type 'plugins'
-        }   
-
         if ($command -ne "" -and $command -match "^(?-i)(\w+(-\w+)*)") { 
             $firstWord = $matches[1] 
         }
@@ -65,33 +57,29 @@ function read-command {
         if (Get-command $firstWord -ErrorAction SilentlyContinue) {
             Invoke-Expression $command
         }
+        
+        $commandPath = "windows"
+        $potentialPaths = @("plugins", "nuvia", "intech");
+       
 
-        # Adjust command and paths
-        $subCommands = @("plugins", "nuvia", "intech");
-        $subPath = "windows"
-        foreach ($sub in $subCommands) {
+        foreach ($sub in $potentialPaths) {
             if ($firstWord -eq "isr") {
                 $firstWord = "nuvia"
             }
             if ($firstWord -eq $sub -and $firstWord -ne 'menu') { 
                 $command = $command -replace "^$firstWord \s*", "" 
-                $subPath = $sub
+                $commandPath = $sub
             }
         }
 
         $fileFunc = $command -replace ' ', '-'
 
-        # Create the main script file
         New-Item -Path "$env:SystemRoot\Temp\CHASTE-Script.ps1" -ItemType File -Force | Out-Null
-
-        add-script -subPath $subPath -script $fileFunc
-        add-script -subpath "core" -script "framework"
-
-        # Add a final line that will invoke the desired function
+        add-script -commandPath $commandPath -script $fileFunc
+        add-script -commandPath "core" -script "framework"
         Add-Content -Path "$env:SystemRoot\Temp\CHASTE-Script.ps1" -Value "invoke-script '$fileFunc'"
         Add-Content -Path "$env:SystemRoot\Temp\CHASTE-Script.ps1" -Value "read-command"
 
-        # Execute the combined script
         $chasteScript = Get-Content -Path "$env:SystemRoot\Temp\CHASTE-Script.ps1" -Raw
         Invoke-Expression $chasteScript
     } catch {
@@ -101,21 +89,21 @@ function read-command {
 function add-script {
     param (
         [Parameter(Mandatory)]
-        [string]$subPath,
+        [string]$commandPath,
         [Parameter(Mandatory)]
         [string]$script,
         [Parameter(Mandatory = $false)]
         [string]$progressText
     )
 
-    if ($subPath -eq 'windows' -or $subPath -eq 'plugins') {
+    if ($commandPath -eq 'windows' -or $commandPath -eq 'plugins') {
         $url = "https://raw.githubusercontent.com/badsyntaxx/chaste-scripts/main"
     } else {
         $url = "https://raw.githubusercontent.com/badsyntaxx/intech-scripts/main"
     }
 
     # Download the script
-    $download = get-download -Url "$url/$subPath/$script.ps1" -Target "$env:SystemRoot\Temp\$script.ps1" -failText "Could not acquire components.$url/$subPath/$script.ps1"
+    $download = get-download -Url "$url/$commandPath/$script.ps1" -Target "$env:SystemRoot\Temp\$script.ps1" -failText "Could not acquire components.$url/$commandPath/$script.ps1"
 
     if ($download) {
         # Append the script to the main script

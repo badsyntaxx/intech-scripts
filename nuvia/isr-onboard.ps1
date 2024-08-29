@@ -17,7 +17,7 @@ function isr-onboard {
         add-func -command $func
     }
 
-    add-onboardScript -subpath "core" -script "framework"
+    add-onboardScript -commandPath "core" -script "framework"
 
     Add-Content -Path "$env:SystemRoot\Temp\CHASTE-Script.ps1" -Value @"
 function run-all {
@@ -59,13 +59,13 @@ function add-func {
             $firstWord = $matches[1] 
         }
 
-        # Adjust command and paths
-        $subCommands = @("plugins", "nuvia", "intech");
-        $subPath = "windows"
-        foreach ($sub in $subCommands) {
-            if ($firstWord -eq $sub -and $firstWord -ne 'menu') { 
+        $commandPath = "windows"
+        $potentialPaths = @("plugins", "nuvia", "intech");
+
+        foreach ($pp in $potentialPaths) {
+            if ($firstWord -eq $pp -and $firstWord -ne 'menu') { 
                 $command = $command -replace "^$firstWord \s*", "" 
-                $subPath = $sub
+                $commandPath = $pp
             }
         }
 
@@ -73,7 +73,7 @@ function add-func {
         $lowercaseCommand = $command.ToLower()
         $fileFunc = $lowercaseCommand -replace ' ', '-'
 
-        add-onboardScript -subPath $subPath -script $fileFunc
+        add-onboardScript -commandPath $commandPath -script $fileFunc
     } catch {
         # Error handling: display an error message and prompt for a new command
         Write-Host "  $($_.Exception.Message) | init-$($_.InvocationInfo.ScriptLineNumber)" -ForegroundColor Red
@@ -83,21 +83,21 @@ function add-func {
 function add-onboardScript {
     param (
         [Parameter(Mandatory)]
-        [string]$subPath,
+        [string]$commandPath,
         [Parameter(Mandatory)]
         [string]$script,
         [Parameter(Mandatory = $false)]
         [string]$progressText
     )
 
-    if ($subPath -eq 'windows' -or $subPath -eq 'plugins') {
+    if ($commandPath -eq 'windows' -or $commandPath -eq 'plugins') {
         $url = "https://raw.githubusercontent.com/badsyntaxx/chaste-scripts/main"
     } else {
         $url = "https://raw.githubusercontent.com/badsyntaxx/intech-scripts/main"
     }
 
     # Download the script
-    $download = get-download -Url "$url/$subPath/$script.ps1" -Target "$env:SystemRoot\Temp\$script.ps1" -failText "$url/$subPath/$script | Could not acquire onboarding components."
+    $download = get-download -Url "$url/$commandPath/$script.ps1" -Target "$env:SystemRoot\Temp\$script.ps1" -failText "$url/$commandPath/$script | Could not acquire onboarding components."
     
     if ($download) { 
         # Append the script to the main script
