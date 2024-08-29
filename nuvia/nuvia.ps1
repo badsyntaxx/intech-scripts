@@ -1,4 +1,4 @@
-function menu {
+function nuvia {
     try {
         $choice = read-option -options $([ordered]@{
                 "ISR menu"          = "Go to the Nuvia ISR menu."
