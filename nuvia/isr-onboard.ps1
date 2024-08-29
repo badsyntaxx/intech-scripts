@@ -37,7 +37,7 @@ function run-all {
     write-text -type "header" -text "Disabling context menu" -lineBefore
     toggle-context-menu
     write-text -type "header" -text "Debloating Windows" -lineBefore
-    plugins reclaim
+    reclaim
 }
 "@
     # Add a final line that will invoke the desired function
