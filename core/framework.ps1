@@ -23,7 +23,7 @@ function invoke-script {
         if ($initialize) {
             # Display a stylized menu prompt
             Clear-Host
-            write-help
+            read-command -command "intech help"
         }
 
         # Call the script specified by the parameter

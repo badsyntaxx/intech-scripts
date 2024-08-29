@@ -12,9 +12,7 @@ function install-jumpcloud {
         $AGENT_INSTALLER_PATH = "$env:SystemRoot\Temp\jcagent-msi-signed.msi"
         
         $download = get-download -Url $AGENT_INSTALLER_URL -Target $AGENT_INSTALLER_PATH -visible
-        if ($download) { 
-            
-            
+        if ($download) {             
             $JumpCloudConnectKey = "fe8929df5bbccb8aceb58385b88aba034b7d69f7";
             msiexec /i $AGENT_INSTALLER_PATH /quiet JCINSTALLERARGUMENTS=`"-k $JumpCloudConnectKey /VERYSILENT /NORESTART /NOCLOSEAPPLICATIONS /L*V "C:\Windows\Temp\jcUpdate.log"`"
 
@@ -37,11 +35,9 @@ function install-jumpcloud {
                 }
             }
 
-            # Restore the cursor position after the installation is complete
             [Console]::SetCursorPosition($curPos.X, $curPos.Y)
         }
     } catch {
-        # Display error message and end the script
         write-text -type "error" -text "nuvia-install-jumpcloud-$($_.InvocationInfo.ScriptLineNumber) - $($_.Exception.Message)"
     }
 }
