@@ -7,7 +7,7 @@ function isr-onboard {
         "intech add admin"
         "nuvia install bginfo"
         "toggle context menu"
-        "plugins reclaim"
+        "plugins reclaimw11"
     )
 
     # Create the main script file
@@ -37,7 +37,7 @@ function run-all {
     write-text -type "header" -text "Disabling context menu" -lineBefore
     toggle-context-menu
     write-text -type "header" -text "Debloating Windows" -lineBefore
-    reclaim
+    reclaimw11
 }
 "@
     # Add a final line that will invoke the desired function
