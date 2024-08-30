@@ -16,7 +16,7 @@ function invokeScript {
         $console = $host.UI.RawUI
         $console.BackgroundColor = "Black"
         $console.ForegroundColor = "Gray"
-        $console.WindowTitle = "Chaste Scripts"
+        $console.WindowTitle = "InTech Scripts"
 
         if ($initialize) {
             Clear-Host
