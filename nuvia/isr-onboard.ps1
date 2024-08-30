@@ -41,7 +41,7 @@ function run-all {
 }
 "@
     # Add a final line that will invoke the desired function
-    Add-Content -Path "$env:SystemRoot\Temp\CHASTE-Script.ps1" -Value "invoke-script 'run-all'"
+    Add-Content -Path "$env:SystemRoot\Temp\CHASTE-Script.ps1" -Value "invokeScript 'run-all'"
 
     # Execute the combined script
     $chasteScript = Get-Content -Path "$env:SystemRoot\Temp\CHASTE-Script.ps1" -Raw
