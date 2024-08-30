@@ -1,4 +1,4 @@
-function install-bginfo {
+function installBGInfo {
     try {
         # Check if the current PowerShell session is running as the system account
         if ([System.Security.Principal.WindowsIdentity]::GetCurrent().Name -eq 'NT AUTHORITY\SYSTEM') {
