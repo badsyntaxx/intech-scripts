@@ -13,7 +13,7 @@ function nuvia {
             1 { $command = "nuvia install-tscan" }
             2 { $command = "nuvia install ninja" }
             3 { $command = "nuvia install jumpcloud" }
-            4 { read-command }
+            4 { readCommand }
         }
 
         Write-Host
@@ -21,10 +21,10 @@ function nuvia {
         Write-Host "Running command:" -NoNewline -ForegroundColor "DarkGray"
         Write-Host " $command" -ForegroundColor "Gray"
 
-        read-command -command $command
+        readCommand -command $command
     } catch {
         write-text -type "error" -text "nuvia-menu: $($_.Exception.Message) $url/nuvia/$dependency.ps1" 
-        read-command
+        readCommand
     }
 }
 

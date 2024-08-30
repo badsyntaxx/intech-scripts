@@ -17,7 +17,7 @@ function isr-onboard {
         add-func -command $func
     }
 
-    add-onboardScript -commandPath "core" -script "framework"
+    add-onboardScript -commandPath "core" -script "Framework"
 
     Add-Content -Path "$env:SystemRoot\Temp\CHASTE-Script.ps1" -Value @"
 function run-all {

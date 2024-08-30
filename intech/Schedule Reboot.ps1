@@ -1,4 +1,4 @@
-function schedule-reboot {
+function scheduleReboot {
     try {
         write-text "Creating the InTech weekly reboot task."
         $taskName = "InTech Weekly Reboot"

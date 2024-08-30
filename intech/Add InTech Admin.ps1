@@ -1,4 +1,4 @@
-function add-admin {
+function addInTechAdmin {
     try {
         $accountName = "InTechAdmin"
         $downloads = [ordered]@{

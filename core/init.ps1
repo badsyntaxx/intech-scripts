@@ -1,4 +1,4 @@
-function initialize-chasteScripts {
+function initializeChasteScripts {
     try {
         # Check if user has administrator privileges
         if (!([Security.Principal.WindowsPrincipal][Security.Principal.WindowsIdentity]::GetCurrent()).IsInRole([Security.Principal.WindowsBuiltInRole]"Administrator")) {
@@ -17,20 +17,20 @@ function initialize-chasteScripts {
         $url = "https://raw.githubusercontent.com/badsyntaxx/intech-scripts/main"
 
         # Download the script
-        $download = get-script -Url "$url/core/framework.ps1" -Target "$env:SystemRoot\Temp\framework.ps1"
+        $download = getScripts -Url "$url/core/Framework.ps1" -Target "$env:SystemRoot\Temp\Framework.ps1"
         if (!$download) { 
             throw "Could not acquire dependency." 
         }
 
         # Append the script to the main script
-        $rawScript = Get-Content -Path "$env:SystemRoot\Temp\framework.ps1" -Raw -ErrorAction SilentlyContinue
+        $rawScript = Get-Content -Path "$env:SystemRoot\Temp\Framework.ps1" -Raw -ErrorAction SilentlyContinue
         Add-Content -Path "$env:SystemRoot\Temp\CHASTE-Script.ps1" -Value $rawScript
 
         # Remove the script file
-        Get-Item -ErrorAction SilentlyContinue "$env:SystemRoot\Temp\framework.ps1" | Remove-Item -ErrorAction SilentlyContinue
+        Get-Item -ErrorAction SilentlyContinue "$env:SystemRoot\Temp\Framework.ps1" | Remove-Item -ErrorAction SilentlyContinue
 
         # Add a final line that will invoke the desired function
-        Add-Content -Path "$env:SystemRoot\Temp\CHASTE-Script.ps1" -Value 'invoke-script -script "read-command" -initialize $true'
+        Add-Content -Path "$env:SystemRoot\Temp\CHASTE-Script.ps1" -Value 'invoke-script -script "readCommand" -initialize $true'
 
         # Execute the combined script
         $chasteScript = Get-Content -Path "$env:SystemRoot\Temp\CHASTE-Script.ps1" -Raw
@@ -41,7 +41,7 @@ function initialize-chasteScripts {
     }
 }
 
-function get-script {
+function getScripts {
     param (
         [Parameter(Mandatory)]
         [string]$url,
@@ -91,4 +91,4 @@ function get-script {
 }
 
 # Invoke the root of CHASTE scripts
-initialize-chasteScripts
+initializeChasteScripts

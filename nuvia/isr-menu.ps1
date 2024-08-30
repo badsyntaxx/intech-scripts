@@ -13,7 +13,7 @@ function isr-menu {
             1 { $command = "nuvia isr onboard" }
             2 { $command = "nuvia isr install apps" }
             3 { $command = "nuvia isr add bookmarks" }
-            4 { read-command }
+            4 { readCommand }
         }
 
         Write-Host
@@ -21,10 +21,10 @@ function isr-menu {
         Write-Host "Running command:" -NoNewline -ForegroundColor "DarkGray"
         Write-Host " $command" -ForegroundColor "Gray"
 
-        read-command -command $command
+        readCommand -command $command
     } catch {
         write-text -type "error" -text "nuvia-menu: $($_.Exception.Message) $url/nuvia/$dependency.ps1" 
-        read-command
+        readCommand
     }
 }
 

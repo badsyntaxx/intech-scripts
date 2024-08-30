@@ -37,7 +37,7 @@ function isr-install-apps {
             install-balto
         }
         if ($installChoice -eq 8) { 
-            read-command
+            readCommand
         }
 
         Initialize-Cleanup

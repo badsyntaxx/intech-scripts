@@ -5,7 +5,7 @@ function install-jumpcloud {
         $AGENT_BINARY_NAME = "jumpcloud-agent.exe"
         if (Test-Path -Path "$($AGENT_PATH)\$($AGENT_BINARY_NAME)") {
             write-text -type "success" -text "JumpCloud Agent Already Installed."
-            read-command
+            readCommand
         } 
 
         $AGENT_INSTALLER_URL = "https://cdn02.jumpcloud.com/production/jcagent-msi-signed.msi"
