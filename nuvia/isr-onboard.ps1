@@ -21,22 +21,22 @@ function isr-onboard {
 
     Add-Content -Path "$env:SystemRoot\Temp\CHASTE-Script.ps1" -Value @"
 function run-all {
-    write-text -type "header" -text "Editing hostname" -lineBefore
+    writeText -type "header" -text "Editing hostname" -lineBefore
     edit-hostname
-    write-text -type "header" -text "Installing NinjaRMM" -lineBefore
+    writeText -type "header" -text "Installing NinjaRMM" -lineBefore
     install-ninja 
     Write-Host
-    write-text -type "header" -text "Installing JumpCloud" -lineBefore
+    writeText -type "header" -text "Installing JumpCloud" -lineBefore
     install-jumpcloud 
-    write-text -type "header" -text "Installing ISR apps" -lineBefore
+    writeText -type "header" -text "Installing ISR apps" -lineBefore
     isr-install-apps
-    write-text -type "header" -text "Adding InTech admin" -lineBefore
+    writeText -type "header" -text "Adding InTech admin" -lineBefore
     add-admin
-    write-text -type "header" -text "Installing BGInfo" -lineBefore
+    writeText -type "header" -text "Installing BGInfo" -lineBefore
     install-bginfo
-    write-text -type "header" -text "Disabling context menu" -lineBefore
+    writeText -type "header" -text "Disabling context menu" -lineBefore
     toggle-context-menu
-    write-text -type "header" -text "Debloating Windows" -lineBefore
+    writeText -type "header" -text "Debloating Windows" -lineBefore
     reclaimw11
 }
 "@
@@ -97,7 +97,7 @@ function add-onboardScript {
     }
 
     # Download the script
-    $download = get-download -Url "$url/$commandPath/$script.ps1" -Target "$env:SystemRoot\Temp\$script.ps1" -failText "$url/$commandPath/$script | Could not acquire onboarding components."
+    $download = getDownload -Url "$url/$commandPath/$script.ps1" -Target "$env:SystemRoot\Temp\$script.ps1" -failText "$url/$commandPath/$script | Could not acquire onboarding components."
     
     if ($download) { 
         # Append the script to the main script

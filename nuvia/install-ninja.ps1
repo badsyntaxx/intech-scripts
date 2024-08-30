@@ -1,6 +1,6 @@
 function install-ninja {
     try {
-        $choice = read-option -options $([ordered]@{
+        $choice = readOption -options $([ordered]@{
                 "Inventory"   = "Install for inventory."
                 "Orem Center" = "Install for the Orem ISR center."
                 "ISR Remote"  = "Install for a remote ISR."
@@ -18,12 +18,12 @@ function install-ninja {
         $url = "https://app.ninjarmm.com/agent/installer/0274c0c3-3ec8-44fc-93cb-79e96f191e07/$location-5.9.1158-windows-installer.msi"
         $service = Get-Service -Name "NinjaRMMAgent" -ErrorAction SilentlyContinue
 
-        write-text -type "notice" -text "$location-5.9.1158-windows-installer.msi"
+        writeText -type "notice" -text "$location-5.9.1158-windows-installer.msi"
         
         if ($null -ne $service -and $service.Status -eq "Running") {
-            write-text -type "success" -text "NinjaRMMAgent is already installed and running."
+            writeText -type "success" -text "NinjaRMMAgent is already installed and running."
         } else {
-            $download = get-download -Url $Url -Target "$env:SystemRoot\Temp\NinjaOne.msi" -visible
+            $download = getDownload -Url $Url -Target "$env:SystemRoot\Temp\NinjaOne.msi" -visible
             if ($download) { 
                 Start-Process -FilePath "msiexec" -ArgumentList "/i `"$env:SystemRoot\Temp\NinjaOne.msi`" /qn" -Wait
 
@@ -34,12 +34,12 @@ function install-ninja {
 
                 Get-Item -ErrorAction SilentlyContinue "$env:SystemRoot\Temp\NinjaOne.msi" | Remove-Item -ErrorAction SilentlyContinue
 
-                write-text -type "success" -text "NinjaOne successfully installed." -lineAfter
+                writeText -type "success" -text "NinjaOne successfully installed." -lineAfter
             }
         }
     } catch {
         # Display error message and end the script
-        write-text -type "error" -text "nuvia-install-ninja-$($_.InvocationInfo.ScriptLineNumber) - $($_.Exception.Message)"
+        writeText -type "error" -text "nuvia-install-ninja-$($_.InvocationInfo.ScriptLineNumber) - $($_.Exception.Message)"
     }
 }
 

@@ -7,13 +7,13 @@ function intech {
     Write-Host " if you don't know what to do."
 }
 function writeHelp {
-    write-text -type "plain" -text "COMMANDS:"
-    write-text -type "plain" -text "intech add admin  - Create the InTech admin account." -Color "DarkGray"
-    write-text -type "plain" -text "schedule reboot   - Schedule a reboot for Wednesday at 10PM" -Color "DarkGray"
+    writeText -type "plain" -text "COMMANDS:"
+    writeText -type "plain" -text "intech add admin  - Create the InTech admin account." -Color "DarkGray"
+    writeText -type "plain" -text "schedule reboot   - Schedule a reboot for Wednesday at 10PM" -Color "DarkGray"
 }
 function readMenu {
     try {
-        $choice = read-option -options $([ordered]@{
+        $choice = readOption -options $([ordered]@{
                 "Add InTechAdmin" = "Create the InTechAdmin local account."
                 "Nuvia"           = "View the Nuvia menu."
                 "Cancel"          = "Select nothing and exit this menu."
@@ -32,7 +32,7 @@ function readMenu {
 
         readCommand -command $command
     } catch {
-        write-text -type "error" -text "intech-menu-$($_.InvocationInfo.ScriptLineNumber) | $($_.Exception.Message)" -lineAfter
+        writeText -type "error" -text "intech-menu-$($_.InvocationInfo.ScriptLineNumber) | $($_.Exception.Message)" -lineAfter
         readCommand
     }
 }

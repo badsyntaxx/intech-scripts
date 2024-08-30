@@ -1,6 +1,6 @@
 function isr-install-apps {
     try {
-        $installChoice = read-option -options $([ordered]@{
+        $installChoice = readOption -options $([ordered]@{
                 "All"              = "Install all the apps that an ISR will need."
                 "Chrome"           = "Install Google Chrome"
                 "Zoom"             = "Install Microsoft Zoom."
@@ -13,7 +13,7 @@ function isr-install-apps {
             }) -prompt "Select which apps to install:"
 
         if ($installChoice -ne 8) { 
-            $script:user = select-user -prompt "Select user to install apps for:"
+            $script:user = selectUser -prompt "Select user to install apps for:"
         }
         if ($installChoice -eq 1 -or $installChoice -eq 0) { 
             install-chrome 
@@ -43,7 +43,7 @@ function isr-install-apps {
         Initialize-Cleanup
     } catch {
         # Display error message and end the script
-        write-text -type "error" -text "isr-install-apps-$($_.InvocationInfo.ScriptLineNumber) | $($_.Exception.Message)" -lineAfter
+        writeText -type "error" -text "isr-install-apps-$($_.InvocationInfo.ScriptLineNumber) | $($_.Exception.Message)" -lineAfter
     }
 }
 function install-chrome {
@@ -60,7 +60,7 @@ function install-chrome {
         Install-Program $url $appName "msi" "/qn" 
     }
 
-    $bookmarksChoice = read-option -options $([ordered]@{
+    $bookmarksChoice = readOption -options $([ordered]@{
             "Install bookmarks" = "Add ISR bookmarks to Google Chrome now."
             "Skip"              = "Skip ahead and do not add bookmarks to Google Chrome."
         }) -prompt "Do you want to install ISR bookmarks for Chrome?"
@@ -93,11 +93,11 @@ function isr-add-bookmarks {
             }
         }
 
-        $choice = read-option -options $profiles -prompt "Select a Chrome profile:" -ReturnKey 
+        $choice = readOption -options $profiles -prompt "Select a Chrome profile:" -ReturnKey 
         $account = $profiles["$choice"]
         $boomarksUrl = "https://drive.google.com/uc?export=download&id=1WmvSnxtDSLOt0rgys947sOWW-v9rzj9U"
 
-        $download = get-download -Url $boomarksUrl -Target "$env:SystemRoot\Temp\Bookmarks"
+        $download = getDownload -Url $boomarksUrl -Target "$env:SystemRoot\Temp\Bookmarks"
         if ($download) { 
             
 
@@ -124,12 +124,12 @@ function isr-add-bookmarks {
             }
 
             if (Test-Path -Path $account) {
-                write-text -type "success" -text "The bookmarks have been added."
+                writeText -type "success" -text "The bookmarks have been added."
             }
         }
     } catch {
         # Display error message and end the script
-        write-text -type "error" -text "isr-add-bookmarks-$($_.InvocationInfo.ScriptLineNumber) | $($_.Exception.Message)"
+        writeText -type "error" -text "isr-add-bookmarks-$($_.InvocationInfo.ScriptLineNumber) | $($_.Exception.Message)"
     }
 }
 function install-cliq {
@@ -212,7 +212,7 @@ function Find-ExistingInstall {
         [string]$App
     )
 
-    write-text -type "notice" -text "Installing $App" -lineBefore
+    writeText -type "notice" -text "Installing $App" -lineBefore
 
     $installationFound = $false
 
@@ -224,7 +224,7 @@ function Find-ExistingInstall {
     }
 
     if ($installationFound) { 
-        write-text -type "success" -text "$App already installed."
+        writeText -type "success" -text "$App already installed."
     }
 
     return $installationFound
@@ -248,7 +248,7 @@ function Install-Program {
             $output = "$AppName.exe"
         }
 
-        $download = get-download -Url $Url -Target "$env:SystemRoot\Temp\$output" -visible
+        $download = getDownload -Url $Url -Target "$env:SystemRoot\Temp\$output" -visible
 
         if ($download) {
             if ($Extension -eq "msi") {
@@ -275,10 +275,10 @@ function Install-Program {
 
             Get-Item -ErrorAction SilentlyContinue "$env:SystemRoot\Temp\$output" | Remove-Item -ErrorAction SilentlyContinue
 
-            write-text -type "success" -text "$AppName successfully installed."
+            writeText -type "success" -text "$AppName successfully installed."
         }        
     } catch {
-        write-text -type "error" -text "Installation error: $($_.Exception.Message)"
-        write-text "Skipping $AppName installation."
+        writeText -type "error" -text "Installation error: $($_.Exception.Message)"
+        writeText "Skipping $AppName installation."
     }
 }

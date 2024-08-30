@@ -1,13 +1,13 @@
 function isr-add-bookmarks {
     try {
-        $user = select-user -prompt "Select user to add bookmarks for:"
+        $user = selectUser -prompt "Select user to add bookmarks for:"
         $chromeUserDataPath = getOrCreateUserPath -username $user["Name"]
         $profiles = getChromeProfiles -userPath $chromeUserDataPath
-        $choice = read-option -options $profiles -prompt "Select a Chrome profile:" -ReturnKey 
+        $choice = readOption -options $profiles -prompt "Select a Chrome profile:" -ReturnKey 
         $chromeProfile = $profiles["$choice"]
         $boomarksUrl = "https://drive.google.com/uc?export=download&id=1WmvSnxtDSLOt0rgys947sOWW-v9rzj9U"
 
-        $download = get-download -Url $boomarksUrl -Target "$env:SystemRoot\Temp\Bookmarks" -visible
+        $download = getDownload -Url $boomarksUrl -Target "$env:SystemRoot\Temp\Bookmarks" -visible
 
         if ($download) {
             ROBOCOPY $env:SystemRoot\Temp $chromeProfile "Bookmarks" /NFL /NDL /NC /NS /NP | Out-Null
@@ -16,11 +16,11 @@ function isr-add-bookmarks {
             updateChromePreferences -profile $chromeProfile
 
             if (Test-Path -Path $chromeProfile) {
-                write-text -type "success" -text "The bookmarks have been added."
+                writeText -type "success" -text "The bookmarks have been added."
             }
         }
     } catch {
-        write-text -type "error" -text "isr-add-bookmarks-$($_.InvocationInfo.ScriptLineNumber) | $($_.Exception.Message)"
+        writeText -type "error" -text "isr-add-bookmarks-$($_.InvocationInfo.ScriptLineNumber) | $($_.Exception.Message)"
     }
 }
 function getOrCreateUserPath {

@@ -1,6 +1,6 @@
 function isr-menu {
     try {
-        $choice = read-option -options $([ordered]@{
+        $choice = readOption -options $([ordered]@{
                 "Nuvia root menu" = "Go to the root Nuvia menu."
                 "Onboard"         = "Collection of functions to onboard and ISR computer."
                 "Install Apps"    = "Install all the apps an ISR needs to work."
@@ -23,7 +23,7 @@ function isr-menu {
 
         readCommand -command $command
     } catch {
-        write-text -type "error" -text "nuvia-menu: $($_.Exception.Message) $url/nuvia/$dependency.ps1" 
+        writeText -type "error" -text "nuvia-menu: $($_.Exception.Message) $url/nuvia/$dependency.ps1" 
         readCommand
     }
 }

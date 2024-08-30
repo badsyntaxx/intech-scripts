@@ -1,6 +1,6 @@
 function nuvia {
     try {
-        $choice = read-option -options $([ordered]@{
+        $choice = readOption -options $([ordered]@{
                 "ISR menu"          = "Go to the Nuvia ISR menu."
                 "Install TScan"     = "Install TScan software."
                 "Install Ninja"     = "Install Ninja for Nuvia computers."
@@ -23,7 +23,7 @@ function nuvia {
 
         readCommand -command $command
     } catch {
-        write-text -type "error" -text "nuvia-menu: $($_.Exception.Message) $url/nuvia/$dependency.ps1" 
+        writeText -type "error" -text "nuvia-menu: $($_.Exception.Message) $url/nuvia/$dependency.ps1" 
         readCommand
     }
 }
