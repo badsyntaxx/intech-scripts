@@ -30,7 +30,7 @@ function invokeScript {
 
         Invoke-Expression $script
     } catch {
-        writeText -type "error" -text "invokeScript-$($_.InvocationInfo.ScriptLineNumber) | $script"
+        writeText -type "error" -text "invokeScript-$($_.InvocationInfo.ScriptLineNumber) | $($_.Exception.Message)"
     }
 }
 function readCommand {
