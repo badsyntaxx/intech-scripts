@@ -6,11 +6,6 @@ function intech {
     Write-Host " intech menu" -NoNewline -ForegroundColor "Cyan"
     Write-Host " if you don't know what to do."
 }
-function writeHelp {
-    writeText -type "plain" -text "COMMANDS:"
-    writeText -type "plain" -text "intech add admin  - Create the InTech admin account." -Color "DarkGray"
-    writeText -type "plain" -text "schedule reboot   - Schedule a reboot for Wednesday at 10PM" -Color "DarkGray"
-}
 function readMenu {
     try {
         $choice = readOption -options $([ordered]@{
@@ -35,4 +30,9 @@ function readMenu {
         writeText -type "error" -text "intech-menu-$($_.InvocationInfo.ScriptLineNumber) | $($_.Exception.Message)" -lineAfter
         readCommand
     }
+}
+function writeHelp {
+    writeText -type "plain" -text "COMMANDS:"
+    writeText -type "plain" -text "intech add admin  - Create the InTech admin account." -Color "DarkGray"
+    writeText -type "plain" -text "schedule reboot   - Schedule a reboot for Wednesday at 10PM" -Color "DarkGray"
 }

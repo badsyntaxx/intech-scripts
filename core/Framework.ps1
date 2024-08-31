@@ -114,6 +114,8 @@ function filterCommands {
             "intech menu" { $commandArray = $("intech", "Helpers", "readMenu") }
             "intech add admin" { $commandArray = $("intech", "Add InTech Admin", "addInTechAdmin") }
             "intech schedule reboot" { $commandArray = $("intech", "Schedule Reboot", "scheduleReboot") }
+            "nuvia help" { $commandArray = $("nuvia", "Helpers", "writeHelp") }
+            "nuvia menu" { $commandArray = $("nuvia", "Helpers", "readMenu") }
             "nuvia install bginfo" { $commandArray = $("nuvia", "Install BGInfo", "installBGInfo") }
             default { 
                 Write-Host "  Unrecognized command. Try" -NoNewline
