@@ -1,4 +1,4 @@
-function isr-onboard {
+function isrOnboard {
     $funcs = @(
         "edit hostname" 
         "nuvia install ninja"
@@ -29,7 +29,7 @@ function run-all {
     writeText -type "header" -text "Installing JumpCloud" -lineBefore
     install-jumpcloud 
     writeText -type "header" -text "Installing ISR apps" -lineBefore
-    isr-install-apps
+    isrInstallApps
     writeText -type "header" -text "Adding InTech admin" -lineBefore
     add-admin
     writeText -type "header" -text "Installing BGInfo" -lineBefore

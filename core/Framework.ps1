@@ -119,6 +119,15 @@ function filterCommands {
             "nuvia help" { $commandArray = $("nuvia", "Helpers", "writeHelp") }
             "nuvia menu" { $commandArray = $("nuvia", "Helpers", "readMenu") }
             "nuvia install bginfo" { $commandArray = $("nuvia", "Install BGInfo", "installBGInfo") }
+            "nuvia install jumpcloud" { $commandArray = $("nuvia", "Install JumpCloud", "installJumpCloud") }
+            "nuvia install ninja" { $commandArray = $("nuvia", "Install Ninja", "installNinja") }
+            "nuvia install tscan" { $commandArray = $("nuvia", "Install Tscan", "installTscan") }
+            "nuvia isr install apps" { $commandArray = $("nuvia", "ISR Install Apps", "isrInstallApps") }
+            "isr install apps" { $commandArray = $("nuvia", "ISR Install Apps", "isrInstallApps") }
+            "nuvia isr add bookmarks" { $commandArray = $("nuvia", "ISR Add Bookmarks", "isrAddBookmarks") }
+            "isr add bookmarks" { $commandArray = $("nuvia", "ISR Add Bookmarks", "isrAddBookmarks") }
+            "nuvia isr onboard" { $commandArray = $("nuvia", "ISR Onboard", "isrOnboard") }
+            "isr onboard" { $commandArray = $("nuvia", "ISR Onboard", "isrOnboard") }
             default { 
                 Write-Host "  Unrecognized command. Try" -NoNewline
                 Write-Host " help" -ForegroundColor "Cyan" -NoNewline

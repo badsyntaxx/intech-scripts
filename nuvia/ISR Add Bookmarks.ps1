@@ -1,4 +1,4 @@
-function isr-add-bookmarks {
+function isrAddBookmarks {
     try {
         $user = selectUser -prompt "Select user to add bookmarks for:"
         $chromeUserDataPath = getOrCreateUserPath -username $user["Name"]
@@ -20,7 +20,7 @@ function isr-add-bookmarks {
             }
         }
     } catch {
-        writeText -type "error" -text "isr-add-bookmarks-$($_.InvocationInfo.ScriptLineNumber) | $($_.Exception.Message)"
+        writeText -type "error" -text "isrAddBookmarks-$($_.InvocationInfo.ScriptLineNumber) | $($_.Exception.Message)"
     }
 }
 function getOrCreateUserPath {

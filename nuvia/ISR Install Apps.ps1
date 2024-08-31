@@ -1,4 +1,4 @@
-function isr-install-apps {
+function isrInstallApps {
     try {
         $installChoice = readOption -options $([ordered]@{
                 "All"              = "Install all the apps that an ISR will need."
@@ -43,7 +43,7 @@ function isr-install-apps {
         Initialize-Cleanup
     } catch {
         # Display error message and end the script
-        writeText -type "error" -text "isr-install-apps-$($_.InvocationInfo.ScriptLineNumber) | $($_.Exception.Message)" -lineAfter
+        writeText -type "error" -text "isrInstallApps-$($_.InvocationInfo.ScriptLineNumber) | $($_.Exception.Message)" -lineAfter
     }
 }
 function install-chrome {

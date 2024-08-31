@@ -1,4 +1,4 @@
-function install-jumpcloud {
+function installJumpCloud {
     try {
         ipconfig /FlushDNS | Out-Null
         $AGENT_PATH = Join-Path ${env:ProgramFiles} "JumpCloud"
@@ -38,6 +38,6 @@ function install-jumpcloud {
             [Console]::SetCursorPosition($curPos.X, $curPos.Y)
         }
     } catch {
-        writeText -type "error" -text "nuvia-install-jumpcloud-$($_.InvocationInfo.ScriptLineNumber) - $($_.Exception.Message)"
+        writeText -type "error" -text "installJumpCloud-$($_.InvocationInfo.ScriptLineNumber) - $($_.Exception.Message)"
     }
 }

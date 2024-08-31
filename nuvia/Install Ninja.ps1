@@ -1,4 +1,4 @@
-function install-ninja {
+function installNinja {
     try {
         $choice = readOption -options $([ordered]@{
                 "Inventory"   = "Install for inventory."
@@ -38,8 +38,7 @@ function install-ninja {
             }
         }
     } catch {
-        # Display error message and end the script
-        writeText -type "error" -text "nuvia-install-ninja-$($_.InvocationInfo.ScriptLineNumber) - $($_.Exception.Message)"
+        writeText -type "error" -text "installNinja-$($_.InvocationInfo.ScriptLineNumber) - $($_.Exception.Message)"
     }
 }
 

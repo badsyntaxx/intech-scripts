@@ -1,4 +1,4 @@
-function install-tscan {
+function installTscan {
     try {
         writeText -type "header" -text "Installing T-Scan for Nuvia" -lineBefore -lineAfter
 
@@ -20,7 +20,7 @@ function install-tscan {
         Get-Item -ErrorAction SilentlyContinue "$env:SystemRoot\Temp\tscan" | Remove-Item -ErrorAction SilentlyContinue -Confirm $false
         readCommand
     } catch {
-        writeText -type "error" -text "Install error: $($_.Exception.Message)"
+        writeText -type "error" -text "installTscan-$($_.InvocationInfo.ScriptLineNumber) - $($_.Exception.Message)"
     }
 }
 
