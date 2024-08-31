@@ -1,3 +1,11 @@
+function nuvia {
+    Write-Host
+    Write-Host "  Try" -NoNewline
+    Write-Host " nuvia help" -ForegroundColor "Cyan" -NoNewline
+    Write-Host " or" -NoNewline
+    Write-Host " nuvia menu" -NoNewline -ForegroundColor "Cyan"
+    Write-Host " if you don't know what to do."
+}
 function readMenu {
     try {
         $choice = readOption -options $([ordered]@{

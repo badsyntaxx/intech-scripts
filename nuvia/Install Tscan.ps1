@@ -1,7 +1,5 @@
 function installTscan {
     try {
-        writeText -type "header" -text "Installing T-Scan for Nuvia" -lineBefore -lineAfter
-
         add-tscan-folder
 
         Set-Service -Name "SSDPSRV" -StartupType Automatic
