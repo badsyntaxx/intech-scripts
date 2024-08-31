@@ -32,7 +32,7 @@ function readMenu {
     }
 }
 function writeHelp {
-    writeText -type "plain" -text "COMMANDS:"
+    writeText -type "plain" -text "COMMANDS:" -lineBefore
     writeText -type "plain" -text "intech add admin  - Create the InTech admin account." -Color "DarkGray"
     writeText -type "plain" -text "schedule reboot   - Schedule a reboot for Wednesday at 10PM" -Color "DarkGray"
 }
