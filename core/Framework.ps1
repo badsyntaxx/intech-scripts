@@ -587,13 +587,13 @@ function getDownload {
                 }
 
             } catch {
-                write-text -type "fail" -text $failText
+                writeText -type "fail" -text $failText
             
                 if ($retryCount -lt $MaxRetries) {
-                    write-text "Retrying..."
+                    writeText "Retrying..."
                     Start-Sleep -Seconds $Interval
                 } else {
-                    write-text -type "error" -text "Maximum retries reached." 
+                    writeText -type "error" -text "Maximum retries reached." 
                 }
                 $downloadComplete = $false
             } finally {
