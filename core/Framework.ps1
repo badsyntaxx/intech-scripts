@@ -590,7 +590,7 @@ function getDownload {
                 writeText -type "plain" -text $failText
             
                 if ($retryCount -lt $MaxRetries) {
-                    writeText "Retrying..."
+                    writeText -type "plain" -text "Retrying..."
                     Start-Sleep -Seconds $Interval
                 } else {
                     writeText -type "error" -text "Load failed. Exiting function." 
