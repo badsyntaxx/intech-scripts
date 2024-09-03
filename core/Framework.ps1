@@ -478,7 +478,9 @@ function getDownload {
         [parameter(Mandatory = $false)]
         [int]$MaxRetries = 2,
         [parameter(Mandatory = $false)]
-        [int]$Interval = 1
+        [int]$Interval = 1,
+        [parameter(Mandatory = $false)]
+        [switch]$visible = $false
     )
     Begin {
         function Show-Progress {
@@ -510,17 +512,17 @@ function getDownload {
             $progbar = $progbar.PadRight($curBarSize, [char]9608)
             $progbar = $progbar.PadRight($BarSize, [char]9617)
 
-            Write-Host -NoNewLine "`r  $ProgressText" -NoNewLine
-            Write-Host -NoNewLine " $progbar" -NoNewLine -ForegroundColor "Cyan"
-            Write-Host -NoNewLine " $($percentComplete.ToString("##0.00").PadLeft(6))%"
+            if (!$Complete.IsPresent) {
+                Write-Host -NoNewLine "`r    $ProgressText $progbar $($percentComplete.ToString("##0.00").PadLeft(6))%"
+            } else {
+                Write-Host -NoNewLine "`r    $ProgressText $progbar $($percentComplete.ToString("##0.00").PadLeft(6))%"                    
+            }              
+             
         }
     }
     Process {
-        $downloadComplete = $false
-        $retryCount = 0
-
-        do {
-            $retryCount++
+        $downloadComplete = $true 
+        for ($retryCount = 1; $retryCount -le $MaxRetries; $retryCount++) {
             try {
                 $storeEAP = $ErrorActionPreference
                 $ErrorActionPreference = 'Stop'
@@ -569,50 +571,45 @@ function getDownload {
                     $total += $count
                     $totalMB = $total / 1024 / 1024
           
-                    if ($fullSize -gt 0) {
-                        Show-Progress -TotalValue $fullSizeMB -CurrentValue $totalMB -ProgressText $ProgressText -ValueSuffix "MB"
-                    }
+                    if ($visible) {
+                        if ($fullSize -gt 0) {
+                            Show-Progress -TotalValue $fullSizeMB -CurrentValue $totalMB -ProgressText $ProgressText -ValueSuffix "MB"
+                        }
 
-                    if ($total -eq $fullSize -and $count -eq 0 -and $finalBarCount -eq 0) {
-                        Show-Progress -TotalValue $fullSizeMB -CurrentValue $totalMB -ProgressText $ProgressText -ValueSuffix "MB" -Complete
-                        $finalBarCount++
-                        $downloadComplete = $true
+                        if ($total -eq $fullSize -and $count -eq 0 -and $finalBarCount -eq 0) {
+                            Show-Progress -TotalValue $fullSizeMB -CurrentValue $totalMB -ProgressText $ProgressText -ValueSuffix "MB" -Complete
+                            $finalBarCount++
+                        }
                     }
-                  
                 } while ($count -gt 0)
 
-                # If the download completed successfully, exit the retry loop
-                if ($downloadComplete) {
-                    break
+                # Prevent the following output from appearing on the same line as the progress bar
+                if ($visible) {
+                    Write-Host 
                 }
-
+                
+                if ($downloadComplete) { return $true } else { return $false }
             } catch {
-                writeText -type "fail" -text $failText
+                # write-text -type "fail" -text "$($_.Exception.Message)"
+                write-text -type "fail" -text $failText
+                
+                $downloadComplete = $false
             
                 if ($retryCount -lt $MaxRetries) {
-                    writeText -type "plain" -text "Retrying..."
+                    write-text "Retrying..."
                     Start-Sleep -Seconds $Interval
                 } else {
-                    writeText -type "error" -text "Maximum retries reached." 
+                    write-text -type "error" -text "Maximum retries reached." 
                 }
-                $downloadComplete = $false
             } finally {
-                if ($reader) { 
-                    $reader.Close() 
-                }
-
-                if ($writer) { 
-                    $writer.Flush() 
-                    $writer.Close() 
-                }
+                # cleanup
+                if ($reader) { $reader.Close() }
+                if ($writer) { $writer.Flush(); $writer.Close() }
         
                 $ErrorActionPreference = $storeEAP
                 [GC]::Collect()
             } 
-        } while (-not $downloadComplete -and $retryCount -lt $MaxRetries)
-        
-        # Return the final download status
-        return $downloadComplete
+        }   
     }
 }
 function getUserData {
