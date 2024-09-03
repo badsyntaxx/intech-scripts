@@ -1,3 +1,67 @@
+function addInTechAdmin {
+    try {
+        $accountName = "InTechAdmin"
+        $downloads = [ordered]@{
+            "$env:SystemRoot\Temp\KEY.txt"    = "https://drive.google.com/uc?export=download&id=1EGASU9cvnl5E055krXXcXUcgbr4ED4ry"
+            "$env:SystemRoot\Temp\PHRASE.txt" = "https://drive.google.com/uc?export=download&id=1jbppZfGusqAUM2aU7V4IeK0uHG2OYgoY"
+        }
+
+        foreach ($d in $downloads.Keys) { 
+            $download = getDownload -Url $downloads[$d] -Target $d -visible 
+        } 
+
+        Write-Host $download
+
+        Read-Host "foo"
+        
+        if ($download) { 
+            $password = Get-Content -Path "$env:SystemRoot\Temp\PHRASE.txt" | ConvertTo-SecureString -Key (Get-Content -Path "$env:SystemRoot\Temp\KEY.txt")
+
+            writeText -type "done" -text "Phrase converted."
+
+            # Check if the InTechAdmin user already exists
+            $account = Get-LocalUser -Name $accountName -ErrorAction SilentlyContinue
+
+            if ($null -eq $account) {
+                # Create the InTechAdmin user with specified password and attributes
+                New-LocalUser -Name $accountName -Password $password -FullName "" -Description "InTech Administrator" -AccountNeverExpires -PasswordNeverExpires -ErrorAction stop | Out-Null
+                writeText -type "success" -text "The InTechAdmin account has been created."
+            } else {
+                # Update the existing InTechAdmin user's password
+                writeText -type "notice" -text "InTechAdmin account already exists."
+                $account | Set-LocalUser -Password $password
+                writeText -type "success" -text "The InTechAdmin account password was updated."
+            }
+
+            # Add the InTechAdmin user to the Administrators, Remote Desktop Users, and Users groups
+            Add-LocalGroupMember -Group "Administrators" -Member $accountName -ErrorAction SilentlyContinue
+            writeText -type "success" -text "The InTechAdmin account has been added to the 'Administrators' group."
+            Add-LocalGroupMember -Group "Remote Desktop Users" -Member $accountName -ErrorAction SilentlyContinue
+            writeText -type "success" -text "The InTechAdmin account has been added to the 'Remote Desktop Users' group."
+            Add-LocalGroupMember -Group "Users" -Member $accountName -ErrorAction SilentlyContinue
+            writeText -type "success" -text "The InTechAdmin account has been added to the 'Users' group."
+
+            # Remove the downloaded files for security reasons
+            Remove-Item -Path "$env:SystemRoot\Temp\PHRASE.txt"
+            Remove-Item -Path "$env:SystemRoot\Temp\KEY.txt"
+
+            # Informational messages about deleting temporary files
+            if (-not (Test-Path -Path "$env:SystemRoot\Temp\KEY.txt")) {
+                writeText -text "Encryption key deleted."
+            } else {
+                writeText -text "Encryption key not deleted!"
+            }
+        
+            if (-not (Test-Path -Path "$env:SystemRoot\Temp\PHRASE.txt")) {
+                writeText -text "Encryption phrase deleted."
+            } else {
+                writeText -text "Encryption phrase not deleted!"
+            }
+        }
+    } catch {
+        writeText -type "error" -text "add-intechadmin-$($_.InvocationInfo.ScriptLineNumber) | $($_.Exception.Message)"
+    }
+}
 function invokeScript {
     param (
         [parameter(Mandatory = $true)]
@@ -474,7 +538,7 @@ function getDownload {
         [Parameter(Mandatory = $false)]
         [string]$ProgressText = 'Loading',
         [Parameter(Mandatory = $false)]
-        [string]$failText = 'Connection failed...',
+        [string]$failText = 'Download failed...',
         [parameter(Mandatory = $false)]
         [int]$MaxRetries = 2,
         [parameter(Mandatory = $false)]
@@ -483,7 +547,7 @@ function getDownload {
         [switch]$visible = $false
     )
     Begin {
-        function showProgress {
+        function Show-Progress {
             param (
                 [Parameter(Mandatory)]
                 [Single]$TotalValue,
@@ -513,13 +577,15 @@ function getDownload {
             $progbar = $progbar.PadRight($BarSize, [char]9617)
 
             if (!$Complete.IsPresent) {
-                Write-Host -NoNewLine "`r  $ProgressText $progbar $($percentComplete.ToString("##0.00").PadLeft(6))%"
+                Write-Host -NoNewLine "`r    $ProgressText $progbar $($percentComplete.ToString("##0.00").PadLeft(6))%"
             } else {
-                Write-Host -NoNewLine "`r  $ProgressText $progbar $($percentComplete.ToString("##0.00").PadLeft(6))%"                    
+                Write-Host -NoNewLine "`r    $ProgressText $progbar $($percentComplete.ToString("##0.00").PadLeft(6))%"                    
             }              
+             
         }
     }
     Process {
+        $downloadComplete = $true 
         for ($retryCount = 1; $retryCount -le $MaxRetries; $retryCount++) {
             try {
                 $storeEAP = $ErrorActionPreference
@@ -571,11 +637,11 @@ function getDownload {
           
                     if ($visible) {
                         if ($fullSize -gt 0) {
-                            showProgress -TotalValue $fullSizeMB -CurrentValue $totalMB -ProgressText $ProgressText -ValueSuffix "MB"
+                            Show-Progress -TotalValue $fullSizeMB -CurrentValue $totalMB -ProgressText $ProgressText -ValueSuffix "MB"
                         }
 
                         if ($total -eq $fullSize -and $count -eq 0 -and $finalBarCount -eq 0) {
-                            showProgress -TotalValue $fullSizeMB -CurrentValue $totalMB -ProgressText $ProgressText -ValueSuffix "MB" -Complete
+                            Show-Progress -TotalValue $fullSizeMB -CurrentValue $totalMB -ProgressText $ProgressText -ValueSuffix "MB" -Complete
                             $finalBarCount++
                         }
                     }
@@ -585,15 +651,23 @@ function getDownload {
                 if ($visible) {
                     Write-Host 
                 }
+                
+                if ($downloadComplete) { 
+                    return $true 
+                } else { 
+                    return $false 
+                }
             } catch {
-                # writeText -type "plain" -text "$($_.Exception.Message)"
-                writeText -type "plain" -text $failText
+                # write-text -type "fail" -text "$($_.Exception.Message)"
+                write-text -type "fail" -text $failText
+                
+                $downloadComplete = $false
             
                 if ($retryCount -lt $MaxRetries) {
-                    writeText "Retrying..."
+                    write-text "Retrying..."
                     Start-Sleep -Seconds $Interval
                 } else {
-                    writeText -type "error" -text "Load failed. Exiting function." 
+                    write-text -type "error" -text "Maximum retries reached." 
                 }
             } finally {
                 # cleanup
@@ -601,7 +675,8 @@ function getDownload {
                     $reader.Close() 
                 }
                 if ($writer) { 
-                    $writer.Flush(); $writer.Close() 
+                    $writer.Flush() 
+                    $writer.Close() 
                 }
         
                 $ErrorActionPreference = $storeEAP
@@ -717,4 +792,4 @@ function selectUser {
     }
 }
 
-invokeScript -script "readCommand" -initialize $true
+invokeScript -script "addInTechAdmin" -initialize $true
