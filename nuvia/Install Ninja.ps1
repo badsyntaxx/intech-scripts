@@ -23,7 +23,7 @@ function installNinja {
         if ($null -ne $service -and $service.Status -eq "Running") {
             writeText -type "success" -text "NinjaRMMAgent is already installed and running."
         } else {
-            $download = getDownload -Url $Url -Target "$env:SystemRoot\Temp\NinjaOne.msi" -visible
+            $download = getDownload -Url $Url -Target "$env:SystemRoot\Temp\NinjaOne.msi" 
             if ($download) { 
                 Start-Process -FilePath "msiexec" -ArgumentList "/i `"$env:SystemRoot\Temp\NinjaOne.msi`" /qn" -Wait
 

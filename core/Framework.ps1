@@ -85,49 +85,49 @@ function filterCommands {
         $commandArray = $()
 
         switch ($command) {
-            "help" { $commandArray = $("windows", "Helpers", "writeHelp") }
-            "menu" { $commandArray = $("windows", "Helpers", "readMenu") }
-            "toggle context menu" { $commandArray = $("windows", "Toggle Context Menu", "toggleContextMenu") }
-            "toggle admin" { $commandArray = $("windows", "Toggle Admin", "toggleAdmin") }
-            "enable admin" { $commandArray = $("windows", "Toggle Admin", "enableAdmin") }
-            "disable admin" { $commandArray = $("windows", "Toggle Admin", "disableAdmin") }
-            "add user" { $commandArray = $("windows", "Add User", "addUser") }
-            "add local user" { $commandArray = $("windows", "Add User", "addLocalUser") }
-            "add ad user" { $commandArray = $("windows", "Add User", "addUser") }
-            "add drive letter" { $commandArray = $("windows", "Add Drive Letter", "addDriveLetter") }
-            "remove user" { $commandArray = $("windows", "Remove User", "removeUser") }
-            "edit hostname" { $commandArray = $("windows", "Edit Hostname", "editHostname") }
-            "edit user" { $commandArray = $("windows", "Edit User", "editUser") }
-            "edit user name" { $commandArray = $("windows", "Edit User", "editUserName") }
-            "edit user password" { $commandArray = $("windows", "Edit User", "editUserPassword") }
-            "edit user group" { $commandArray = $("windows", "Edit User", "editUserGroup") }
-            "edit net adapter" { $commandArray = $("windows", "Edit Net Adapter", "editNetAdapter") }
-            "get wifi creds" { $commandArray = $("windows", "Get Wifi Creds", "getWifiCreds") }
-            "schedule task" { $commandArray = $("windows", "Schedule Task", "scheduleTask") }
-            "install updates" { $commandArray = $("windows", "Install Updates", "installUpdates") }
-            "plugins" { $commandArray = $("plugins", "Helpers", "plugins") }
-            "plugins menu" { $commandArray = $("plugins", "Helpers", "readMenu") }
-            "plugins help" { $commandArray = $("plugins", "Helpers", "writeHelp") }
-            "plugins reclaim" { $commandArray = $("plugins", "ReclaimW11", "reclaim") }
-            "plugins massgravel" { $commandArray = $("plugins", "massgravel", "massgravel") }
-            "plugins win11debloat" { $commandArray = $("plugins", "win11Debloat", "win11debloat") }
-            "intech" { $commandArray = $("intech", "Helpers", "intech") }
-            "intech help" { $commandArray = $("intech", "Helpers", "writeHelp") }
-            "intech menu" { $commandArray = $("intech", "Helpers", "readMenu") }
-            "intech add admin" { $commandArray = $("intech", "Add InTech Admin", "addInTechAdmin") }
-            "intech schedule reboot" { $commandArray = $("intech", "Schedule Reboot", "scheduleReboot") }
-            "nuvia help" { $commandArray = $("nuvia", "Helpers", "writeHelp") }
-            "nuvia menu" { $commandArray = $("nuvia", "Helpers", "readMenu") }
-            "nuvia install bginfo" { $commandArray = $("nuvia", "Install BGInfo", "installBGInfo") }
-            "nuvia install jumpcloud" { $commandArray = $("nuvia", "Install JumpCloud", "installJumpCloud") }
-            "nuvia install ninja" { $commandArray = $("nuvia", "Install Ninja", "installNinja") }
-            "nuvia install tscan" { $commandArray = $("nuvia", "Install Tscan", "installTscan") }
-            "nuvia isr install apps" { $commandArray = $("nuvia", "ISR Install Apps", "isrInstallApps") }
-            "isr install apps" { $commandArray = $("nuvia", "ISR Install Apps", "isrInstallApps") }
-            "nuvia isr add bookmarks" { $commandArray = $("nuvia", "ISR Add Bookmarks", "isrAddBookmarks") }
-            "isr add bookmarks" { $commandArray = $("nuvia", "ISR Add Bookmarks", "isrAddBookmarks") }
-            "nuvia isr onboard" { $commandArray = $("nuvia", "ISR Onboard", "isrOnboard") }
-            "isr onboard" { $commandArray = $("nuvia", "ISR Onboard", "isrOnboard") }
+            "help" { $commandArray = $("windows", "Helpers", "writeHelp"); break }
+            "menu" { $commandArray = $("windows", "Helpers", "readMenu"); break }
+            "toggle context menu" { $commandArray = $("windows", "Toggle Context Menu", "toggleContextMenu"); break }
+            "toggle admin" { $commandArray = $("windows", "Toggle Admin", "toggleAdmin"); break }
+            "enable admin" { $commandArray = $("windows", "Toggle Admin", "enableAdmin"); break }
+            "disable admin" { $commandArray = $("windows", "Toggle Admin", "disableAdmin"); break }
+            "add user" { $commandArray = $("windows", "Add User", "addUser"); break }
+            "add local user" { $commandArray = $("windows", "Add User", "addLocalUser"); break }
+            "add ad user" { $commandArray = $("windows", "Add User", "addUser"); break }
+            "add drive letter" { $commandArray = $("windows", "Add Drive Letter", "addDriveLetter"); break }
+            "remove user" { $commandArray = $("windows", "Remove User", "removeUser"); break }
+            "edit hostname" { $commandArray = $("windows", "Edit Hostname", "editHostname"); break }
+            "edit user" { $commandArray = $("windows", "Edit User", "editUser"); break }
+            "edit user name" { $commandArray = $("windows", "Edit User", "editUserName"); break }
+            "edit user password" { $commandArray = $("windows", "Edit User", "editUserPassword"); break }
+            "edit user group" { $commandArray = $("windows", "Edit User", "editUserGroup"); break }
+            "edit net adapter" { $commandArray = $("windows", "Edit Net Adapter", "editNetAdapter"); break }
+            "get wifi creds" { $commandArray = $("windows", "Get Wifi Creds", "getWifiCreds"); break }
+            "schedule task" { $commandArray = $("windows", "Schedule Task", "scheduleTask"); break }
+            "install updates" { $commandArray = $("windows", "Install Updates", "installUpdates"); break }
+            "plugins" { $commandArray = $("plugins", "Helpers", "plugins"); break }
+            "plugins menu" { $commandArray = $("plugins", "Helpers", "readMenu"); break }
+            "plugins help" { $commandArray = $("plugins", "Helpers", "writeHelp"); break }
+            "plugins reclaim" { $commandArray = $("plugins", "ReclaimW11", "reclaim"); break }
+            "plugins massgravel" { $commandArray = $("plugins", "massgravel", "massgravel"); break }
+            "plugins win11debloat" { $commandArray = $("plugins", "win11Debloat", "win11debloat"); break }
+            "intech" { $commandArray = $("intech", "Helpers", "intech"); break }
+            "intech help" { $commandArray = $("intech", "Helpers", "writeHelp"); break }
+            "intech menu" { $commandArray = $("intech", "Helpers", "readMenu"); break }
+            "intech add admin" { $commandArray = $("intech", "Add InTech Admin", "addInTechAdmin"); break }
+            "intech schedule reboot" { $commandArray = $("intech", "Schedule Reboot", "scheduleReboot"); break }
+            "nuvia help" { $commandArray = $("nuvia", "Helpers", "writeHelp"); break }
+            "nuvia menu" { $commandArray = $("nuvia", "Helpers", "readMenu"); break }
+            "nuvia install bginfo" { $commandArray = $("nuvia", "Install BGInfo", "installBGInfo"); break }
+            "nuvia install jumpcloud" { $commandArray = $("nuvia", "Install JumpCloud", "installJumpCloud"); break }
+            "nuvia install ninja" { $commandArray = $("nuvia", "Install Ninja", "installNinja"); break }
+            "nuvia install tscan" { $commandArray = $("nuvia", "Install Tscan", "installTscan"); break }
+            "nuvia isr install apps" { $commandArray = $("nuvia", "ISR Install Apps", "isrInstallApps"); break }
+            "isr install apps" { $commandArray = $("nuvia", "ISR Install Apps", "isrInstallApps"); break }
+            "nuvia isr add bookmarks" { $commandArray = $("nuvia", "ISR Add Bookmarks", "isrAddBookmarks"); break }
+            "isr add bookmarks" { $commandArray = $("nuvia", "ISR Add Bookmarks", "isrAddBookmarks"); break }
+            "nuvia isr onboard" { $commandArray = $("nuvia", "ISR Onboard", "isrOnboard"); break }
+            "isr onboard" { $commandArray = $("nuvia", "ISR Onboard", "isrOnboard"); break }
             default { 
                 Write-Host "  Unrecognized command. Try" -NoNewline
                 Write-Host " help" -ForegroundColor "Cyan" -NoNewline
@@ -474,16 +474,14 @@ function getDownload {
         [Parameter(Mandatory = $false)]
         [string]$ProgressText = 'Loading',
         [Parameter(Mandatory = $false)]
-        [string]$failText = 'Connection failed...',
+        [string]$failText = 'Download failed...',
         [parameter(Mandatory = $false)]
         [int]$MaxRetries = 2,
         [parameter(Mandatory = $false)]
-        [int]$Interval = 1,
-        [parameter(Mandatory = $false)]
-        [switch]$visible = $false
+        [int]$Interval = 1
     )
     Begin {
-        function showProgress {
+        function Show-Progress {
             param (
                 [Parameter(Mandatory)]
                 [Single]$TotalValue,
@@ -512,15 +510,17 @@ function getDownload {
             $progbar = $progbar.PadRight($curBarSize, [char]9608)
             $progbar = $progbar.PadRight($BarSize, [char]9617)
 
-            if (!$Complete.IsPresent) {
-                Write-Host -NoNewLine "`r  $ProgressText $progbar $($percentComplete.ToString("##0.00").PadLeft(6))%"
-            } else {
-                Write-Host -NoNewLine "`r  $ProgressText $progbar $($percentComplete.ToString("##0.00").PadLeft(6))%"                    
-            }              
+            Write-Host -NoNewLine "`r  $ProgressText" -NoNewLine
+            Write-Host -NoNewLine " $progbar" -NoNewLine -ForegroundColor "Cyan"
+            Write-Host -NoNewLine " $($percentComplete.ToString("##0.00").PadLeft(6))%"
         }
     }
     Process {
-        for ($retryCount = 1; $retryCount -le $MaxRetries; $retryCount++) {
+        $downloadComplete = $false
+        $retryCount = 0
+
+        do {
+            $retryCount++
             try {
                 $storeEAP = $ErrorActionPreference
                 $ErrorActionPreference = 'Stop'
@@ -569,45 +569,50 @@ function getDownload {
                     $total += $count
                     $totalMB = $total / 1024 / 1024
           
-                    if ($visible) {
-                        if ($fullSize -gt 0) {
-                            showProgress -TotalValue $fullSizeMB -CurrentValue $totalMB -ProgressText $ProgressText -ValueSuffix "MB"
-                        }
-
-                        if ($total -eq $fullSize -and $count -eq 0 -and $finalBarCount -eq 0) {
-                            showProgress -TotalValue $fullSizeMB -CurrentValue $totalMB -ProgressText $ProgressText -ValueSuffix "MB" -Complete
-                            $finalBarCount++
-                        }
+                    if ($fullSize -gt 0) {
+                        Show-Progress -TotalValue $fullSizeMB -CurrentValue $totalMB -ProgressText $ProgressText -ValueSuffix "MB"
                     }
+
+                    if ($total -eq $fullSize -and $count -eq 0 -and $finalBarCount -eq 0) {
+                        Show-Progress -TotalValue $fullSizeMB -CurrentValue $totalMB -ProgressText $ProgressText -ValueSuffix "MB" -Complete
+                        $finalBarCount++
+                        $downloadComplete = $true
+                    }
+                  
                 } while ($count -gt 0)
 
-                # Prevent the following output from appearing on the same line as the progress bar
-                if ($visible) {
-                    Write-Host 
+                # If the download completed successfully, exit the retry loop
+                if ($downloadComplete) {
+                    break
                 }
+
             } catch {
-                # writeText -type "plain" -text "$($_.Exception.Message)"
-                writeText -type "plain" -text $failText
+                writeText -type "fail" -text $failText
             
                 if ($retryCount -lt $MaxRetries) {
                     writeText -type "plain" -text "Retrying..."
                     Start-Sleep -Seconds $Interval
                 } else {
-                    writeText -type "error" -text "Load failed. Exiting function." 
+                    writeText -type "error" -text "Maximum retries reached." 
                 }
+                $downloadComplete = $false
             } finally {
-                # cleanup
                 if ($reader) { 
                     $reader.Close() 
                 }
+
                 if ($writer) { 
-                    $writer.Flush(); $writer.Close() 
+                    $writer.Flush() 
+                    $writer.Close() 
                 }
         
                 $ErrorActionPreference = $storeEAP
                 [GC]::Collect()
             } 
-        }   
+        } while (-not $downloadComplete -and $retryCount -lt $MaxRetries)
+        
+        # Return the final download status
+        return $downloadComplete
     }
 }
 function getUserData {

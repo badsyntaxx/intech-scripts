@@ -1,40 +1,66 @@
-function intech {
-    Write-Host
-    Write-Host "  Try" -NoNewline
-    Write-Host " intech help" -ForegroundColor "Cyan" -NoNewline
-    Write-Host " or" -NoNewline
-    Write-Host " intech menu" -NoNewline -ForegroundColor "Cyan"
-    Write-Host " if you don't know what to do."
-}
-function readMenu {
+function addInTechAdmin {
     try {
-        $choice = readOption -options $([ordered]@{
-                "Add InTechAdmin" = "Create the InTechAdmin local account."
-                "Nuvia"           = "View the Nuvia menu."
-                "Cancel"          = "Select nothing and exit this menu."
-            }) -prompt "Select an InTech function:"
-
-        switch ($choice) {
-            0 { $command = "intech add admin" }
-            1 { $command = "nuvia menu" }
-            2 { readCommand }
+        $accountName = "InTechAdmin"
+        $downloads = [ordered]@{
+            "$env:SystemRoot\Temp\KEY.txt"    = "https://drive.google.com/uc?export=download&id=1EGASU9cvnl5E055krXXcXUcgbr4ED4ry"
+            "$env:SystemRoot\Temp\PHRASE.txt" = "https://drive.google.com/uc?export=download&id=1jbppZfGusqAUM2aU7V4IeK0uHG2OYgoY"
         }
 
-        Write-Host
-        Write-Host ": "  -ForegroundColor "DarkCyan" -NoNewline
-        Write-Host "Running command:" -NoNewline -ForegroundColor "DarkGray"
-        Write-Host " $command" -ForegroundColor "Gray"
+        foreach ($d in $downloads.Keys) { 
+            $download = getDownload -Url $downloads[$d] -Target $d  
+        } 
 
-        readCommand -command $command
+        Write-Host $download
+
+        Read-Host "foo"
+        
+        if ($download) { 
+            $password = Get-Content -Path "$env:SystemRoot\Temp\PHRASE.txt" | ConvertTo-SecureString -Key (Get-Content -Path "$env:SystemRoot\Temp\KEY.txt")
+
+            writeText -type "done" -text "Phrase converted."
+
+            # Check if the InTechAdmin user already exists
+            $account = Get-LocalUser -Name $accountName -ErrorAction SilentlyContinue
+
+            if ($null -eq $account) {
+                # Create the InTechAdmin user with specified password and attributes
+                New-LocalUser -Name $accountName -Password $password -FullName "" -Description "InTech Administrator" -AccountNeverExpires -PasswordNeverExpires -ErrorAction stop | Out-Null
+                writeText -type "success" -text "The InTechAdmin account has been created."
+            } else {
+                # Update the existing InTechAdmin user's password
+                writeText -type "notice" -text "InTechAdmin account already exists."
+                $account | Set-LocalUser -Password $password
+                writeText -type "success" -text "The InTechAdmin account password was updated."
+            }
+
+            # Add the InTechAdmin user to the Administrators, Remote Desktop Users, and Users groups
+            Add-LocalGroupMember -Group "Administrators" -Member $accountName -ErrorAction SilentlyContinue
+            writeText -type "success" -text "The InTechAdmin account has been added to the 'Administrators' group."
+            Add-LocalGroupMember -Group "Remote Desktop Users" -Member $accountName -ErrorAction SilentlyContinue
+            writeText -type "success" -text "The InTechAdmin account has been added to the 'Remote Desktop Users' group."
+            Add-LocalGroupMember -Group "Users" -Member $accountName -ErrorAction SilentlyContinue
+            writeText -type "success" -text "The InTechAdmin account has been added to the 'Users' group."
+
+            # Remove the downloaded files for security reasons
+            Remove-Item -Path "$env:SystemRoot\Temp\PHRASE.txt"
+            Remove-Item -Path "$env:SystemRoot\Temp\KEY.txt"
+
+            # Informational messages about deleting temporary files
+            if (-not (Test-Path -Path "$env:SystemRoot\Temp\KEY.txt")) {
+                writeText -text "Encryption key deleted."
+            } else {
+                writeText -text "Encryption key not deleted!"
+            }
+        
+            if (-not (Test-Path -Path "$env:SystemRoot\Temp\PHRASE.txt")) {
+                writeText -text "Encryption phrase deleted."
+            } else {
+                writeText -text "Encryption phrase not deleted!"
+            }
+        }
     } catch {
-        writeText -type "error" -text "intech-menu-$($_.InvocationInfo.ScriptLineNumber) | $($_.Exception.Message)" -lineAfter
-        readCommand
+        writeText -type "error" -text "add-intechadmin-$($_.InvocationInfo.ScriptLineNumber) | $($_.Exception.Message)"
     }
-}
-function writeHelp {
-    writeText -type "plain" -text "COMMANDS:"
-    writeText -type "plain" -text "intech add admin  - Create the InTech admin account." -Color "DarkGray"
-    writeText -type "plain" -text "schedule reboot   - Schedule a reboot for Wednesday at 10PM" -Color "DarkGray"
 }
 function invokeScript {
     param (
@@ -88,11 +114,8 @@ function readCommand {
         $command = $command.Trim()
 
         if ($command -ne "help" -and $command -ne "" -and $command -match "^(?-i)(\w+(-\w+)*)") {
-            $firstword = $matches[1]
-            if (Get-Command $firstword -ErrorAction SilentlyContinue) {
- 
-                if ($firstword -ne "intech") {
-                    read-host "test"
+            if (Get-command $matches[1] -ErrorAction SilentlyContinue) {
+                if ($matches[1] -ne "intech" -and $matches[1] -ne "nuvia" -and $matches[1] -ne "isr") {
                     Invoke-Expression $command
                     readCommand
                 }
@@ -126,40 +149,49 @@ function filterCommands {
         $commandArray = $()
 
         switch ($command) {
-            "help" { $commandArray = $("windows", "Helpers", "writeHelp") }
-            "menu" { $commandArray = $("windows", "Helpers", "readMenu") }
-            "toggle context menu" { $commandArray = $("windows", "Toggle Context Menu", "toggleContextMenu") }
-            "toggle admin" { $commandArray = $("windows", "Toggle Admin", "toggleAdmin") }
-            "enable admin" { $commandArray = $("windows", "Toggle Admin", "enableAdmin") }
-            "disable admin" { $commandArray = $("windows", "Toggle Admin", "disableAdmin") }
-            "add user" { $commandArray = $("windows", "Add User", "addUser") }
-            "add local user" { $commandArray = $("windows", "Add User", "addLocalUser") }
-            "add ad user" { $commandArray = $("windows", "Add User", "addUser") }
-            "add drive letter" { $commandArray = $("windows", "Add Drive Letter", "addDriveLetter") }
-            "remove user" { $commandArray = $("windows", "Remove User", "removeUser") }
-            "edit hostname" { $commandArray = $("windows", "Edit Hostname", "editHostname") }
-            "edit user" { $commandArray = $("windows", "Edit User", "editUser") }
-            "edit user name" { $commandArray = $("windows", "Edit User", "editUserName") }
-            "edit user password" { $commandArray = $("windows", "Edit User", "editUserPassword") }
-            "edit user group" { $commandArray = $("windows", "Edit User", "editUserGroup") }
-            "edit net adapter" { $commandArray = $("windows", "Edit Net Adapter", "editNetAdapter") }
-            "get wifi creds" { $commandArray = $("windows", "Get Wifi Creds", "getWifiCreds") }
-            "schedule task" { $commandArray = $("windows", "Schedule Task", "scheduleTask") }
-            "install updates" { $commandArray = $("windows", "Install Updates", "installUpdates") }
-            "plugins" { $commandArray = $("plugins", "Helpers", "plugins") }
-            "plugins menu" { $commandArray = $("plugins", "Helpers", "readMenu") }
-            "plugins help" { $commandArray = $("plugins", "Helpers", "writeHelp") }
-            "plugins reclaim" { $commandArray = $("plugins", "ReclaimW11", "reclaim") }
-            "plugins massgravel" { $commandArray = $("plugins", "massgravel", "massgravel") }
-            "plugins win11debloat" { $commandArray = $("plugins", "win11Debloat", "win11debloat") }
-            "intech" { $commandArray = $("intech", "Helpers", "intech") }
-            "intech help" { $commandArray = $("intech", "Helpers", "writeHelp") }
-            "intech menu" { $commandArray = $("intech", "Helpers", "readMenu") }
-            "intech add admin" { $commandArray = $("intech", "Add InTech Admin", "addInTechAdmin") }
-            "intech schedule reboot" { $commandArray = $("intech", "Schedule Reboot", "scheduleReboot") }
-            "nuvia help" { $commandArray = $("nuvia", "Helpers", "writeHelp") }
-            "nuvia menu" { $commandArray = $("nuvia", "Helpers", "readMenu") }
-            "nuvia install bginfo" { $commandArray = $("nuvia", "Install BGInfo", "installBGInfo") }
+            "help" { $commandArray = $("windows", "Helpers", "writeHelp"); break }
+            "menu" { $commandArray = $("windows", "Helpers", "readMenu"); break }
+            "toggle context menu" { $commandArray = $("windows", "Toggle Context Menu", "toggleContextMenu"); break }
+            "toggle admin" { $commandArray = $("windows", "Toggle Admin", "toggleAdmin"); break }
+            "enable admin" { $commandArray = $("windows", "Toggle Admin", "enableAdmin"); break }
+            "disable admin" { $commandArray = $("windows", "Toggle Admin", "disableAdmin"); break }
+            "add user" { $commandArray = $("windows", "Add User", "addUser"); break }
+            "add local user" { $commandArray = $("windows", "Add User", "addLocalUser"); break }
+            "add ad user" { $commandArray = $("windows", "Add User", "addUser"); break }
+            "add drive letter" { $commandArray = $("windows", "Add Drive Letter", "addDriveLetter"); break }
+            "remove user" { $commandArray = $("windows", "Remove User", "removeUser"); break }
+            "edit hostname" { $commandArray = $("windows", "Edit Hostname", "editHostname"); break }
+            "edit user" { $commandArray = $("windows", "Edit User", "editUser"); break }
+            "edit user name" { $commandArray = $("windows", "Edit User", "editUserName"); break }
+            "edit user password" { $commandArray = $("windows", "Edit User", "editUserPassword"); break }
+            "edit user group" { $commandArray = $("windows", "Edit User", "editUserGroup"); break }
+            "edit net adapter" { $commandArray = $("windows", "Edit Net Adapter", "editNetAdapter"); break }
+            "get wifi creds" { $commandArray = $("windows", "Get Wifi Creds", "getWifiCreds"); break }
+            "schedule task" { $commandArray = $("windows", "Schedule Task", "scheduleTask"); break }
+            "install updates" { $commandArray = $("windows", "Install Updates", "installUpdates"); break }
+            "plugins" { $commandArray = $("plugins", "Helpers", "plugins"); break }
+            "plugins menu" { $commandArray = $("plugins", "Helpers", "readMenu"); break }
+            "plugins help" { $commandArray = $("plugins", "Helpers", "writeHelp"); break }
+            "plugins reclaim" { $commandArray = $("plugins", "ReclaimW11", "reclaim"); break }
+            "plugins massgravel" { $commandArray = $("plugins", "massgravel", "massgravel"); break }
+            "plugins win11debloat" { $commandArray = $("plugins", "win11Debloat", "win11debloat"); break }
+            "intech" { $commandArray = $("intech", "Helpers", "intech"); break }
+            "intech help" { $commandArray = $("intech", "Helpers", "writeHelp"); break }
+            "intech menu" { $commandArray = $("intech", "Helpers", "readMenu"); break }
+            "intech add admin" { $commandArray = $("intech", "Add InTech Admin", "addInTechAdmin"); break }
+            "intech schedule reboot" { $commandArray = $("intech", "Schedule Reboot", "scheduleReboot"); break }
+            "nuvia help" { $commandArray = $("nuvia", "Helpers", "writeHelp"); break }
+            "nuvia menu" { $commandArray = $("nuvia", "Helpers", "readMenu"); break }
+            "nuvia install bginfo" { $commandArray = $("nuvia", "Install BGInfo", "installBGInfo"); break }
+            "nuvia install jumpcloud" { $commandArray = $("nuvia", "Install JumpCloud", "installJumpCloud"); break }
+            "nuvia install ninja" { $commandArray = $("nuvia", "Install Ninja", "installNinja"); break }
+            "nuvia install tscan" { $commandArray = $("nuvia", "Install Tscan", "installTscan"); break }
+            "nuvia isr install apps" { $commandArray = $("nuvia", "ISR Install Apps", "isrInstallApps"); break }
+            "isr install apps" { $commandArray = $("nuvia", "ISR Install Apps", "isrInstallApps"); break }
+            "nuvia isr add bookmarks" { $commandArray = $("nuvia", "ISR Add Bookmarks", "isrAddBookmarks"); break }
+            "isr add bookmarks" { $commandArray = $("nuvia", "ISR Add Bookmarks", "isrAddBookmarks"); break }
+            "nuvia isr onboard" { $commandArray = $("nuvia", "ISR Onboard", "isrOnboard"); break }
+            "isr onboard" { $commandArray = $("nuvia", "ISR Onboard", "isrOnboard"); break }
             default { 
                 Write-Host "  Unrecognized command. Try" -NoNewline
                 Write-Host " help" -ForegroundColor "Cyan" -NoNewline
@@ -231,16 +263,23 @@ function writeText {
             Write-Host "# " -ForegroundColor "Cyan" -NoNewline
             Write-Host "$text" -ForegroundColor "White" 
         }
-        
+
         if ($type -eq 'success') { 
-            Write-Host "$([char]0x2713) $text"  -ForegroundColor "Green" 
+            Write-Host
+            Write-Host "    $([char]0x2713) $text"  -ForegroundColor "Green"
+            Write-Host
         }
+
         if ($type -eq 'error') { 
-            Write-Host "X $text" -ForegroundColor "Red" 
+            Write-Host
+            Write-Host "    X $text" -ForegroundColor "Red"
+            Write-Host 
         }
+
         if ($type -eq 'notice') { 
             Write-Host "! $text" -ForegroundColor "Yellow" 
         }
+
         if ($type -eq 'plain') {
             if ($label -ne "") { 
                 if ($Color -eq "Gray") {
@@ -252,6 +291,7 @@ function writeText {
                 Write-Host "  $text" -ForegroundColor $Color 
             }
         }
+
         if ($type -eq 'list') { 
             # Get a list of keys from the options dictionary
             $orderedKeys = $List.Keys | ForEach-Object { $_ }
@@ -498,7 +538,7 @@ function getDownload {
         [Parameter(Mandatory = $false)]
         [string]$ProgressText = 'Loading',
         [Parameter(Mandatory = $false)]
-        [string]$failText = 'Connection failed...',
+        [string]$failText = 'Download failed...',
         [parameter(Mandatory = $false)]
         [int]$MaxRetries = 2,
         [parameter(Mandatory = $false)]
@@ -507,7 +547,7 @@ function getDownload {
         [switch]$visible = $false
     )
     Begin {
-        function showProgress {
+        function Show-Progress {
             param (
                 [Parameter(Mandatory)]
                 [Single]$TotalValue,
@@ -537,13 +577,15 @@ function getDownload {
             $progbar = $progbar.PadRight($BarSize, [char]9617)
 
             if (!$Complete.IsPresent) {
-                Write-Host -NoNewLine "`r  $ProgressText $progbar $($percentComplete.ToString("##0.00").PadLeft(6))%"
+                Write-Host -NoNewLine "`r    $ProgressText $progbar $($percentComplete.ToString("##0.00").PadLeft(6))%"
             } else {
-                Write-Host -NoNewLine "`r  $ProgressText $progbar $($percentComplete.ToString("##0.00").PadLeft(6))%"                    
+                Write-Host -NoNewLine "`r    $ProgressText $progbar $($percentComplete.ToString("##0.00").PadLeft(6))%"                    
             }              
+             
         }
     }
     Process {
+        $downloadComplete = $true 
         for ($retryCount = 1; $retryCount -le $MaxRetries; $retryCount++) {
             try {
                 $storeEAP = $ErrorActionPreference
@@ -595,11 +637,11 @@ function getDownload {
           
                     if ($visible) {
                         if ($fullSize -gt 0) {
-                            showProgress -TotalValue $fullSizeMB -CurrentValue $totalMB -ProgressText $ProgressText -ValueSuffix "MB"
+                            Show-Progress -TotalValue $fullSizeMB -CurrentValue $totalMB -ProgressText $ProgressText -ValueSuffix "MB"
                         }
 
                         if ($total -eq $fullSize -and $count -eq 0 -and $finalBarCount -eq 0) {
-                            showProgress -TotalValue $fullSizeMB -CurrentValue $totalMB -ProgressText $ProgressText -ValueSuffix "MB" -Complete
+                            Show-Progress -TotalValue $fullSizeMB -CurrentValue $totalMB -ProgressText $ProgressText -ValueSuffix "MB" -Complete
                             $finalBarCount++
                         }
                     }
@@ -609,15 +651,23 @@ function getDownload {
                 if ($visible) {
                     Write-Host 
                 }
+                
+                if ($downloadComplete) { 
+                    return $true 
+                } else { 
+                    return $false 
+                }
             } catch {
-                # writeText -type "plain" -text "$($_.Exception.Message)"
-                writeText -type "plain" -text $failText
+                # writeText -type "fail" -text "$($_.Exception.Message)"
+                writeText -type "fail" -text $failText
+                
+                $downloadComplete = $false
             
                 if ($retryCount -lt $MaxRetries) {
                     writeText "Retrying..."
                     Start-Sleep -Seconds $Interval
                 } else {
-                    writeText -type "error" -text "Load failed. Exiting function." 
+                    writeText -type "error" -text "Maximum retries reached." 
                 }
             } finally {
                 # cleanup
@@ -625,7 +675,8 @@ function getDownload {
                     $reader.Close() 
                 }
                 if ($writer) { 
-                    $writer.Flush(); $writer.Close() 
+                    $writer.Flush() 
+                    $writer.Close() 
                 }
         
                 $ErrorActionPreference = $storeEAP
@@ -741,5 +792,4 @@ function selectUser {
     }
 }
 
-
-readCommand -command "intech menu"
+invokeScript -script "addInTechAdmin" -initialize $true

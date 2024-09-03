@@ -248,7 +248,7 @@ function Install-Program {
             $output = "$AppName.exe"
         }
 
-        $download = getDownload -Url $Url -Target "$env:SystemRoot\Temp\$output" -visible
+        $download = getDownload -Url $Url -Target "$env:SystemRoot\Temp\$output" 
 
         if ($download) {
             if ($Extension -eq "msi") {

@@ -65,12 +65,12 @@ function readISRMenu {
 }
 function writeHelp {
     writeText -type "plain" -text "NUVIA COMMANDS:" -lineBefore
-    writeText -type "plain" -text "nuvia install bginfo              - Add a local or domain user to the system." -Color "DarkGray"
-    writeText -type "plain" -text "nuvia install ninja                      - Add a local or domain user to the system." -Color "DarkGray"
+    writeText -type "plain" -text "nuvia install bginfo     - Add a local or domain user to the system." -Color "DarkGray"
+    writeText -type "plain" -text "nuvia install ninja      - Add a local or domain user to the system." -Color "DarkGray"
     writeText -type "plain" -text "nuvia install jumpcloud  - Edit user account settings." -Color "DarkGray"
     writeText -type "plain" -text "NUVIA ISR COMMANDS:" -lineBefore
-    writeText -type "plain" -text "isr onboard        - Edit the computers hostname and description." -Color "DarkGray"
-    writeText -type "plain" -text "isr install apps      - Install Windows updates. All or just severe." -Color "DarkGray"
+    writeText -type "plain" -text "isr onboard          - Edit the computers hostname and description." -Color "DarkGray"
+    writeText -type "plain" -text "isr install apps     - Install Windows updates. All or just severe." -Color "DarkGray"
     writeText -type "plain" -text "schedule task        - Create a task in the task scheduler." -Color "DarkGray"
     writeText -type "plain" -text "toggle context menu  - Disable the Windows 11 context menu." -Color "DarkGray"
 }
