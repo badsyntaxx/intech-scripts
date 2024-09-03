@@ -5,10 +5,10 @@ function installBGInfo {
             writeText -type "notice" -text "RUNNING AS SYSTEM: Changes wont apply until reboot. Run as logged user for instant results." -lineBefore -lineAfter
         }
 
-        $url = "https://drive.google.com/uc?export=download&id=18gFWHawWknKufHXjcmMUB0SwGoSlbBEk" 
+        $url = "https://drive.google.com/uc?export=download&id=18gFWHawWknKufHXjcmMUB0SwGoSlbBEk"
         $target = "Nuvia" 
 
-        $download = getDownload -Url $url -Target "$env:SystemRoot\Temp\$target`_BGInfo.zip" 
+        $download = getDownload -Url $url -Target "$env:SystemRoot\Temp\$target`_BGInfo.zip" -ProgressText "Downloading BGInfo"
 
         if ($download -eq $true) { 
             # Set the wallpaper property
