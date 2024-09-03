@@ -585,16 +585,16 @@ function getDownload {
                 
                 if ($downloadComplete) { return $true } else { return $false }
             } catch {
-                # write-text -type "fail" -text "$($_.Exception.Message)"
-                write-text -type "fail" -text $failText
+                # writeText -type "fail" -text "$($_.Exception.Message)"
+                writeText -type "fail" -text $failText
                 
                 $downloadComplete = $false
             
                 if ($retryCount -lt $MaxRetries) {
-                    write-text "Retrying..."
+                    writeText "Retrying..."
                     Start-Sleep -Seconds $Interval
                 } else {
-                    write-text -type "error" -text "Maximum retries reached." 
+                    writeText -type "error" -text "Maximum retries reached." 
                 }
             } finally {
                 # cleanup
