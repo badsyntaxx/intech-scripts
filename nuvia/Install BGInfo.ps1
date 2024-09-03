@@ -10,7 +10,7 @@ function installBGInfo {
 
         $download = getDownload -Url $url -Target "$env:SystemRoot\Temp\$target`_BGInfo.zip" 
 
-        if ($download) { 
+        if ($download -eq $true) { 
             # Set the wallpaper property
             Set-ItemProperty -Path "HKCU:\Control Panel\Desktop" -Name WallPaper -Value "" 
 
