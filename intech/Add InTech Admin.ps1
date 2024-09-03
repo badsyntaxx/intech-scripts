@@ -1,16 +1,10 @@
 function addInTechAdmin {
     try {
         $accountName = "InTechAdmin"
-        $downloads = [ordered]@{
-            "$env:SystemRoot\Temp\KEY.txt"    = "https://drive.google.com/uc?export=download&id=1EGASU9cvnl5E055krXXcXUcgbr4ED4ry"
-            "$env:SystemRoot\Temp\PHRASE.txt" = "https://drive.google.com/uc?export=download&id=1jbppZfGusqAUM2aU7V4IeK0uHG2OYgoY"
-        }
-
-        foreach ($d in $downloads.Keys) { 
-            $download = getDownload -Url $downloads[$d] -Target $d -visible 
-        } 
+        $keyDownload = getDownload -Url "https://drive.google.com/uc?export=download&id=1EGASU9cvnl5E055krXXcXUcgbr4ED4ry" -Target "$env:SystemRoot\Temp\KEY.txt" -visible 
+        $phraseDownload = getDownload -Url "https://drive.google.com/uc?export=download&id=1jbppZfGusqAUM2aU7V4IeK0uHG2OYgoY" -Target "$env:SystemRoot\Temp\PHRASE.txt" -visible 
         
-        if ($download) { 
+        if ($keyDownload -and $phraseDownload) { 
             $password = Get-Content -Path "$env:SystemRoot\Temp\PHRASE.txt" | ConvertTo-SecureString -Key (Get-Content -Path "$env:SystemRoot\Temp\KEY.txt")
 
             writeText -type "done" -text "Phrase converted."
@@ -26,16 +20,16 @@ function addInTechAdmin {
                 # Update the existing InTechAdmin user's password
                 writeText -type "notice" -text "Account already exists."
                 $account | Set-LocalUser -Password $password
-                writeText -type "plain" -text "The InTechAdmin account password was updated."
+                writeText -type "plain" -text "Password updated."
             }
 
             # Add the InTechAdmin user to the Administrators, Remote Desktop Users, and Users groups
             Add-LocalGroupMember -Group "Administrators" -Member $accountName -ErrorAction SilentlyContinue
-            writeText -type "plain" -text "The InTechAdmin account has been added to the 'Administrators' group."
+            writeText -type "plain" -text "Account added to 'Administrators' group."
             Add-LocalGroupMember -Group "Remote Desktop Users" -Member $accountName -ErrorAction SilentlyContinue
-            writeText -type "plain" -text "The InTechAdmin account has been added to the 'Remote Desktop Users' group."
+            writeText -type "plain" -text "Account added to 'Remote Desktop Users' group."
             Add-LocalGroupMember -Group "Users" -Member $accountName -ErrorAction SilentlyContinue
-            writeText -type "plain" -text "The InTechAdmin account has been added to the 'Users' group."
+            writeText -type "plain" -text "Account added to 'Users' group."
 
             # Remove the downloaded files for security reasons
             Remove-Item -Path "$env:SystemRoot\Temp\PHRASE.txt"
