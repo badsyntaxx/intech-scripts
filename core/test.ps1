@@ -1,41 +1,3 @@
-function intech {
-    Write-Host
-    Write-Host "  Try" -NoNewline
-    Write-Host " intech help" -ForegroundColor "Cyan" -NoNewline
-    Write-Host " or" -NoNewline
-    Write-Host " intech menu" -NoNewline -ForegroundColor "Cyan"
-    Write-Host " if you don't know what to do."
-}
-function readMenu {
-    try {
-        $choice = readOption -options $([ordered]@{
-                "Add InTechAdmin" = "Create the InTechAdmin local account."
-                "Nuvia"           = "View the Nuvia menu."
-                "Cancel"          = "Select nothing and exit this menu."
-            }) -prompt "Select an InTech function:"
-
-        switch ($choice) {
-            0 { $command = "intech add admin" }
-            1 { $command = "nuvia menu" }
-            2 { readCommand }
-        }
-
-        Write-Host
-        Write-Host ": "  -ForegroundColor "DarkCyan" -NoNewline
-        Write-Host "Running command:" -NoNewline -ForegroundColor "DarkGray"
-        Write-Host " $command" -ForegroundColor "Gray"
-
-        readCommand -command $command
-    } catch {
-        writeText -type "error" -text "intech-menu-$($_.InvocationInfo.ScriptLineNumber) | $($_.Exception.Message)" -lineAfter
-        readCommand
-    }
-}
-function writeHelp {
-    writeText -type "plain" -text "COMMANDS:"
-    writeText -type "plain" -text "intech add admin  - Create the InTech admin account." -Color "DarkGray"
-    writeText -type "plain" -text "schedule reboot   - Schedule a reboot for Wednesday at 10PM" -Color "DarkGray"
-}
 function invokeScript {
     param (
         [parameter(Mandatory = $true)]
@@ -88,11 +50,8 @@ function readCommand {
         $command = $command.Trim()
 
         if ($command -ne "help" -and $command -ne "" -and $command -match "^(?-i)(\w+(-\w+)*)") {
-            $firstword = $matches[1]
-            if (Get-Command $firstword -ErrorAction SilentlyContinue) {
- 
-                if ($firstword -ne "intech") {
-                    read-host "test"
+            if (Get-command $matches[1] -ErrorAction SilentlyContinue) {
+                if ($matches[1] -ne "intech" -and $matches[1] -ne "nuvia" -and $matches[1] -ne "isr") {
                     Invoke-Expression $command
                     readCommand
                 }
@@ -126,40 +85,49 @@ function filterCommands {
         $commandArray = $()
 
         switch ($command) {
-            "help" { $commandArray = $("windows", "Helpers", "writeHelp") }
-            "menu" { $commandArray = $("windows", "Helpers", "readMenu") }
-            "toggle context menu" { $commandArray = $("windows", "Toggle Context Menu", "toggleContextMenu") }
-            "toggle admin" { $commandArray = $("windows", "Toggle Admin", "toggleAdmin") }
-            "enable admin" { $commandArray = $("windows", "Toggle Admin", "enableAdmin") }
-            "disable admin" { $commandArray = $("windows", "Toggle Admin", "disableAdmin") }
-            "add user" { $commandArray = $("windows", "Add User", "addUser") }
-            "add local user" { $commandArray = $("windows", "Add User", "addLocalUser") }
-            "add ad user" { $commandArray = $("windows", "Add User", "addUser") }
-            "add drive letter" { $commandArray = $("windows", "Add Drive Letter", "addDriveLetter") }
-            "remove user" { $commandArray = $("windows", "Remove User", "removeUser") }
-            "edit hostname" { $commandArray = $("windows", "Edit Hostname", "editHostname") }
-            "edit user" { $commandArray = $("windows", "Edit User", "editUser") }
-            "edit user name" { $commandArray = $("windows", "Edit User", "editUserName") }
-            "edit user password" { $commandArray = $("windows", "Edit User", "editUserPassword") }
-            "edit user group" { $commandArray = $("windows", "Edit User", "editUserGroup") }
-            "edit net adapter" { $commandArray = $("windows", "Edit Net Adapter", "editNetAdapter") }
-            "get wifi creds" { $commandArray = $("windows", "Get Wifi Creds", "getWifiCreds") }
-            "schedule task" { $commandArray = $("windows", "Schedule Task", "scheduleTask") }
-            "install updates" { $commandArray = $("windows", "Install Updates", "installUpdates") }
-            "plugins" { $commandArray = $("plugins", "Helpers", "plugins") }
-            "plugins menu" { $commandArray = $("plugins", "Helpers", "readMenu") }
-            "plugins help" { $commandArray = $("plugins", "Helpers", "writeHelp") }
-            "plugins reclaim" { $commandArray = $("plugins", "ReclaimW11", "reclaim") }
-            "plugins massgravel" { $commandArray = $("plugins", "massgravel", "massgravel") }
-            "plugins win11debloat" { $commandArray = $("plugins", "win11Debloat", "win11debloat") }
-            "intech" { $commandArray = $("intech", "Helpers", "intech") }
-            "intech help" { $commandArray = $("intech", "Helpers", "writeHelp") }
-            "intech menu" { $commandArray = $("intech", "Helpers", "readMenu") }
-            "intech add admin" { $commandArray = $("intech", "Add InTech Admin", "addInTechAdmin") }
-            "intech schedule reboot" { $commandArray = $("intech", "Schedule Reboot", "scheduleReboot") }
-            "nuvia help" { $commandArray = $("nuvia", "Helpers", "writeHelp") }
-            "nuvia menu" { $commandArray = $("nuvia", "Helpers", "readMenu") }
-            "nuvia install bginfo" { $commandArray = $("nuvia", "Install BGInfo", "installBGInfo") }
+            "help" { $commandArray = $("windows", "Helpers", "writeHelp"); break }
+            "menu" { $commandArray = $("windows", "Helpers", "readMenu"); break }
+            "toggle context menu" { $commandArray = $("windows", "Toggle Context Menu", "toggleContextMenu"); break }
+            "toggle admin" { $commandArray = $("windows", "Toggle Admin", "toggleAdmin"); break }
+            "enable admin" { $commandArray = $("windows", "Toggle Admin", "enableAdmin"); break }
+            "disable admin" { $commandArray = $("windows", "Toggle Admin", "disableAdmin"); break }
+            "add user" { $commandArray = $("windows", "Add User", "addUser"); break }
+            "add local user" { $commandArray = $("windows", "Add User", "addLocalUser"); break }
+            "add ad user" { $commandArray = $("windows", "Add User", "addUser"); break }
+            "add drive letter" { $commandArray = $("windows", "Add Drive Letter", "addDriveLetter"); break }
+            "remove user" { $commandArray = $("windows", "Remove User", "removeUser"); break }
+            "edit hostname" { $commandArray = $("windows", "Edit Hostname", "editHostname"); break }
+            "edit user" { $commandArray = $("windows", "Edit User", "editUser"); break }
+            "edit user name" { $commandArray = $("windows", "Edit User", "editUserName"); break }
+            "edit user password" { $commandArray = $("windows", "Edit User", "editUserPassword"); break }
+            "edit user group" { $commandArray = $("windows", "Edit User", "editUserGroup"); break }
+            "edit net adapter" { $commandArray = $("windows", "Edit Net Adapter", "editNetAdapter"); break }
+            "get wifi creds" { $commandArray = $("windows", "Get Wifi Creds", "getWifiCreds"); break }
+            "schedule task" { $commandArray = $("windows", "Schedule Task", "scheduleTask"); break }
+            "install updates" { $commandArray = $("windows", "Install Updates", "installUpdates"); break }
+            "plugins" { $commandArray = $("plugins", "Helpers", "plugins"); break }
+            "plugins menu" { $commandArray = $("plugins", "Helpers", "readMenu"); break }
+            "plugins help" { $commandArray = $("plugins", "Helpers", "writeHelp"); break }
+            "plugins reclaim" { $commandArray = $("plugins", "ReclaimW11", "reclaim"); break }
+            "plugins massgravel" { $commandArray = $("plugins", "massgravel", "massgravel"); break }
+            "plugins win11debloat" { $commandArray = $("plugins", "win11Debloat", "win11debloat"); break }
+            "intech" { $commandArray = $("intech", "Helpers", "intech"); break }
+            "intech help" { $commandArray = $("intech", "Helpers", "writeHelp"); break }
+            "intech menu" { $commandArray = $("intech", "Helpers", "readMenu"); break }
+            "intech add admin" { $commandArray = $("intech", "Add InTech Admin", "addInTechAdmin"); break }
+            "intech schedule reboot" { $commandArray = $("intech", "Schedule Reboot", "scheduleReboot"); break }
+            "nuvia help" { $commandArray = $("nuvia", "Helpers", "writeHelp"); break }
+            "nuvia menu" { $commandArray = $("nuvia", "Helpers", "readMenu"); break }
+            "nuvia install bginfo" { $commandArray = $("nuvia", "Install BGInfo", "installBGInfo"); break }
+            "nuvia install jumpcloud" { $commandArray = $("nuvia", "Install JumpCloud", "installJumpCloud"); break }
+            "nuvia install ninja" { $commandArray = $("nuvia", "Install Ninja", "installNinja"); break }
+            "nuvia install tscan" { $commandArray = $("nuvia", "Install Tscan", "installTscan"); break }
+            "nuvia isr install apps" { $commandArray = $("nuvia", "ISR Install Apps", "isrInstallApps"); break }
+            "isr install apps" { $commandArray = $("nuvia", "ISR Install Apps", "isrInstallApps"); break }
+            "nuvia isr add bookmarks" { $commandArray = $("nuvia", "ISR Add Bookmarks", "isrAddBookmarks"); break }
+            "isr add bookmarks" { $commandArray = $("nuvia", "ISR Add Bookmarks", "isrAddBookmarks"); break }
+            "nuvia isr onboard" { $commandArray = $("nuvia", "ISR Onboard", "isrOnboard"); break }
+            "isr onboard" { $commandArray = $("nuvia", "ISR Onboard", "isrOnboard"); break }
             default { 
                 Write-Host "  Unrecognized command. Try" -NoNewline
                 Write-Host " help" -ForegroundColor "Cyan" -NoNewline
@@ -231,16 +199,23 @@ function writeText {
             Write-Host "# " -ForegroundColor "Cyan" -NoNewline
             Write-Host "$text" -ForegroundColor "White" 
         }
-        
+
         if ($type -eq 'success') { 
-            Write-Host "$([char]0x2713) $text"  -ForegroundColor "Green" 
+            Write-Host
+            Write-Host "    $([char]0x2713) $text"  -ForegroundColor "Green"
+            Write-Host
         }
+
         if ($type -eq 'error') { 
-            Write-Host "X $text" -ForegroundColor "Red" 
+            Write-Host
+            Write-Host "    X $text" -ForegroundColor "Red"
+            Write-Host 
         }
+
         if ($type -eq 'notice') { 
             Write-Host "! $text" -ForegroundColor "Yellow" 
         }
+
         if ($type -eq 'plain') {
             if ($label -ne "") { 
                 if ($Color -eq "Gray") {
@@ -252,6 +227,7 @@ function writeText {
                 Write-Host "  $text" -ForegroundColor $Color 
             }
         }
+
         if ($type -eq 'list') { 
             # Get a list of keys from the options dictionary
             $orderedKeys = $List.Keys | ForEach-Object { $_ }
@@ -741,5 +717,4 @@ function selectUser {
     }
 }
 
-
-readCommand -command "intech menu"
+invokeScript -script "readCommand" -initialize $true
