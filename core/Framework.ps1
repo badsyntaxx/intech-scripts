@@ -510,7 +510,7 @@ function getDownload {
             $progbar = $progbar.PadRight($curBarSize, [char]9608)
             $progbar = $progbar.PadRight($BarSize, [char]9617)
 
-            Write-Host -NoNewLine "`r   $progbar" -ForegroundColor "Cyan"
+            Write-Host -NoNewLine "`r  $progbar" -ForegroundColor "Cyan"
             Write-Host -NoNewLine " $($percentComplete.ToString("##0.00").PadLeft(6))%"            
         }
     }
@@ -556,7 +556,7 @@ function getDownload {
                 $writer = new-object System.IO.FileStream $Target, "Create"
   
                 Write-Host
-                Write-Host $ProgressText
+                Write-Host  "  $ProgressText"
                 # start download
                 $finalBarCount = 0 #show final bar only one time
                 do {
