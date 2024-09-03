@@ -515,10 +515,11 @@ function getDownload {
             } else {
                 Write-Host -NoNewLine "`r  $ProgressText $progbar $($percentComplete.ToString("##0.00").PadLeft(6))%"                    
             }              
+             
         }
     }
     Process {
-        $downloadComplete = $false 
+        $downloadComplete = $true 
         for ($retryCount = 1; $retryCount -le $MaxRetries; $retryCount++) {
             try {
                 $storeEAP = $ErrorActionPreference
@@ -568,6 +569,7 @@ function getDownload {
                     $total += $count
                     $totalMB = $total / 1024 / 1024
           
+                   
                     if ($fullSize -gt 0) {
                         Show-Progress -TotalValue $fullSizeMB -CurrentValue $totalMB -ProgressText $ProgressText -ValueSuffix "MB"
                     }
@@ -575,17 +577,16 @@ function getDownload {
                     if ($total -eq $fullSize -and $count -eq 0 -and $finalBarCount -eq 0) {
                         Show-Progress -TotalValue $fullSizeMB -CurrentValue $totalMB -ProgressText $ProgressText -ValueSuffix "MB" -Complete
                         $finalBarCount++
-                        $downloadComplete = $true
                     }
-                  
+                    
                 } while ($count -gt 0)
 
+                # Prevent the following output from appearing on the same line as the progress bar
+              
                 Write-Host 
                 
-                if ($downloadComplete) { 
-                    break
-                    return $true 
-                }
+                
+                if ($downloadComplete) { return $true } else { return $false }
             } catch {
                 # write-text -type "fail" -text "$($_.Exception.Message)"
                 write-text -type "fail" -text $failText
@@ -600,19 +601,13 @@ function getDownload {
                 }
             } finally {
                 # cleanup
-                if ($reader) { 
-                    $reader.Close() 
-                }
-                if ($writer) { 
-                    $writer.Flush() 
-                    $writer.Close() 
-                }
+                if ($reader) { $reader.Close() }
+                if ($writer) { $writer.Flush(); $writer.Close() }
         
                 $ErrorActionPreference = $storeEAP
                 [GC]::Collect()
             } 
-        }  
-        return $false 
+        }   
     }
 }
 function getUserData {
