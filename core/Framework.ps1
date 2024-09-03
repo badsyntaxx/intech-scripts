@@ -510,8 +510,8 @@ function getDownload {
             $progbar = $progbar.PadRight($curBarSize, [char]9608)
             $progbar = $progbar.PadRight($BarSize, [char]9617)
 
-            Write-Host -NoNewLine "`r  $ProgressText" -NoNewLine
-            Write-Host -NoNewLine " $progbar" -NoNewLine -ForegroundColor "Cyan"
+            Write-Host -NoNewLine "`r  $ProgressText"
+            Write-Host -NoNewLine " $progbar" -ForegroundColor "Cyan"
             Write-Host -NoNewLine " $($percentComplete.ToString("##0.00").PadLeft(6))%"            
         }
     }
