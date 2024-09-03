@@ -583,7 +583,7 @@ function getDownload {
                 Write-Host 
                 
                 if ($downloadComplete) { 
-                    return $true 
+                    break
                 }
             } catch {
                 # write-text -type "fail" -text "$($_.Exception.Message)"
@@ -611,7 +611,7 @@ function getDownload {
                 [GC]::Collect()
             } 
         }  
-        return $false 
+        return $downloadComplete 
     }
 }
 function getUserData {
