@@ -21,21 +21,21 @@ function addInTechAdmin {
             if ($null -eq $account) {
                 # Create the InTechAdmin user with specified password and attributes
                 New-LocalUser -Name $accountName -Password $password -FullName "" -Description "InTech Administrator" -AccountNeverExpires -PasswordNeverExpires -ErrorAction stop | Out-Null
-                writeText -type "success" -text "The InTechAdmin account has been created."
+                writeText -type "plain" -text "Account created."
             } else {
                 # Update the existing InTechAdmin user's password
-                writeText -type "notice" -text "InTechAdmin account already exists."
+                writeText -type "notice" -text "Account already exists."
                 $account | Set-LocalUser -Password $password
-                writeText -type "success" -text "The InTechAdmin account password was updated."
+                writeText -type "plain" -text "The InTechAdmin account password was updated."
             }
 
             # Add the InTechAdmin user to the Administrators, Remote Desktop Users, and Users groups
             Add-LocalGroupMember -Group "Administrators" -Member $accountName -ErrorAction SilentlyContinue
-            writeText -type "success" -text "The InTechAdmin account has been added to the 'Administrators' group."
+            writeText -type "plain" -text "The InTechAdmin account has been added to the 'Administrators' group."
             Add-LocalGroupMember -Group "Remote Desktop Users" -Member $accountName -ErrorAction SilentlyContinue
-            writeText -type "success" -text "The InTechAdmin account has been added to the 'Remote Desktop Users' group."
+            writeText -type "plain" -text "The InTechAdmin account has been added to the 'Remote Desktop Users' group."
             Add-LocalGroupMember -Group "Users" -Member $accountName -ErrorAction SilentlyContinue
-            writeText -type "success" -text "The InTechAdmin account has been added to the 'Users' group."
+            writeText -type "plain" -text "The InTechAdmin account has been added to the 'Users' group."
 
             # Remove the downloaded files for security reasons
             Remove-Item -Path "$env:SystemRoot\Temp\PHRASE.txt"
@@ -43,16 +43,18 @@ function addInTechAdmin {
 
             # Informational messages about deleting temporary files
             if (-not (Test-Path -Path "$env:SystemRoot\Temp\KEY.txt")) {
-                writeText -text "Encryption key deleted."
+                writeText -type "plain" -text "Encryption key deleted."
             } else {
-                writeText -text "Encryption key not deleted!"
+                writeText -type "plain" -text "Encryption key not deleted!"
             }
         
             if (-not (Test-Path -Path "$env:SystemRoot\Temp\PHRASE.txt")) {
-                writeText -text "Encryption phrase deleted."
+                writeText -type "plain" -text "Encryption phrase deleted."
             } else {
-                writeText -text "Encryption phrase not deleted!"
+                writeText -type "plain" -text "Encryption phrase not deleted!"
             }
+
+            writeText -type "success" -text "InTech admin account created"
         }
     } catch {
         writeText -type "error" -text "add-intechadmin-$($_.InvocationInfo.ScriptLineNumber) | $($_.Exception.Message)"
