@@ -568,7 +568,6 @@ function getDownload {
                     $total += $count
                     $totalMB = $total / 1024 / 1024
           
-                  
                     if ($fullSize -gt 0) {
                         Show-Progress -TotalValue $fullSizeMB -CurrentValue $totalMB -ProgressText $ProgressText -ValueSuffix "MB"
                     }
