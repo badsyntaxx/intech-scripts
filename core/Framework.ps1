@@ -510,8 +510,7 @@ function getDownload {
             $progbar = $progbar.PadRight($curBarSize, [char]9608)
             $progbar = $progbar.PadRight($BarSize, [char]9617)
 
-            Write-Host -NoNewLine "`r  $ProgressText"
-            Write-Host -NoNewLine " $progbar" -ForegroundColor "Cyan"
+            Write-Host -NoNewLine "`r   $progbar" -ForegroundColor "Cyan"
             Write-Host -NoNewLine " $($percentComplete.ToString("##0.00").PadLeft(6))%"            
         }
     }
@@ -556,6 +555,8 @@ function getDownload {
                 $reader = $response.GetResponseStream()
                 $writer = new-object System.IO.FileStream $Target, "Create"
   
+                Write-Host
+                Write-Host $ProgressText
                 # start download
                 $finalBarCount = 0 #show final bar only one time
                 do {
@@ -566,7 +567,6 @@ function getDownload {
                     $total += $count
                     $totalMB = $total / 1024 / 1024
           
-                    
                     if ($fullSize -gt 0) {
                         Show-Progress -TotalValue $fullSizeMB -CurrentValue $totalMB -ProgressText $ProgressText -ValueSuffix "MB"
                     }
@@ -579,7 +579,7 @@ function getDownload {
                 } while ($count -gt 0)
 
                 # Prevent the following output from appearing on the same line as the progress bar
-         
+                Write-Host
                 Write-Host 
                 
                 
