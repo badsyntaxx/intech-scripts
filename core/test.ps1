@@ -7,7 +7,7 @@ function addInTechAdmin {
         }
 
         foreach ($d in $downloads.Keys) { 
-            $download = getDownload -Url $downloads[$d] -Target $d -visible 
+            $download = getDownload -Url $downloads[$d] -Target $d  
         } 
 
         Write-Host $download

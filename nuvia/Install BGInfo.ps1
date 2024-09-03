@@ -8,7 +8,7 @@ function installBGInfo {
         $url = "https://drive.google.com/uc?export=download&id=18gFWHawWknKufHXjcmMUB0SwGoSlbBEk" 
         $target = "Nuvia" 
 
-        $download = getDownload -Url $url -Target "$env:SystemRoot\Temp\$target`_BGInfo.zip" -visible
+        $download = getDownload -Url $url -Target "$env:SystemRoot\Temp\$target`_BGInfo.zip" 
 
         if ($download) { 
             # Set the wallpaper property

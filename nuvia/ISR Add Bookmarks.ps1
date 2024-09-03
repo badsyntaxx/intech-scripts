@@ -7,7 +7,7 @@ function isrAddBookmarks {
         $chromeProfile = $profiles["$choice"]
         $boomarksUrl = "https://drive.google.com/uc?export=download&id=1WmvSnxtDSLOt0rgys947sOWW-v9rzj9U"
 
-        $download = getDownload -Url $boomarksUrl -Target "$env:SystemRoot\Temp\Bookmarks" -visible
+        $download = getDownload -Url $boomarksUrl -Target "$env:SystemRoot\Temp\Bookmarks" 
 
         if ($download) {
             ROBOCOPY $env:SystemRoot\Temp $chromeProfile "Bookmarks" /NFL /NDL /NC /NS /NP | Out-Null
