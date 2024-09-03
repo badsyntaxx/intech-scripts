@@ -59,7 +59,7 @@ function addFunc {
         $commandDirectory = $filteredCommand[0]
         $commandFile = $filteredCommand[1]
 
-        addScript -directory $commandDirectory -script $commandFile
+        addScript -directory $commandDirectory -file $commandFile
     } catch {
         writeText -type "error" -text "addFunc-$($_.InvocationInfo.ScriptLineNumber) | $($_.Exception.Message)"
     }
