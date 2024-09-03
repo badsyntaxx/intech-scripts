@@ -536,7 +536,20 @@ function getDownload {
                     throw "Remote file either doesn't exist, is unauthorized, or is forbidden for '$Url'."
                 }
   
-                # ... [File path handling remains unchanged]
+                if ($Target -match '^\.\\') {
+                    $Target = Join-Path (Get-Location -PSProvider "FileSystem") ($Target -Split '^\.')[1]
+                }
+            
+                if ($Target -and !(Split-Path $Target)) {
+                    $Target = Join-Path (Get-Location -PSProvider "FileSystem") $Target
+                }
+
+                if ($Target) {
+                    $fileDirectory = $([System.IO.Path]::GetDirectoryName($Target))
+                    if (!(Test-Path($fileDirectory))) {
+                        [System.IO.Directory]::CreateDirectory($fileDirectory) | Out-Null
+                    }
+                }
 
                 [long]$fullSize = $response.ContentLength
                 $fullSizeMB = $fullSize / 1024 / 1024
