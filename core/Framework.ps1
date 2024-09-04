@@ -576,7 +576,7 @@ function getDownload {
 
                     if ($total -eq $fullSize -and $count -eq 0 -and $finalBarCount -eq 0) {
                         if (-not $hide) {
-                            Show-Progress -TotalValue $fullSizeMB -CurrentValue $totalMB -ValueSuffix "MB" -Complete
+                            Show-Progress -TotalValue $fullSizeMB -CurrentValue $totalMB -ValueSuffix "MB"
                         }
                         $finalBarCount++
                     }
