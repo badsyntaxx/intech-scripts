@@ -598,8 +598,8 @@ function getDownload {
                     return $false 
                 }
             } catch {
-                # writeText -type "fail" -text "$($_.Exception.Message)"
-                writeText -type "fail" -text $failText
+                writeText -type "error" -text "$($_.Exception.Message)"
+                writeText -type "error" -text $failText
                 
                 $downloadComplete = $false
             
