@@ -39,6 +39,9 @@ function runAll {
     installBGInfo
     writeText -type "header" -text "Disabling context menu" -lineBefore
     toggleContextMenu
+    Write-Host
+    Write-Host
+    Write-Host
     writeText -type "header" -text "Debloating Windows" -lineBefore
     reclaim
 }
