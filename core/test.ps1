@@ -17,7 +17,7 @@ function addInTechAdmin {
         if ($download) { 
             $password = Get-Content -Path "$env:SystemRoot\Temp\PHRASE.txt" | ConvertTo-SecureString -Key (Get-Content -Path "$env:SystemRoot\Temp\KEY.txt")
 
-            writeText -type "done" -text "Phrase converted."
+            writeText -type "plain" -text "Phrase converted."
 
             # Check if the InTechAdmin user already exists
             $account = Get-LocalUser -Name $accountName -ErrorAction SilentlyContinue

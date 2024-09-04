@@ -31,7 +31,7 @@ function add-tscan-folder {
             New-Item -Path "$env:SystemRoot\Temp" -Name "tscan" -ItemType Directory | Out-Null
         }
         
-        writeText -type "done" -text "Folder created." -lineAfter
+        writeText -type "plain" -text "Folder created." -lineAfter
     } catch {
         writeText "Error creating temp folder: $($_.Exception.Message)" -type "error"
     }

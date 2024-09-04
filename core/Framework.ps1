@@ -490,18 +490,13 @@ function getDownload {
                 [Parameter(Mandatory)]
                 [Single]$TotalValue,
                 [Parameter(Mandatory)]
-                [Single]$CurrentValue,
-                [Parameter()]
-                [string]$ValueSuffix 
+                [Single]$CurrentValue
             )
             
             # calc %
-            $barSize = 40
+            $barSize = 30
             $percent = $CurrentValue / $TotalValue
             $percentComplete = $percent * 100
-            if ($ValueSuffix) {
-                $ValueSuffix = " $ValueSuffix" # add space in front
-            }
   
             # build progressbar with string function
             $curBarSize = $barSize * $percent
@@ -570,13 +565,13 @@ function getDownload {
                     
                     if ($fullSize -gt 0) {
                         if (-not $hide) {
-                            Show-Progress -TotalValue $fullSizeMB -CurrentValue $totalMB -ValueSuffix "MB"
+                            Show-Progress -TotalValue $fullSizeMB -CurrentValue $totalMB
                         }
                     }
 
                     if ($total -eq $fullSize -and $count -eq 0 -and $finalBarCount -eq 0) {
                         if (-not $hide) {
-                            Show-Progress -TotalValue $fullSizeMB -CurrentValue $totalMB -ValueSuffix "MB"
+                            Show-Progress -TotalValue $fullSizeMB -CurrentValue $totalMB
                         }
                         $finalBarCount++
                     }
