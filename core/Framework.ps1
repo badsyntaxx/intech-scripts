@@ -158,7 +158,7 @@ function addScript {
             $url = "https://raw.githubusercontent.com/badsyntaxx/chaste-scripts/main"
         }
 
-        $download = getDownload -Url "$url/$directory/$file.ps1" -Target "$env:SystemRoot\Temp\$file.ps1" -hidden
+        $download = getDownload -Url "$url/$directory/$file.ps1" -Target "$env:SystemRoot\Temp\$file.ps1" -show
 
         if ($download -eq $true) {
             $rawScript = Get-Content -Path "$env:SystemRoot\Temp\$file.ps1" -Raw -ErrorAction SilentlyContinue
@@ -482,7 +482,7 @@ function getDownload {
         [parameter(Mandatory = $false)]
         [switch]$lineAfter = $false,
         [parameter(Mandatory = $false)]
-        [switch]$hidden = $false
+        [switch]$show = $false
     )
     Begin {
         function Show-Progress {
@@ -555,7 +555,7 @@ function getDownload {
                 $writer = new-object System.IO.FileStream $Target, "Create"
                 
                 if ($lineBefore) { Write-Host }
-                if (-not $hidden) {
+                if ($show) {
                     Write-Host  "  $label"
                 }
                 # start download
@@ -569,13 +569,13 @@ function getDownload {
                     $totalMB = $total / 1024 / 1024
                     
                     if ($fullSize -gt 0) {
-                        if (-not $hidden) {
+                        if ($show) {
                             Show-Progress -TotalValue $fullSizeMB -CurrentValue $totalMB -ValueSuffix "MB"
                         }
                     }
 
                     if ($total -eq $fullSize -and $count -eq 0 -and $finalBarCount -eq 0) {
-                        if (-not $hidden) {
+                        if ($show) {
                             Show-Progress -TotalValue $fullSizeMB -CurrentValue $totalMB -ValueSuffix "MB" -Complete
                         }
                         $finalBarCount++
