@@ -482,7 +482,7 @@ function getDownload {
         [parameter(Mandatory = $false)]
         [switch]$lineAfter = $false,
         [parameter(Mandatory = $false)]
-        [boolean]$hidden = $false
+        [switch]$hidden = $false
     )
     Begin {
         function Show-Progress {
