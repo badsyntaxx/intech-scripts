@@ -476,7 +476,7 @@ function getDownload {
         [Parameter(Mandatory)]
         [string]$target,
         [Parameter(Mandatory = $false)]
-        [string]$label = 'Downloading',
+        [string]$label = "",
         [Parameter(Mandatory = $false)]
         [string]$failText = 'Download failed...',
         [parameter(Mandatory = $false)]
@@ -552,7 +552,8 @@ function getDownload {
                 $writer = new-object System.IO.FileStream $target, "Create"
                 
                 if ($lineBefore) { Write-Host }
-                if (-not $hide) {
+
+                if (-not $hide -and $label -ne "") {
                     Write-Host  "  $label" -ForegroundColor "Yellow"
                 }
                 # start download
