@@ -598,15 +598,13 @@ function getDownload {
                     return $false 
                 }
             } catch {
-
-                writeText -type "error" -text "getDownload-$($_.InvocationInfo.ScriptLineNumber) | $($_.Exception.Message)"
                 $downloadComplete = $false
             
-                if ($retryCount -lt 2 -and -not $downloadComplete) {
+                if ($retryCount -lt 2) {
                     writeText -type "plain" -text "Retrying..."
                     Start-Sleep -Seconds 1
                 } else {
-                    writeText -type "error" -text "Maximum retries reached." 
+                    writeText -type "error" -text "getDownload-$($_.InvocationInfo.ScriptLineNumber) | $($_.Exception.Message)"
                 }
             } finally {
                 # cleanup
