@@ -133,7 +133,9 @@ function isrAddBookmarks {
     }
 }
 function install-cliq {
-    $paths = @("$env:USERPROFILE\AppData\Local\cliq\app-1.7.1")
+    $paths = @(
+        "C:\Program Files (x86)\Cliq Deployment\cliqDeploymentTool.exe"
+    )
     $url = "https://downloads.zohocdn.com/chat-desktop/windows/Cliq-1.7.3-x64.msi"
     $appName = "Cliq"
     $installed = Find-ExistingInstall -Paths $paths -App $appName
