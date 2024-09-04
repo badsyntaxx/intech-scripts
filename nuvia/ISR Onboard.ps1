@@ -38,7 +38,6 @@ function runAll {
     disableContextMenu
     Write-Host
     Write-Host
-    Write-Host
     writeText -type "header" -text "Debloating Windows" -lineBefore
     reclaim
 }
