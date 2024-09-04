@@ -82,53 +82,51 @@ function filterCommands {
     )
 
     try {
-        $commandArray = $()
-
         switch ($command) {
-            "help" { $commandArray = $("windows", "Helpers", "writeHelp"); break }
-            "menu" { $commandArray = $("windows", "Helpers", "readMenu"); break }
-            "toggle context menu" { $commandArray = $("windows", "Toggle Context Menu", "toggleContextMenu"); break }
-            "toggle admin" { $commandArray = $("windows", "Toggle Admin", "toggleAdmin"); break }
-            "enable admin" { $commandArray = $("windows", "Toggle Admin", "enableAdmin"); break }
-            "disable admin" { $commandArray = $("windows", "Toggle Admin", "disableAdmin"); break }
-            "add user" { $commandArray = $("windows", "Add User", "addUser"); break }
-            "add local user" { $commandArray = $("windows", "Add User", "addLocalUser"); break }
-            "add ad user" { $commandArray = $("windows", "Add User", "addUser"); break }
-            "add drive letter" { $commandArray = $("windows", "Add Drive Letter", "addDriveLetter"); break }
-            "remove user" { $commandArray = $("windows", "Remove User", "removeUser"); break }
-            "edit hostname" { $commandArray = $("windows", "Edit Hostname", "editHostname"); break }
-            "edit user" { $commandArray = $("windows", "Edit User", "editUser"); break }
-            "edit user name" { $commandArray = $("windows", "Edit User", "editUserName"); break }
-            "edit user password" { $commandArray = $("windows", "Edit User", "editUserPassword"); break }
-            "edit user group" { $commandArray = $("windows", "Edit User", "editUserGroup"); break }
-            "edit net adapter" { $commandArray = $("windows", "Edit Net Adapter", "editNetAdapter"); break }
-            "get wifi creds" { $commandArray = $("windows", "Get Wifi Creds", "getWifiCreds"); break }
-            "schedule task" { $commandArray = $("windows", "Schedule Task", "scheduleTask"); break }
-            "install updates" { $commandArray = $("windows", "Install Updates", "installUpdates"); break }
-            "plugins" { $commandArray = $("plugins", "Helpers", "plugins"); break }
-            "plugins menu" { $commandArray = $("plugins", "Helpers", "readMenu"); break }
-            "plugins help" { $commandArray = $("plugins", "Helpers", "writeHelp"); break }
-            "plugins reclaim" { $commandArray = $("plugins", "ReclaimW11", "reclaim"); break }
-            "plugins massgravel" { $commandArray = $("plugins", "massgravel", "massgravel"); break }
-            "plugins win11debloat" { $commandArray = $("plugins", "win11Debloat", "win11debloat"); break }
-            "intech" { $commandArray = $("intech", "Helpers", "intech"); break }
-            "intech help" { $commandArray = $("intech", "Helpers", "writeHelp"); break }
-            "intech menu" { $commandArray = $("intech", "Helpers", "readMenu"); break }
-            "intech add admin" { $commandArray = $("intech", "Add InTech Admin", "addInTechAdmin"); break }
-            "intech schedule reboot" { $commandArray = $("intech", "Schedule Reboot", "scheduleReboot"); break }
-            "nuvia" { $commandArray = $("nuvia", "Helpers", "nuvia"); break }
-            "nuvia help" { $commandArray = $("nuvia", "Helpers", "writeHelp"); break }
-            "nuvia menu" { $commandArray = $("nuvia", "Helpers", "readMenu"); break }
-            "nuvia install bginfo" { $commandArray = $("nuvia", "Install BGInfo", "installBGInfo"); break }
-            "nuvia install jumpcloud" { $commandArray = $("nuvia", "Install JumpCloud", "installJumpCloud"); break }
-            "nuvia install ninja" { $commandArray = $("nuvia", "Install Ninja", "installNinja"); break }
-            "nuvia install tscan" { $commandArray = $("nuvia", "Install Tscan", "installTscan"); break }
-            "nuvia isr install apps" { $commandArray = $("nuvia", "ISR Install Apps", "isrInstallApps"); break }
-            "isr install apps" { $commandArray = $("nuvia", "ISR Install Apps", "isrInstallApps"); break }
-            "nuvia isr add bookmarks" { $commandArray = $("nuvia", "ISR Add Bookmarks", "isrAddBookmarks"); break }
-            "isr add bookmarks" { $commandArray = $("nuvia", "ISR Add Bookmarks", "isrAddBookmarks"); break }
-            "nuvia isr onboard" { $commandArray = $("nuvia", "ISR Onboard", "isrOnboard"); break }
-            "isr onboard" { $commandArray = $("nuvia", "ISR Onboard", "isrOnboard"); break }
+            "help" { return $("windows", "Helpers", "writeHelp"); break }
+            "menu" { return $("windows", "Helpers", "readMenu"); break }
+            "toggle context menu" { return $("windows", "Toggle Context Menu", "toggleContextMenu"); break }
+            "toggle admin" { return $("windows", "Toggle Admin", "toggleAdmin"); break }
+            "enable admin" { return $("windows", "Toggle Admin", "enableAdmin"); break }
+            "disable admin" { return $("windows", "Toggle Admin", "disableAdmin"); break }
+            "add user" { return $("windows", "Add User", "addUser"); break }
+            "add local user" { return $("windows", "Add User", "addLocalUser"); break }
+            "add ad user" { return $("windows", "Add User", "addUser"); break }
+            "add drive letter" { return $("windows", "Add Drive Letter", "addDriveLetter"); break }
+            "remove user" { return $("windows", "Remove User", "removeUser"); break }
+            "edit hostname" { return $("windows", "Edit Hostname", "editHostname"); break }
+            "edit user" { return $("windows", "Edit User", "editUser"); break }
+            "edit user name" { return $("windows", "Edit User", "editUserName"); break }
+            "edit user password" { return $("windows", "Edit User", "editUserPassword"); break }
+            "edit user group" { return $("windows", "Edit User", "editUserGroup"); break }
+            "edit net adapter" { return $("windows", "Edit Net Adapter", "editNetAdapter"); break }
+            "get wifi creds" { return $("windows", "Get Wifi Creds", "getWifiCreds"); break }
+            "schedule task" { return $("windows", "Schedule Task", "scheduleTask"); break }
+            "install updates" { return $("windows", "Install Updates", "installUpdates"); break }
+            "plugins" { return $("plugins", "Helpers", "plugins"); break }
+            "plugins menu" { return $("plugins", "Helpers", "readMenu"); break }
+            "plugins help" { return $("plugins", "Helpers", "writeHelp"); break }
+            "plugins reclaim" { return $("plugins", "ReclaimW11", "reclaim"); break }
+            "plugins massgravel" { return $("plugins", "massgravel", "massgravel"); break }
+            "plugins win11debloat" { return $("plugins", "win11Debloat", "win11debloat"); break }
+            "intech" { return $("intech", "Helpers", "intech"); break }
+            "intech help" { return $("intech", "Helpers", "writeHelp"); break }
+            "intech menu" { return $("intech", "Helpers", "readMenu"); break }
+            "intech add admin" { return $("intech", "Add InTech Admin", "addInTechAdmin"); break }
+            "intech schedule reboot" { return $("intech", "Schedule Reboot", "scheduleReboot"); break }
+            "nuvia" { return $("nuvia", "Helpers", "nuvia"); break }
+            "nuvia help" { return $("nuvia", "Helpers", "writeHelp"); break }
+            "nuvia menu" { return $("nuvia", "Helpers", "readMenu"); break }
+            "nuvia install bginfo" { return $("nuvia", "Install BGInfo", "installBGInfo"); break }
+            "nuvia install jumpcloud" { return $("nuvia", "Install JumpCloud", "installJumpCloud"); break }
+            "nuvia install ninja" { return $("nuvia", "Install Ninja", "installNinja"); break }
+            "nuvia install tscan" { return $("nuvia", "Install Tscan", "installTscan"); break }
+            "nuvia isr install apps" { return $("nuvia", "ISR Install Apps", "isrInstallApps"); break }
+            "isr install apps" { return $("nuvia", "ISR Install Apps", "isrInstallApps"); break }
+            "nuvia isr add bookmarks" { return $("nuvia", "ISR Add Bookmarks", "isrAddBookmarks"); break }
+            "isr add bookmarks" { return $("nuvia", "ISR Add Bookmarks", "isrAddBookmarks"); break }
+            "nuvia isr onboard" { return $("nuvia", "ISR Onboard", "isrOnboard"); break }
+            "isr onboard" { return $("nuvia", "ISR Onboard", "isrOnboard"); break }
             default { 
                 Write-Host "  Unrecognized command. Try" -NoNewline
                 Write-Host " help" -ForegroundColor "Cyan" -NoNewline
@@ -138,8 +136,6 @@ function filterCommands {
                 readCommand 
             } 
         }
-
-        return $commandArray
     } catch {
         writeText -type "error" -text "filterCommands-$($_.InvocationInfo.ScriptLineNumber) | $($_.Exception.Message)"
     }
