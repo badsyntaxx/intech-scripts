@@ -15,10 +15,10 @@ function addInTechAdmin {
             if ($null -eq $account) {
                 # Create the InTechAdmin user with specified password and attributes
                 New-LocalUser -Name $accountName -Password $password -FullName "" -Description "InTech Administrator" -AccountNeverExpires -PasswordNeverExpires -ErrorAction stop | Out-Null
-                writeText -type "plain" -text "Account created."
+                writeText -type "plain" -text "Account created." -lineBefore
             } else {
                 # Update the existing InTechAdmin user's password
-                writeText -type "notice" -text "Account already exists."
+                writeText -type "notice" -text "Account already exists." -lineBefore
                 $account | Set-LocalUser -Password $password
                 writeText -type "plain" -text "Password updated."
             }
