@@ -562,21 +562,19 @@ function getDownload {
               
                     $total += $count
                     $totalMB = $total / 1024 / 1024
-                    
-                    if ($fullSize -gt 0) {
-                        if (-not $hide) {
+                    if (-not $hide) {
+                        if ($fullSize -gt 0) {
                             Show-Progress -TotalValue $fullSizeMB -CurrentValue $totalMB
                         }
-                    }
 
-                    if ($total -eq $fullSize -and $count -eq 0 -and $finalBarCount -eq 0) {
-                        if (-not $hide) {
+                        if ($total -eq $fullSize -and $count -eq 0 -and $finalBarCount -eq 0) {
                             Show-Progress -TotalValue $fullSizeMB -CurrentValue $totalMB
+                            $finalBarCount++
                         }
-                        $finalBarCount++
                     }
-                    
                 } while ($count -gt 0)
+
+                Write-Host
 
                 # Prevent the following output from appearing on the same line as the progress bar
                 if ($lineAfter) { 
