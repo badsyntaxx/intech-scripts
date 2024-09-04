@@ -472,7 +472,7 @@ function getDownload {
         [Parameter(Mandatory)]
         [string]$Target,
         [Parameter(Mandatory = $false)]
-        [string]$ProgressText = 'Loading',
+        [string]$ProgressText = 'Downloading',
         [Parameter(Mandatory = $false)]
         [string]$failText = 'Download failed...',
         [parameter(Mandatory = $false)]
@@ -487,14 +487,10 @@ function getDownload {
                 [Single]$TotalValue,
                 [Parameter(Mandatory)]
                 [Single]$CurrentValue,
-                [Parameter(Mandatory)]
-                [string]$ProgressText,
                 [Parameter()]
                 [string]$ValueSuffix,
                 [Parameter()]
-                [int]$BarSize = 40,
-                [Parameter()]
-                [switch]$Complete
+                [int]$BarSize = 40
             )
             
             # calc %
@@ -509,6 +505,9 @@ function getDownload {
             $progbar = ""
             $progbar = $progbar.PadRight($curBarSize, [char]9608)
             $progbar = $progbar.PadRight($BarSize, [char]9617)
+
+            Write-Host $Url
+            Write-Host $Target
 
             Write-Host -NoNewLine "`r  $progbar" -ForegroundColor "Yellow"
             Write-Host -NoNewLine " $($percentComplete.ToString("##0.00").PadLeft(6))%"            
