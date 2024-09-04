@@ -554,19 +554,21 @@ function getDownload {
                 $reader = $response.GetResponseStream()
                 $writer = new-object System.IO.FileStream $Target, "Create"
 
+                
+                if ($lineBefore) { Write-Host }
                 if (-not $hidden) {
-                    if ($lineBefore) { Write-Host }
                     Write-Host  "  $label"
-                    # start download
-                    $finalBarCount = 0 #show final bar only one time
-                    do {
-                        $count = $reader.Read($buffer, 0, $buffer.Length)
+                }
+                # start download
+                $finalBarCount = 0 #show final bar only one time
+                do {
+                    $count = $reader.Read($buffer, 0, $buffer.Length)
           
-                        $writer.Write($buffer, 0, $count)
+                    $writer.Write($buffer, 0, $count)
               
-                        $total += $count
-                        $totalMB = $total / 1024 / 1024
-          
+                    $total += $count
+                    $totalMB = $total / 1024 / 1024
+                    if (-not $hidden) {
                         if ($fullSize -gt 0) {
                             Show-Progress -TotalValue $fullSizeMB -CurrentValue $totalMB -ValueSuffix "MB"
                         }
@@ -575,13 +577,13 @@ function getDownload {
                             Show-Progress -TotalValue $fullSizeMB -CurrentValue $totalMB -ValueSuffix "MB" -Complete
                             $finalBarCount++
                         }
-                    
-                    } while ($count -gt 0)
+                    }
+                } while ($count -gt 0)
 
-                    # Prevent the following output from appearing on the same line as the progress bar
-                    Write-Host
-                    if ($lineAfter) { Write-Host }
-                }
+                # Prevent the following output from appearing on the same line as the progress bar
+                Write-Host
+                if ($lineAfter) { Write-Host }
+                
                 
                 if ($downloadComplete) { return $true } else { return $false }
             } catch {
