@@ -583,8 +583,6 @@ function getDownload {
                     
                 } while ($count -gt 0)
 
-                Write-Host
-
                 # Prevent the following output from appearing on the same line as the progress bar
                 if ($lineAfter) { 
                     if (-not $hide) {
