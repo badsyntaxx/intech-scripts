@@ -58,8 +58,6 @@ function readCommand {
             }
         }
 
-        Write-Host "This is the command: $command"
-
         $filteredCommand = filterCommands -command $command
         $commandDirectory = $filteredCommand[0]
         $commandFile = $filteredCommand[1]
@@ -131,17 +129,15 @@ function filterCommands {
             "isr add bookmarks" { $commandArray = $("nuvia", "ISR Add Bookmarks", "isrAddBookmarks"); break }
             "nuvia isr onboard" { $commandArray = $("nuvia", "ISR Onboard", "isrOnboard"); break }
             "isr onboard" { $commandArray = $("nuvia", "ISR Onboard", "isrOnboard"); break }
-            # default { 
-            #     Write-Host "  Unrecognized command. Try" -NoNewline
-            #     Write-Host " help" -ForegroundColor "Cyan" -NoNewline
-            #     Write-Host " or" -NoNewline
-            #     Write-Host " menu" -NoNewline -ForegroundColor "Cyan"
-            #     Write-Host " to learn more."
-            #     readCommand 
-            # }
+            default { 
+                Write-Host "  Unrecognized command. Try" -NoNewline
+                Write-Host " help" -ForegroundColor "Cyan" -NoNewline
+                Write-Host " or" -NoNewline
+                Write-Host " menu" -NoNewline -ForegroundColor "Cyan"
+                Write-Host " to learn more."
+                readCommand 
+            } 
         }
-
-        Write-Host $commandArray
 
         return $commandArray
     } catch {
