@@ -99,7 +99,7 @@ function invokeScript {
 }
 function readCommand {
     param (
-        [Parameter(Mandatory = $false)]
+        [parameter(Mandatory = $false)]
         [string]$command = ""
     )
 
@@ -141,7 +141,7 @@ function readCommand {
 }
 function filterCommands {
     param (
-        [Parameter(Mandatory)]
+        [parameter(Mandatory)]
         [string]$command
     )
 
@@ -209,9 +209,9 @@ function filterCommands {
 }
 function addScript {
     param (
-        [Parameter(Mandatory)]
+        [parameter(Mandatory)]
         [string]$directory,
-        [Parameter(Mandatory)]
+        [parameter(Mandatory)]
         [string]$file
     )
 
@@ -531,13 +531,13 @@ function readOption {
 }
 function getDownload {
     param (
-        [Parameter(Mandatory)]
+        [parameter(Mandatory)]
         [string]$url,
-        [Parameter(Mandatory)]
+        [parameter(Mandatory)]
         [string]$target,
-        [Parameter(Mandatory = $false)]
+        [parameter(Mandatory = $false)]
         [string]$label = 'Loading',
-        [Parameter(Mandatory = $false)]
+        [parameter(Mandatory = $false)]
         [string]$failText = 'Download failed...',
         [parameter(Mandatory = $false)]
         [int]$MaxRetries = 2,
@@ -549,22 +549,22 @@ function getDownload {
     Begin {
         function Show-Progress {
             param (
-                [Parameter(Mandatory)]
-                [Single]$TotalValue,
-                [Parameter(Mandatory)]
-                [Single]$CurrentValue,
-                [Parameter(Mandatory)]
+                [parameter(Mandatory)]
+                [Single]$totalValue,
+                [parameter(Mandatory)]
+                [Single]$currentValue,
+                [parameter(Mandatory)]
                 [string]$label,
-                [Parameter()]
+                [parameter()]
                 [string]$ValueSuffix,
-                [Parameter()]
+                [parameter()]
                 [int]$BarSize = 40,
-                [Parameter()]
+                [parameter()]
                 [switch]$Complete
             )
             
             # calc %
-            $percent = $CurrentValue / $TotalValue
+            $percent = $currentValue / $totalValue
             $percentComplete = $percent * 100
             if ($ValueSuffix) {
                 $ValueSuffix = " $ValueSuffix" # add space in front
@@ -637,11 +637,11 @@ function getDownload {
           
                     if ($visible) {
                         if ($fullSize -gt 0) {
-                            Show-Progress -TotalValue $fullSizeMB -CurrentValue $totalMB -label $label -ValueSuffix "MB"
+                            Show-Progress -totalValue $fullSizeMB -currentValue $totalMB -label $label -ValueSuffix "MB"
                         }
 
                         if ($total -eq $fullSize -and $count -eq 0 -and $finalBarCount -eq 0) {
-                            Show-Progress -TotalValue $fullSizeMB -CurrentValue $totalMB -label $label -ValueSuffix "MB" -Complete
+                            Show-Progress -totalValue $fullSizeMB -currentValue $totalMB -label $label -ValueSuffix "MB" -Complete
                             $finalBarCount++
                         }
                     }

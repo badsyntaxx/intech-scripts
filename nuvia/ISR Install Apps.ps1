@@ -231,13 +231,13 @@ function Find-ExistingInstall {
 }
 function Install-Program {
     param (
-        [Parameter(Mandatory = $true)]
+        [parameter(Mandatory = $true)]
         [string]$url,
-        [Parameter(Mandatory = $true)]
+        [parameter(Mandatory = $true)]
         [string]$AppName,
-        [Parameter(Mandatory = $true)]
+        [parameter(Mandatory = $true)]
         [string]$Extension,
-        [Parameter(Mandatory = $true)]
+        [parameter(Mandatory = $true)]
         [string]$Args
     )
 

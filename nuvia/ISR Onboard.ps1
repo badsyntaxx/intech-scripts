@@ -50,7 +50,7 @@ function runAll {
 
 function addFunc {
     param (
-        [Parameter(Mandatory = $false)]
+        [parameter(Mandatory = $false)]
         [string]$command = ""
     )
 

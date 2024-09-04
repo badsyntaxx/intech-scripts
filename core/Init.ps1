@@ -43,9 +43,9 @@ function initializeChasteScripts {
 
 function getScripts {
     param (
-        [Parameter(Mandatory)]
+        [parameter(Mandatory)]
         [string]$url,
-        [Parameter(Mandatory)]
+        [parameter(Mandatory)]
         [string]$target
     )
   

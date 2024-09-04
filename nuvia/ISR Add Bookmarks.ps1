@@ -25,7 +25,7 @@ function isrAddBookmarks {
 }
 function getOrCreateUserPath {
     param (
-        [Parameter(Mandatory = $true)]
+        [parameter(Mandatory = $true)]
         [string]$username
     )
 
@@ -39,7 +39,7 @@ function getOrCreateUserPath {
 }
 function getChromeProfiles {
     param (
-        [Parameter(Mandatory = $true)]
+        [parameter(Mandatory = $true)]
         [string]$userPath
     )
     
@@ -74,7 +74,7 @@ function getChromeProfiles {
 }
 function updateChromePreferences {
     param (
-        [Parameter(Mandatory = $true)]
+        [parameter(Mandatory = $true)]
         [string]$profile
     )
 
