@@ -492,7 +492,9 @@ function getDownload {
                 [Parameter(Mandatory)]
                 [Single]$TotalValue,
                 [Parameter(Mandatory)]
-                [Single]$CurrentValue
+                [Single]$CurrentValue,
+                [Parameter(Mandatory)]
+                [switch]$complete
             )
             
             # calc %
@@ -506,8 +508,13 @@ function getDownload {
             $progbar = $progbar.PadRight($curBarSize, [char]9608)
             $progbar = $progbar.PadRight($barSize, [char]9617)
 
-            Write-Host -NoNewLine "`r  $progbar" -ForegroundColor "Cyan"
-            Write-Host -NoNewLine " $($percentComplete.ToString("##0.00").PadLeft(6))%"            
+            if ($complete) {
+                Write-Host -NoNewLine "`r  $progbar" -ForegroundColor "Cyan"
+                Write-Host -NoNewLine " Complete" -ForegroundColor "Green"
+            } else {
+                Write-Host -NoNewLine "`r  $progbar" -ForegroundColor "Cyan"
+                Write-Host -NoNewLine " $($percentComplete.ToString("##0.00").PadLeft(6))%"
+            }          
         }
     }
     Process {
@@ -571,7 +578,7 @@ function getDownload {
                         }
 
                         if ($total -eq $fullSize -and $count -eq 0 -and $finalBarCount -eq 0) {
-                            Show-Progress -TotalValue $fullSizeMB -CurrentValue $totalMB
+                            Show-Progress -TotalValue $fullSizeMB -CurrentValue $totalMB -complete
                             $finalBarCount++
                         }
                     }
