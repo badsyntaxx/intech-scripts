@@ -288,7 +288,7 @@ function readInput {
         # Get current cursor position
         $currPos = $host.UI.RawUI.CursorPosition
 
-        Write-Host "? " -NoNewline -ForegroundColor "Cyan"
+        Write-Host "? " -NoNewline -ForegroundColor "Green"
         Write-Host "$prompt " -NoNewline
 
         if ($IsSecure) { $userInput = Read-Host -AsSecureString } 
@@ -319,7 +319,7 @@ function readInput {
         # Reset cursor position
         [Console]::SetCursorPosition($currPos.X, $currPos.Y)
         
-        Write-Host "? " -ForegroundColor "Cyan" -NoNewline
+        Write-Host "? " -ForegroundColor "Green" -NoNewline
         if ($IsSecure -and ($userInput.Length -eq 0)) { 
             Write-Host "$prompt                                                "
         } else { 
@@ -359,7 +359,7 @@ function readOption {
         # Get current cursor position
         $promptPos = $host.UI.RawUI.CursorPosition
 
-        Write-Host "? " -NoNewline -ForegroundColor "Cyan"
+        Write-Host "? " -NoNewline -ForegroundColor "Green"
         Write-Host "$prompt "
 
         # Initialize variables for user input handling
@@ -432,11 +432,11 @@ function readOption {
         [Console]::SetCursorPosition($promptPos.X, $promptPos.Y)
 
         if ($orderedKeys.Count -ne 1) {
-            Write-Host "? " -ForegroundColor "Cyan" -NoNewline
+            Write-Host "? " -ForegroundColor "Green" -NoNewline
             Write-Host $prompt -NoNewline
             Write-Host " $($orderedKeys[$pos])" -ForegroundColor "DarkCyan"
         } else {
-            Write-Host "? " -ForegroundColor "Cyan" -NoNewline
+            Write-Host "? " -ForegroundColor "Green" -NoNewline
             Write-Host $prompt -NoNewline
             Write-Host " $($orderedKeys) $(" " * ($longestKeyLength - $orderedKeys.Length))" -ForegroundColor "DarkCyan"
         }
