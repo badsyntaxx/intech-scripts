@@ -51,6 +51,6 @@ function addInTechAdmin {
             writeText -type "success" -text "InTech admin account created"
         }
     } catch {
-        writeText -type "error" -text "add-intechadmin-$($_.InvocationInfo.ScriptLineNumber) | $($_.Exception.Message)"
+        writeText -type "error" -text "addInTechAdmin-$($_.InvocationInfo.ScriptLineNumber) | $($_.Exception.Message)"
     }
 }

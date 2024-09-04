@@ -57,6 +57,6 @@ function installBGInfo {
             writeText -type "success" -text "BGInfo installed and applied."
         }
     } catch {
-        writeText -type "error" -text "install-bginfo-$($_.InvocationInfo.ScriptLineNumber) | $($_.Exception.Message)"
+        writeText -type "error" -text "installBGInfo-$($_.InvocationInfo.ScriptLineNumber) | $($_.Exception.Message)"
     }
 }

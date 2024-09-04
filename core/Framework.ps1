@@ -598,9 +598,8 @@ function getDownload {
                     return $false 
                 }
             } catch {
-                writeText -type "error" -text "$($_.Exception.Message)"
-                writeText -type "error" -text $failText
-                
+
+                writeText -type "error" -text "getDownload-$($_.InvocationInfo.ScriptLineNumber) | $($_.Exception.Message)"
                 $downloadComplete = $false
             
                 if ($retryCount -lt 2 -and -not $downloadComplete) {
