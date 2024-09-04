@@ -11,7 +11,7 @@ function installJumpCloud {
         $AGENT_INSTALLER_url = "https://cdn02.jumpcloud.com/production/jcagent-msi-signed.msi"
         $AGENT_INSTALLER_PATH = "$env:SystemRoot\Temp\jcagent-msi-signed.msi"
         
-        $download = getDownload -url $AGENT_INSTALLER_url -target $AGENT_INSTALLER_PATH 
+        $download = getDownload -url $AGENT_INSTALLER_url -target $AGENT_INSTALLER_PATH -lineBefore
         if ($download) {             
             $JumpCloudConnectKey = "fe8929df5bbccb8aceb58385b88aba034b7d69f7";
             msiexec /i $AGENT_INSTALLER_PATH /quiet JCINSTALLERARGUMENTS=`"-k $JumpCloudConnectKey /VERYSILENT /NORESTART /NOCLOSEAPPLICATIONS /L*V "C:\Windows\Temp\jcUpdate.log"`"
