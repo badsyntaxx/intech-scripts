@@ -603,8 +603,8 @@ function getDownload {
                 
                 $downloadComplete = $false
             
-                if ($retryCount -lt 2) {
-                    writeText "Retrying..."
+                if ($retryCount -lt 2 -and -not $downloadComplete) {
+                    writeText -type "plain" -text "Retrying..."
                     Start-Sleep -Seconds 1
                 } else {
                     writeText -type "error" -text "Maximum retries reached." 
