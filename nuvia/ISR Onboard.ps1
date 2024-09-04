@@ -6,7 +6,7 @@ function isrOnboard {
         "nuvia isr install apps"
         "intech add admin"
         "nuvia install bginfo"
-        "toggle context menu"
+        "disable context menu"
         "plugins reclaim"
     )
 
@@ -28,9 +28,6 @@ function runAll {
     Write-Host
     writeText -type "header" -text "Installing JumpCloud" -lineBefore
     installJumpCloud
-    Write-Host
-    Write-Host
-    Write-Host
     writeText -type "header" -text "Installing ISR apps" -lineBefore
     isrInstallApps
     writeText -type "header" -text "Adding InTech admin" -lineBefore
@@ -38,7 +35,7 @@ function runAll {
     writeText -type "header" -text "Installing BGInfo" -lineBefore
     installBGInfo
     writeText -type "header" -text "Disabling context menu" -lineBefore
-    toggleContextMenu
+    disableContextMenu
     Write-Host
     Write-Host
     Write-Host
