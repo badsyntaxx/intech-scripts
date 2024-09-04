@@ -7,7 +7,7 @@ function isrOnboard {
         "intech add admin"
         "nuvia install bginfo"
         "toggle context menu"
-        "plugins reclaimw11"
+        "plugins reclaim"
     )
 
     # Create the main script file
