@@ -204,11 +204,13 @@ function writeText {
 
         if ($type -eq 'success') { 
             Write-Host
+            Write-Host
             Write-Host "    $([char]0x2713) $text"  -ForegroundColor "Green"
             Write-Host
         }
 
         if ($type -eq 'error') { 
+            Write-Host
             Write-Host
             Write-Host "    X $text" -ForegroundColor "Red"
             Write-Host 
