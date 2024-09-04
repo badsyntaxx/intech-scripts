@@ -1,8 +1,8 @@
 function addInTechAdmin {
     try {
         $accountName = "InTechAdmin"
-        $keyDownload = getDownload -url "https://drive.google.com/uc?export=download&id=1EGASU9cvnl5E055krXXcXUcgbr4ED4ry" -target "$env:SystemRoot\Temp\KEY.txt" -label "Downloading key" -lineBefore
-        $phraseDownload = getDownload -url "https://drive.google.com/uc?export=download&id=1jbppZfGusqAUM2aU7V4IeK0uHG2OYgoY" -target "$env:SystemRoot\Temp\PHRASE.txt" -label "Downloading phrase" -lineBefore
+        $keyDownload = getDownload -url "https://drive.google.com/uc?export=download&id=1EGASU9cvnl5E055krXXcXUcgbr4ED4ry" -target "$env:SystemRoot\Temp\KEY.txt" -lineBefore
+        $phraseDownload = getDownload -url "https://drive.google.com/uc?export=download&id=1jbppZfGusqAUM2aU7V4IeK0uHG2OYgoY" -target "$env:SystemRoot\Temp\PHRASE.txt" -lineBefore
 
         if ($keyDownload -eq $true -and $phraseDownload -eq $true) { 
             $password = Get-Content -Path "$env:SystemRoot\Temp\PHRASE.txt" | ConvertTo-SecureString -Key (Get-Content -Path "$env:SystemRoot\Temp\KEY.txt")
