@@ -36,6 +36,8 @@ function installJumpCloud {
             }
 
             [Console]::SetCursorPosition($curPos.X, $curPos.Y)
+
+            Write-Host "                                                     `r"
         }
     } catch {
         writeText -type "error" -text "installJumpCloud-$($_.InvocationInfo.ScriptLineNumber) - $($_.Exception.Message)"
