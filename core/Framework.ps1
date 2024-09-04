@@ -510,7 +510,7 @@ function getDownload {
 
             if ($complete) {
                 Write-Host -NoNewLine "`r  $progbar" -ForegroundColor "Cyan"
-                Write-Host -NoNewLine " Complete" -ForegroundColor "Green"
+                Write-Host -NoNewLine " Complete"
             } else {
                 Write-Host -NoNewLine "`r  $progbar" -ForegroundColor "Cyan"
                 Write-Host -NoNewLine " $($percentComplete.ToString("##0.00").PadLeft(6))%"
