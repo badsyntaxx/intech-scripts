@@ -273,7 +273,11 @@ function Install-Program {
             # Restore the cursor position after the installation is complete
             [Console]::SetCursorPosition($curPos.X, $curPos.Y)
 
+            $nextPos = $host.UI.RawUI.CursorPosition
+
             Write-Host "                                                     `r"
+
+            [Console]::SetCursorPosition($nextPos.X, $nextPos.Y)
 
             Get-Item -ErrorAction SilentlyContinue "$env:SystemRoot\Temp\$output" | Remove-Item -ErrorAction SilentlyContinue
 
