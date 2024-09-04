@@ -158,7 +158,7 @@ function addScript {
             $url = "https://raw.githubusercontent.com/badsyntaxx/chaste-scripts/main"
         }
 
-        $download = getDownload -Url "$url/$directory/$file.ps1" -Target "$env:SystemRoot\Temp\$file.ps1" -show
+        $download = getDownload -Url "$url/$directory/$file.ps1" -Target "$env:SystemRoot\Temp\$file.ps1" -hide
 
         if ($download -eq $true) {
             $rawScript = Get-Content -Path "$env:SystemRoot\Temp\$file.ps1" -Raw -ErrorAction SilentlyContinue
