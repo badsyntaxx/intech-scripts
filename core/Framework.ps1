@@ -592,7 +592,11 @@ function getDownload {
                     }
                 }
                 
-                if ($downloadComplete) { return $true } else { return $false }
+                if ($downloadComplete) { 
+                    return $true 
+                } else { 
+                    return $false 
+                }
             } catch {
                 # writeText -type "fail" -text "$($_.Exception.Message)"
                 writeText -type "fail" -text $failText
