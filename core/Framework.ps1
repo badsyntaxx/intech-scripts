@@ -158,12 +158,14 @@ function addScript {
             $url = "https://raw.githubusercontent.com/badsyntaxx/chaste-scripts/main"
         }
 
-        getDownload -Url "$url/$directory/$file.ps1" -Target "$env:SystemRoot\Temp\$file.ps1"
+        $download = getDownload -Url "$url/$directory/$file.ps1" -Target "$env:SystemRoot\Temp\$file.ps1" -hidden
 
-        $rawScript = Get-Content -Path "$env:SystemRoot\Temp\$file.ps1" -Raw -ErrorAction SilentlyContinue
-        Add-Content -Path "$env:SystemRoot\Temp\CHASTE-Script.ps1" -Value $rawScript
+        if ($download -eq $true) {
+            $rawScript = Get-Content -Path "$env:SystemRoot\Temp\$file.ps1" -Raw -ErrorAction SilentlyContinue
+            Add-Content -Path "$env:SystemRoot\Temp\CHASTE-Script.ps1" -Value $rawScript
 
-        Get-Item -ErrorAction SilentlyContinue "$env:SystemRoot\Temp\$file.ps1" | Remove-Item -ErrorAction SilentlyContinue
+            Get-Item -ErrorAction SilentlyContinue "$env:SystemRoot\Temp\$file.ps1" | Remove-Item -ErrorAction SilentlyContinue
+        }
     } catch {
         writeText -type "error" -text "addScript-$($_.InvocationInfo.ScriptLineNumber) | $($_.Exception.Message)"
     }
@@ -472,13 +474,15 @@ function getDownload {
         [Parameter(Mandatory)]
         [string]$Target,
         [Parameter(Mandatory = $false)]
-        [string]$ProgressText = 'Downloading',
+        [string]$label = 'Downloading',
         [Parameter(Mandatory = $false)]
         [string]$failText = 'Download failed...',
         [parameter(Mandatory = $false)]
-        [int]$MaxRetries = 2,
+        [switch]$lineBefore = $false,
         [parameter(Mandatory = $false)]
-        [int]$Interval = 1
+        [switch]$lineAfter = $false,
+        [parameter(Mandatory = $false)]
+        [boolean]$hidden = $false
     )
     Begin {
         function Show-Progress {
@@ -488,12 +492,11 @@ function getDownload {
                 [Parameter(Mandatory)]
                 [Single]$CurrentValue,
                 [Parameter()]
-                [string]$ValueSuffix,
-                [Parameter()]
-                [int]$BarSize = 40
+                [string]$ValueSuffix 
             )
             
             # calc %
+            $barSize = 40
             $percent = $CurrentValue / $TotalValue
             $percentComplete = $percent * 100
             if ($ValueSuffix) {
@@ -501,13 +504,10 @@ function getDownload {
             }
   
             # build progressbar with string function
-            $curBarSize = $BarSize * $percent
+            $curBarSize = $barSize * $percent
             $progbar = ""
             $progbar = $progbar.PadRight($curBarSize, [char]9608)
-            $progbar = $progbar.PadRight($BarSize, [char]9617)
-
-            Write-Host $Url
-            Write-Host $Target
+            $progbar = $progbar.PadRight($barSize, [char]9617)
 
             Write-Host -NoNewLine "`r  $progbar" -ForegroundColor "Yellow"
             Write-Host -NoNewLine " $($percentComplete.ToString("##0.00").PadLeft(6))%"            
@@ -515,7 +515,7 @@ function getDownload {
     }
     Process {
         $downloadComplete = $true 
-        for ($retryCount = 1; $retryCount -le $MaxRetries; $retryCount++) {
+        for ($retryCount = 1; $retryCount -le 2; $retryCount++) {
             try {
                 $storeEAP = $ErrorActionPreference
                 $ErrorActionPreference = 'Stop'
@@ -553,34 +553,35 @@ function getDownload {
                 # create reader / writer
                 $reader = $response.GetResponseStream()
                 $writer = new-object System.IO.FileStream $Target, "Create"
-  
-                Write-Host
-                Write-Host  "  $ProgressText"
-                # start download
-                $finalBarCount = 0 #show final bar only one time
-                do {
-                    $count = $reader.Read($buffer, 0, $buffer.Length)
+
+                if (-not $hidden) {
+                    if ($lineBefore) { Write-Host }
+                    Write-Host  "  $label"
+                    # start download
+                    $finalBarCount = 0 #show final bar only one time
+                    do {
+                        $count = $reader.Read($buffer, 0, $buffer.Length)
           
-                    $writer.Write($buffer, 0, $count)
+                        $writer.Write($buffer, 0, $count)
               
-                    $total += $count
-                    $totalMB = $total / 1024 / 1024
+                        $total += $count
+                        $totalMB = $total / 1024 / 1024
           
-                    if ($fullSize -gt 0) {
-                        Show-Progress -TotalValue $fullSizeMB -CurrentValue $totalMB -ValueSuffix "MB"
-                    }
+                        if ($fullSize -gt 0) {
+                            Show-Progress -TotalValue $fullSizeMB -CurrentValue $totalMB -ValueSuffix "MB"
+                        }
 
-                    if ($total -eq $fullSize -and $count -eq 0 -and $finalBarCount -eq 0) {
-                        Show-Progress -TotalValue $fullSizeMB -CurrentValue $totalMB -ValueSuffix "MB" -Complete
-                        $finalBarCount++
-                    }
+                        if ($total -eq $fullSize -and $count -eq 0 -and $finalBarCount -eq 0) {
+                            Show-Progress -TotalValue $fullSizeMB -CurrentValue $totalMB -ValueSuffix "MB" -Complete
+                            $finalBarCount++
+                        }
                     
-                } while ($count -gt 0)
+                    } while ($count -gt 0)
 
-                # Prevent the following output from appearing on the same line as the progress bar
-                Write-Host
-                Write-Host 
-                
+                    # Prevent the following output from appearing on the same line as the progress bar
+                    Write-Host
+                    if ($lineAfter) { Write-Host }
+                }
                 
                 if ($downloadComplete) { return $true } else { return $false }
             } catch {
@@ -591,7 +592,7 @@ function getDownload {
             
                 if ($retryCount -lt $MaxRetries) {
                     writeText "Retrying..."
-                    Start-Sleep -Seconds $Interval
+                    Start-Sleep -Seconds 1
                 } else {
                     writeText -type "error" -text "Maximum retries reached." 
                 }
