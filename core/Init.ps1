@@ -17,7 +17,7 @@ function initializeChasteScripts {
         $url = "https://raw.githubusercontent.com/badsyntaxx/intech-scripts/main"
 
         # Download the script
-        $download = getScripts -Url "$url/core/Framework.ps1" -Target "$env:SystemRoot\Temp\Framework.ps1"
+        $download = getScripts -url "$url/core/Framework.ps1" -target "$env:SystemRoot\Temp\Framework.ps1"
         if (!$download) { 
             throw "Could not acquire dependency." 
         }

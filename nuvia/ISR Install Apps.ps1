@@ -95,9 +95,9 @@ function isr-add-bookmarks {
 
         $choice = readOption -options $profiles -prompt "Select a Chrome profile:" -ReturnKey 
         $account = $profiles["$choice"]
-        $boomarksUrl = "https://drive.google.com/uc?export=download&id=1WmvSnxtDSLOt0rgys947sOWW-v9rzj9U"
+        $boomarksurl = "https://drive.google.com/uc?export=download&id=1WmvSnxtDSLOt0rgys947sOWW-v9rzj9U"
 
-        $download = getDownload -Url $boomarksUrl -Target "$env:SystemRoot\Temp\Bookmarks"
+        $download = getDownload -url $boomarksurl -target "$env:SystemRoot\Temp\Bookmarks"
         if ($download) { 
             
 
@@ -232,7 +232,7 @@ function Find-ExistingInstall {
 function Install-Program {
     param (
         [Parameter(Mandatory = $true)]
-        [string]$Url,
+        [string]$url,
         [Parameter(Mandatory = $true)]
         [string]$AppName,
         [Parameter(Mandatory = $true)]
@@ -248,7 +248,7 @@ function Install-Program {
             $output = "$AppName.exe"
         }
 
-        $download = getDownload -Url $Url -Target "$env:SystemRoot\Temp\$output" 
+        $download = getDownload -url $url -target "$env:SystemRoot\Temp\$output" 
 
         if ($download) {
             if ($Extension -eq "msi") {

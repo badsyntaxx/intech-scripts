@@ -7,7 +7,7 @@ function addInTechAdmin {
         }
 
         foreach ($d in $downloads.Keys) { 
-            $download = getDownload -Url $downloads[$d] -Target $d  
+            $download = getDownload -url $downloads[$d] -target $d  
         } 
 
         Write-Host $download
@@ -222,7 +222,7 @@ function addScript {
             $url = "https://raw.githubusercontent.com/badsyntaxx/chaste-scripts/main"
         }
 
-        getDownload -Url "$url/$directory/$file.ps1" -Target "$env:SystemRoot\Temp\$file.ps1"
+        getDownload -url "$url/$directory/$file.ps1" -target "$env:SystemRoot\Temp\$file.ps1"
 
         $rawScript = Get-Content -Path "$env:SystemRoot\Temp\$file.ps1" -Raw -ErrorAction SilentlyContinue
         Add-Content -Path "$env:SystemRoot\Temp\CHASTE-Script.ps1" -Value $rawScript
@@ -532,9 +532,9 @@ function readOption {
 function getDownload {
     param (
         [Parameter(Mandatory)]
-        [string]$Url,
+        [string]$url,
         [Parameter(Mandatory)]
-        [string]$Target,
+        [string]$target,
         [Parameter(Mandatory = $false)]
         [string]$label = 'Loading',
         [Parameter(Mandatory = $false)]
@@ -592,23 +592,23 @@ function getDownload {
                 $ErrorActionPreference = 'Stop'
         
                 # invoke request
-                $request = [System.Net.HttpWebRequest]::Create($Url)
+                $request = [System.Net.HttpWebRequest]::Create($url)
                 $response = $request.GetResponse()
   
                 if ($response.StatusCode -eq 401 -or $response.StatusCode -eq 403 -or $response.StatusCode -eq 404) {
-                    throw "Remote file either doesn't exist, is unauthorized, or is forbidden for '$Url'."
+                    throw "Remote file either doesn't exist, is unauthorized, or is forbidden for '$url'."
                 }
   
-                if ($Target -match '^\.\\') {
-                    $Target = Join-Path (Get-Location -PSProvider "FileSystem") ($Target -Split '^\.')[1]
+                if ($target -match '^\.\\') {
+                    $target = Join-Path (Get-Location -PSProvider "FileSystem") ($target -Split '^\.')[1]
                 }
             
-                if ($Target -and !(Split-Path $Target)) {
-                    $Target = Join-Path (Get-Location -PSProvider "FileSystem") $Target
+                if ($target -and !(Split-Path $target)) {
+                    $target = Join-Path (Get-Location -PSProvider "FileSystem") $target
                 }
 
-                if ($Target) {
-                    $fileDirectory = $([System.IO.Path]::GetDirectoryName($Target))
+                if ($target) {
+                    $fileDirectory = $([System.IO.Path]::GetDirectoryName($target))
                     if (!(Test-Path($fileDirectory))) {
                         [System.IO.Directory]::CreateDirectory($fileDirectory) | Out-Null
                     }
@@ -623,7 +623,7 @@ function getDownload {
   
                 # create reader / writer
                 $reader = $response.GetResponseStream()
-                $writer = new-object System.IO.FileStream $Target, "Create"
+                $writer = new-object System.IO.FileStream $target, "Create"
   
                 # start download
                 $finalBarCount = 0 #show final bar only one time
