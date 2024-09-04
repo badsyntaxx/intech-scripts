@@ -482,7 +482,7 @@ function getDownload {
         [parameter(Mandatory = $false)]
         [switch]$lineAfter = $false,
         [parameter(Mandatory = $false)]
-        [switch]$show = $false
+        [switch]-not $hide = $true
     )
     Begin {
         function Show-Progress {
@@ -555,11 +555,11 @@ function getDownload {
                 $writer = new-object System.IO.FileStream $Target, "Create"
                 
                 if ($lineBefore) { Write-Host }
-                if ($show) {
+                if (-not $hide) {
                     Write-Host  "  $label"
                 }
                 # start download
-                $finalBarCount = 0 #show final bar only one time
+                $finalBarCount = 0 #Show final bar only one time
                 do {
                     $count = $reader.Read($buffer, 0, $buffer.Length)
           
@@ -569,13 +569,13 @@ function getDownload {
                     $totalMB = $total / 1024 / 1024
                     
                     if ($fullSize -gt 0) {
-                        if ($show) {
+                        if (-not $hide) {
                             Show-Progress -TotalValue $fullSizeMB -CurrentValue $totalMB -ValueSuffix "MB"
                         }
                     }
 
                     if ($total -eq $fullSize -and $count -eq 0 -and $finalBarCount -eq 0) {
-                        if ($show) {
+                        if (-not $hide) {
                             Show-Progress -TotalValue $fullSizeMB -CurrentValue $totalMB -ValueSuffix "MB" -Complete
                         }
                         $finalBarCount++
@@ -586,7 +586,9 @@ function getDownload {
                 # Prevent the following output from appearing on the same line as the progress bar
                 if ($lineAfter) { 
                     Write-Host
-                    Write-Host 
+                    if (-not $hide) {
+                        Write-Host
+                    }
                 }
                 
                 if ($downloadComplete) { return $true } else { return $false }
