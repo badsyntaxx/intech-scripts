@@ -506,8 +506,8 @@ function getDownload {
             $progbar = $progbar.PadRight($curBarSize, [char]9608)
             $progbar = $progbar.PadRight($barSize, [char]9617)
 
-            Write-Host -NoNewLine "`r  $progbar" -ForegroundColor "Yellow"
-            Write-Host -NoNewLine " $($percentComplete.ToString("##0.00").PadLeft(6))%" -ForegroundColor "DarkCyan"            
+            Write-Host -NoNewLine "`r  $progbar" -ForegroundColor "Cyan"
+            Write-Host -NoNewLine " $($percentComplete.ToString("##0.00").PadLeft(6))%"            
         }
     }
     Process {
@@ -553,7 +553,7 @@ function getDownload {
                 
                 if ($lineBefore) { Write-Host }
                 if (-not $hide) {
-                    Write-Host  "  $label"
+                    Write-Host  "  $label" -ForegroundColor "Yellow"
                 }
                 # start download
                 $finalBarCount = 0 #Show final bar only one time
