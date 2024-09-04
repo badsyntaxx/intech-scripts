@@ -128,13 +128,9 @@ function filterCommands {
             "nuvia isr add bookmarks" { $commandArray = $("nuvia", "ISR Add Bookmarks", "isrAddBookmarks"); break }
             "isr add bookmarks" { $commandArray = $("nuvia", "ISR Add Bookmarks", "isrAddBookmarks"); break }
             "nuvia isr onboard" { $commandArray = $("nuvia", "ISR Onboard", "isrOnboard"); break }
-            "isr onboard" { 
-                $commandArray = $("nuvia", "ISR Onboard", "isrOnboard"); break 
-                Write-Host "ISR ONBOARD COMMAND"
-                exit
-            }
+            "isr onboard" { $commandArray = $("nuvia", "ISR Onboard", "isrOnboard"); break }
             default { 
-                Write-Host "  Unrecognized command. Try" -NoNewline
+                Write-Host "  Unrecognized command `"$command`". Try" -NoNewline
                 Write-Host " help" -ForegroundColor "Cyan" -NoNewline
                 Write-Host " or" -NoNewline
                 Write-Host " menu" -NoNewline -ForegroundColor "Cyan"
