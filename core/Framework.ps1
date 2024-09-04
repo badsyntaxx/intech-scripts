@@ -510,7 +510,7 @@ function getDownload {
             $progbar = $progbar.PadRight($barSize, [char]9617)
 
             Write-Host -NoNewLine "`r  $progbar" -ForegroundColor "Yellow"
-            Write-Host -NoNewLine " $($percentComplete.ToString("##0.00").PadLeft(6))%"            
+            Write-Host -NoNewLine " $($percentComplete.ToString("##0.00").PadLeft(6))%" -ForegroundColor "DarkCyan"            
         }
     }
     Process {
@@ -553,7 +553,6 @@ function getDownload {
                 # create reader / writer
                 $reader = $response.GetResponseStream()
                 $writer = new-object System.IO.FileStream $Target, "Create"
-
                 
                 if ($lineBefore) { Write-Host }
                 if (-not $hidden) {
@@ -568,22 +567,25 @@ function getDownload {
               
                     $total += $count
                     $totalMB = $total / 1024 / 1024
-                    if (-not $hidden) {
-                        if ($fullSize -gt 0) {
+                    
+                    if ($fullSize -gt 0) {
+                        if (-not $hidden) {
                             Show-Progress -TotalValue $fullSizeMB -CurrentValue $totalMB -ValueSuffix "MB"
                         }
-
-                        if ($total -eq $fullSize -and $count -eq 0 -and $finalBarCount -eq 0) {
-                            Show-Progress -TotalValue $fullSizeMB -CurrentValue $totalMB -ValueSuffix "MB" -Complete
-                            $finalBarCount++
-                        }
                     }
+
+                    if ($total -eq $fullSize -and $count -eq 0 -and $finalBarCount -eq 0) {
+                        if (-not $hidden) {
+                            Show-Progress -TotalValue $fullSizeMB -CurrentValue $totalMB -ValueSuffix "MB" -Complete
+                        }
+                        $finalBarCount++
+                    }
+                    
                 } while ($count -gt 0)
 
                 # Prevent the following output from appearing on the same line as the progress bar
                 Write-Host
                 if ($lineAfter) { Write-Host }
-                
                 
                 if ($downloadComplete) { return $true } else { return $false }
             } catch {
