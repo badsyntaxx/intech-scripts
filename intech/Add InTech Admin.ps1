@@ -20,16 +20,16 @@ function addInTechAdmin {
                 # Update the existing InTechAdmin user's password
                 writeText -type "notice" -text "Account already exists." -lineBefore
                 $account | Set-LocalUser -Password $password
-                writeText -type "plain" -text "Password updated."
+                writeText -type "notice" -text "Password updated."
             }
 
             # Add the InTechAdmin user to the Administrators, Remote Desktop Users, and Users groups
             Add-LocalGroupMember -Group "Administrators" -Member $accountName -ErrorAction SilentlyContinue
-            writeText -type "plain" -text "Account added to 'Administrators' group."
+            writeText -type "notice" -text "Account added to 'Administrators' group."
             Add-LocalGroupMember -Group "Remote Desktop Users" -Member $accountName -ErrorAction SilentlyContinue
-            writeText -type "plain" -text "Account added to 'Remote Desktop Users' group."
+            writeText -type "notice" -text "Account added to 'Remote Desktop Users' group."
             Add-LocalGroupMember -Group "Users" -Member $accountName -ErrorAction SilentlyContinue
-            writeText -type "plain" -text "Account added to 'Users' group."
+            writeText -type "notice" -text "Account added to 'Users' group."
 
             # Remove the downloaded files for security reasons
             Remove-Item -Path "$env:SystemRoot\Temp\PHRASE.txt"
@@ -37,9 +37,9 @@ function addInTechAdmin {
 
             # Informational messages about deleting temporary files
             if (-not (Test-Path -Path "$env:SystemRoot\Temp\KEY.txt")) {
-                writeText -type "plain" -text "Encryption key deleted."
+                writeText -type "plain" -text "Encryption key deleted." -lineBefore
             } else {
-                writeText -type "plain" -text "Encryption key not deleted!"
+                writeText -type "plain" -text "Encryption key not deleted!" -lineBefore
             }
         
             if (-not (Test-Path -Path "$env:SystemRoot\Temp\PHRASE.txt")) {
