@@ -118,6 +118,7 @@ function filterCommands {
             "intech menu" { $commandArray = $("intech", "Helpers", "readMenu"); break }
             "intech add admin" { $commandArray = $("intech", "Add InTech Admin", "addInTechAdmin"); break }
             "intech schedule reboot" { $commandArray = $("intech", "Schedule Reboot", "scheduleReboot"); break }
+            "nuvia" { $commandArray = $("nuvia", "Helpers", "nuvia"); break }
             "nuvia help" { $commandArray = $("nuvia", "Helpers", "writeHelp"); break }
             "nuvia menu" { $commandArray = $("nuvia", "Helpers", "readMenu"); break }
             "nuvia install bginfo" { $commandArray = $("nuvia", "Install BGInfo", "installBGInfo"); break }
