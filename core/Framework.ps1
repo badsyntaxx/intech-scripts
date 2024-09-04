@@ -493,8 +493,8 @@ function getDownload {
                 [Single]$TotalValue,
                 [Parameter(Mandatory)]
                 [Single]$CurrentValue,
-                [Parameter(Mandatory)]
-                [switch]$complete
+                [Parameter(Mandatory = $false)]
+                [switch]$complete = $false
             )
             
             # calc %
