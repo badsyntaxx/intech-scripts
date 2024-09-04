@@ -26,9 +26,9 @@ function runAll {
     writeText -type "header" -text "Installing NinjaRMM" -lineBefore
     installNinja
     Write-Host
-    <# writeText -type "header" -text "Installing JumpCloud" -lineBefore
+    writeText -type "header" -text "Installing JumpCloud" -lineBefore
     installJumpCloud
-    Write-Host #>
+    Write-Host
     writeText -type "header" -text "Installing ISR apps" -lineBefore
     isrInstallApps
     writeText -type "header" -text "Adding InTech admin" -lineBefore
