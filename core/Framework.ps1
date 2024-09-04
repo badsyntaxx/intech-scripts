@@ -574,13 +574,13 @@ function getDownload {
                     }
                 } while ($count -gt 0)
 
-                Write-Host
+                if (-not $hide) {
+                    Write-Host
+                }
 
                 # Prevent the following output from appearing on the same line as the progress bar
                 if ($lineAfter) { 
-                    if (-not $hide) {
-                        Write-Host
-                    }
+                    Write-Host
                 }
                 
                 if ($downloadComplete) { 
