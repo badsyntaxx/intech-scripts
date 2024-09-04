@@ -8,7 +8,7 @@ function installBGInfo {
         $url = "https://drive.google.com/uc?export=download&id=18gFWHawWknKufHXjcmMUB0SwGoSlbBEk"
         $target = "Nuvia" 
 
-        $download = getDownload -url $url -target "$env:SystemRoot\Temp\$target`_BGInfo.zip"
+        $download = getDownload -url $url -target "$env:SystemRoot\Temp\$target`_BGInfo.zip" -lineBefore
 
         if ($download -eq $true) { 
             # Set the wallpaper property
@@ -18,7 +18,7 @@ function installBGInfo {
             Set-ItemProperty -Path "HKCU:\Control Panel\Colors" -Name Background -Value "0 0 0" 
 
             # I don't know of a good way to check that this value has actually changed
-            writeText -type "plain" -text "Wallpaper cleared."
+            writeText -type "plain" -text "Wallpaper cleared." -lineBefore
 
             Expand-Archive -LiteralPath "$env:SystemRoot\Temp\$target`_BGInfo.zip" -DestinationPath "$env:SystemRoot\Temp\"
 
