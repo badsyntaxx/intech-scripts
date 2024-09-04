@@ -66,10 +66,10 @@ function install-chrome {
         }) -prompt "Do you want to install ISR bookmarks for Chrome?"
 
     if ($bookmarksChoice -eq 0) { 
-        isr-add-bookmarks
+        isrAddBookmarks
     }
 }
-function isr-add-bookmarks {
+function isrAddBookmarks {
     try {
         $profiles = [ordered]@{}
         $chromeUserDataPath = "C:\Users\$($user["Name"])\AppData\Local\Google\Chrome\User Data"
@@ -129,7 +129,7 @@ function isr-add-bookmarks {
         }
     } catch {
         # Display error message and end the script
-        writeText -type "error" -text "isr-add-bookmarks-$($_.InvocationInfo.ScriptLineNumber) | $($_.Exception.Message)"
+        writeText -type "error" -text "isrAddBookmarks-$($_.InvocationInfo.ScriptLineNumber) | $($_.Exception.Message)"
     }
 }
 function install-cliq {
@@ -272,6 +272,8 @@ function Install-Program {
 
             # Restore the cursor position after the installation is complete
             [Console]::SetCursorPosition($curPos.X, $curPos.Y)
+
+            Write-Host "                                                     "
 
             Get-Item -ErrorAction SilentlyContinue "$env:SystemRoot\Temp\$output" | Remove-Item -ErrorAction SilentlyContinue
 
