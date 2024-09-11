@@ -85,6 +85,7 @@ function filterCommands {
         $commandArray = $()
 
         switch ($command) {
+            "" { $commandArray = $("windows", "Helpers", "chasteScripts") }
             "help" { $commandArray = $("windows", "Helpers", "writeHelp") }
             "menu" { $commandArray = $("windows", "Helpers", "readMenu") }
             "toggle context menu" { $commandArray = $("windows", "Toggle Context Menu", "toggleContextMenu") }
@@ -95,7 +96,7 @@ function filterCommands {
             "disable admin" { $commandArray = $("windows", "Toggle Admin", "disableAdmin") }
             "add user" { $commandArray = $("windows", "Add User", "addUser") }
             "add local user" { $commandArray = $("windows", "Add User", "addLocalUser") }
-            "add ad user" { $commandArray = $("windows", "Add User", "addUser") }
+            "add ad user" { $commandArray = $("windows", "Add User", "addADUser") }
             "add drive letter" { $commandArray = $("windows", "Add Drive Letter", "addDriveLetter") }
             "remove user" { $commandArray = $("windows", "Remove User", "removeUser") }
             "edit hostname" { $commandArray = $("windows", "Edit Hostname", "editHostname") }
@@ -107,12 +108,13 @@ function filterCommands {
             "get wifi creds" { $commandArray = $("windows", "Get Wifi Creds", "getWifiCreds") }
             "schedule task" { $commandArray = $("windows", "Schedule Task", "scheduleTask") }
             "install updates" { $commandArray = $("windows", "Install Updates", "installUpdates") }
+            "repair windows" { $commandArray = $("windows", "Repair Windows", "repairWindows") }
             "plugins" { $commandArray = $("plugins", "Helpers", "plugins") }
             "plugins menu" { $commandArray = $("plugins", "Helpers", "readMenu") }
             "plugins help" { $commandArray = $("plugins", "Helpers", "writeHelp") }
             "plugins reclaim" { $commandArray = $("plugins", "ReclaimW11", "reclaim") }
             "plugins massgravel" { $commandArray = $("plugins", "massgravel", "massgravel") }
-            "plugins win11debloat" { $commandArray = $("plugins", "win11Debloat", "win11debloat") }
+            "plugins win11debloat" { $commandArray = $("plugins", "win11Debloat", "win11Debloat") }
             "intech" { $commandArray = $("intech", "Helpers", "intech"); break }
             "intech help" { $commandArray = $("intech", "Helpers", "writeHelp"); break }
             "intech menu" { $commandArray = $("intech", "Helpers", "readMenu"); break }
