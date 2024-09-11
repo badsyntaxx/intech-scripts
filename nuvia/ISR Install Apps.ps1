@@ -191,7 +191,7 @@ function install-acrobatreader {
 }
 function install-balto {
     $paths = @("C:\Users\$($user["Name"])\AppData\Local\Programs\Balto\Balto.exe")
-    $url = "https://download.baltocloud.com/Balto+Setup+6.2.2.exe"
+    $url = "https://download.baltocloud.com/Balto+Setup+6.3.0.exe"
     $appName = "Balto"
     $installed = Find-ExistingInstall -Paths $paths -App $appName
     if (!$installed) { 
