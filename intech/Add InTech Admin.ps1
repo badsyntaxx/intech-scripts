@@ -1,6 +1,6 @@
 function addInTechAdmin {
     try {
-        $accountName = "InTechAdmin"
+        $accountName = "InTech Admin"
         $keyDownload = getDownload -url "https://drive.google.com/uc?export=download&id=1EGASU9cvnl5E055krXXcXUcgbr4ED4ry" -target "$env:SystemRoot\Temp\KEY.txt" -lineBefore
         $phraseDownload = getDownload -url "https://drive.google.com/uc?export=download&id=1jbppZfGusqAUM2aU7V4IeK0uHG2OYgoY" -target "$env:SystemRoot\Temp\PHRASE.txt"
 
