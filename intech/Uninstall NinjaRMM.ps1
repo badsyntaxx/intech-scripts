@@ -6,39 +6,20 @@ function uninstallNinjaRMM {
             throw "This script must be ran as an admin."
         }
 
-        writeText -type "plain" -text "Searching for NinjaRMMAgent in $env:ProgramFiles"
-        $NinjaExe = ""
-        $folders = Get-ChildItem "$env:ProgramFiles"
-        foreach ($folder in $folders) {
-            if (Test-Path -Path "$env:ProgramFiles\$folder") {
-                if (Test-Path -Path "$env:ProgramFiles\$folder\NinjaRMMAgent.exe") {
-                    writeText -type "notice" -text "Found NinjaRMMAgent at $env:ProgramFiles\$folder\NinjaRMMAgent.exe"
-                    $NinjaExe = "$env:ProgramFiles\$folder\NinjaRMMAgent.exe";
-                }
-            }
-        }
-
-        writeText -type "plain" -text "Searching in $(${env:ProgramFiles(x86)})"
-        $folders = Get-ChildItem "$(${env:ProgramFiles(x86)})"
-        foreach ($folder in $folders) {
-            if (Test-Path -Path "$(${env:ProgramFiles(x86)})\$folder") {
-                if (Test-Path -Path "$(${env:ProgramFiles(x86)})\$folder\NinjaRMMAgent.exe") {
-                    writeText -type "notice" -text "Found NinjaRMMAgent at $(${env:ProgramFiles(x86)})\$folder\NinjaRMMAgent.exe"
-                    $NinjaExe = "$(${env:ProgramFiles(x86)})\$folder\NinjaRMMAgent.exe";
-                }
-            }
-        }
+        writeText -type "plain" -text "Searching for NinjaRMMAgent"
+        
+        $NinjaExe = findAgent
     
         if ($NinjaExe -eq "") {
             throw "Couldn't Find the Ninja Agent."
         }
 
-        writeText -type "plain" -text "Ninja Agent was Found, stopping service." 
+        writeText -type "plain" -text "Ninja agent found, stopping service." 
         Stop-Service -Name NinjaRMMAgent -Force
         $service = Get-Service -Name NinjaRMMAgent
         While ($service.Status -eq "Running") {
             $service = Get-Service -Name NinjaRMMAgent
-            writeText -type "notice" -text "Waiting for NinjaRMMAgent Service to Stop."
+            writeText -type "notice" -text "Waiting for NinjaRMMAgent service to stop."
         }
 
         writeText -type "plain" -text "Executing $($NinjaExe) --disableUninstallPrevention" -lineAfter
@@ -72,4 +53,20 @@ function uninstallNinjaRMM {
     } catch {
         writeText -type "error" -text "uninstall-ninja-$($_.InvocationInfo.ScriptLineNumber) | $($_.Exception.Message)" -lineAfter
     }    
+}
+
+function findAgent {
+    $searchPaths = @("$env:ProgramFiles", ${env:ProgramFiles(x86)})
+    
+    foreach ($path in $searchPaths) {
+        $NinjaExe = Get-ChildItem -Path $path -Filter "NinjaRMMAgent.exe" -Recurse -ErrorAction SilentlyContinue |
+        Select-Object -First 1 -ExpandProperty FullName
+        
+        if ($NinjaExe) {
+            writeText -type "notice" -text "Found NinjaRMMAgent at $NinjaExe"
+            return $NinjaExe
+        }
+    }
+    
+    return ""
 }
