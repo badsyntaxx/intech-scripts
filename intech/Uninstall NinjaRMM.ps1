@@ -6,44 +6,39 @@ function uninstallNinjaRMM {
             throw "This script requires administrator privileges."
         }
 
-        writeText -type "plain" -text "Searching for NinjaRMMAgent"
-
         $NinjaExe = findAgent
-    
         if ($NinjaExe -eq "") {
             throw "Couldn't Find the Ninja Agent."
         }
 
-        writeText -type "plain" -text "Executing $NinjaExe --disableUninstallPrevention" -lineAfter
+        writeText -type "plain" -text "Attempting to disable uninstall prevention." -lineAfter
         $process = Start-Process -FilePath "$NinjaExe" -ArgumentList "-disableUninstallPrevention" -Wait -PassThru -NoNewWindow
-        writeText -type "plain" -text "Disable process exited with Exit Code: $($process.ExitCode)" -lineBefore
+        # writeText -type "plain" -text "Disable process exited with Exit Code: $($process.ExitCode)" -lineBefore
 
-        <# if ($process.ExitCode -ne 0) {
+        if ($process.ExitCode -ne 0 -and $process.ExitCode -ne 1) {
             throw "Couldn't disable Uninstall Prevention. Make sure the service actually stopped running."
-        } #>
+        }
         
-        writeText -type "success" -text "Successfully disabled Uninstall Prevention." -lineAfter
-        writeText -type "plain" -text "NinjaExe path: $NinjaExe"
+        writeText -type "notice" -text "Uninstall prevention disabled."
         $NinjaDir = Split-Path -Parent $NinjaExe
         $Uninstaller = Join-Path $NinjaDir "uninstall.exe"
-        writeText -type "plain" -text "Uninstaller path: $Uninstaller"
 
         if (Test-Path -Path $Uninstaller) {
-            writeText -type "notice" -text "Uninstaller Exists, Continuing."
+            writeText -type "plain" -text "Uninstalling NinjaRMMAgent."
             $process = Start-Process -FilePath $Uninstaller -ArgumentList "--mode unattended" -Wait -PassThru -NoNewWindow
-            writeText -type "plain" -text "Uninstaller Exited with Code: $($process.ExitCode)"
+            # writeText -type "plain" -text "Uninstaller Exited with Code: $($process.ExitCode)"
             if ($process.ExitCode -ne 0) {
-                writeText -type "error" -text "Uninstall failed."
+                throw "Uninstall failed. Exit code $($process.ExitCode)"
             }
 
-            writeText -type "success" -text "Uninstall was successful. Performing Cleanup." 
+            writeText -type "plain" -text "Uninstaller ran successful. Performing Cleanup." 
             $NinjaDirectory = Split-Path -Parent $NinjaExe
             writeText -type "plain" -text "Removing $($NinjaDirectory)"
             Remove-Item $NinjaDirectory -Force -Recurse -ErrorAction SilentlyContinue
             writeText -type "plain" -text "Removing $($env:ProgramData)\NinjaRMMAgent\"
             Remove-Item "$($env:ProgramData)\NinjaRMMAgent\" -Force -Recurse -ErrorAction SilentlyContinue
 
-            # Add registry key deletion
+            writeText -type "plain" -text "Deleting registry keys."
             $registryPath = "HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall\NinjaRMMAgent"
             if (Test-Path $registryPath) {
                 writeText -type "plain" -text "Removing registry key: $registryPath"
@@ -57,7 +52,7 @@ function uninstallNinjaRMM {
                 writeText -type "notice" -text "Registry key not found: $registryPath"
             }
 
-            writeText -type "success" -text "Full uninstall successful." 
+            writeText -type "success" -text "NinjaRMM uninstalled." 
         } else {
             writeText -type "error" -text "Can't find uninstaller at $Uninstaller"
         }
@@ -77,7 +72,7 @@ function findAgent {
         Select-Object -First 1 -ExpandProperty FullName
         
         if ($NinjaExe) {
-            writeText -type "notice" -text "Found NinjaRMMAgent at $NinjaExe"
+            writeText -type "plain" -text "NinjaRMMAgent found at $NinjaExe"
             return $NinjaExe
         }
     }
