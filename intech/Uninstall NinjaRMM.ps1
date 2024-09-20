@@ -35,14 +35,27 @@ function uninstallNinjaRMM {
             if ($process.ExitCode -ne 0) {
                 writeText -type "error" -text "Uninstall failed."
             }
-            
+
             writeText -type "success" -text "Uninstall was successful. Performing Cleanup." 
             $NinjaDirectory = Split-Path -Parent $NinjaExe
             writeText -type "plain" -text "Removing $($NinjaDirectory)"
             Remove-Item $NinjaDirectory -Force -Recurse -ErrorAction SilentlyContinue
             writeText -type "plain" -text "Removing $($env:ProgramData)\NinjaRMMAgent\"
             Remove-Item "$($env:ProgramData)\NinjaRMMAgent\" -Force -Recurse -ErrorAction SilentlyContinue
-            
+
+            # Add registry key deletion
+            $registryPath = "HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall\NinjaRMMAgent"
+            if (Test-Path $registryPath) {
+                writeText -type "plain" -text "Removing registry key: $registryPath"
+                Remove-Item -Path $registryPath -Force -ErrorAction SilentlyContinue
+                if (Test-Path $registryPath) {
+                    writeText -type "error" -text "Failed to remove registry key: $registryPath"
+                } else {
+                    writeText -type "success" -text "Successfully removed registry key: $registryPath"
+                }
+            } else {
+                writeText -type "notice" -text "Registry key not found: $registryPath"
+            }
 
             writeText -type "success" -text "Full uninstall successful." 
         } else {
