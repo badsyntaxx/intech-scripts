@@ -23,10 +23,10 @@ function removeProgram {
     if ($ninjaRMMDir) {
         $uninstallerPath = Join-Path $ninjaRMMDir "NinjaRMMAgent.exe"
 
-        write-text -type "plain" -text "Attempting to uninstall from: $uninstallerPath"
+        writeText -type "plain" -text "Attempting to uninstall from: $uninstallerPath"
         Start-Process -FilePath $uninstallerPath -ArgumentList "/uninstall" -Wait -NoNewWindow
 
-        write-text -type "plain" -text "Uninstallation process completed."
+        writeText -type "plain" -text "Uninstallation process completed."
 
         # Remove the registry key
         $registryPath = "HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall\NinjaRMMAgent*"
@@ -34,14 +34,14 @@ function removeProgram {
 
         if ($registryKeys) {
             foreach ($key in $registryKeys) {
-                write-text -type "plain" -text "Removing registry key: $($key.Name)"
+                writeText -type "plain" -text "Removing registry key: $($key.Name)"
                 Remove-Item -Path $key.PSPath -Recurse -Force
             }
-            write-text -type "plain" -text "Registry entries removed."
+            writeText -type "plain" -text "Registry entries removed."
         } else {
-            write-text -type "plain" -text "No matching registry entries found."
+            writeText -type "plain" -text "No matching registry entries found."
         }
     } else {
-        write-text -type "plain" -text "NinjaRMMAgent.exe not found in C:\Program Files (x86)."
+        writeText -type "plain" -text "NinjaRMMAgent.exe not found in C:\Program Files (x86)."
     }
 }
