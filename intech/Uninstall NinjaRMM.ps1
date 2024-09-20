@@ -55,14 +55,14 @@ function disableUninstallPrevention {
     writeText -type "plain" -text "Attempting to disable uninstall prevention." -lineAfter
 
     try {
-        $process = Start-Process -FilePath "$ninjaExePath" -ArgumentList "-disableUninstallPrevention" -Wait -PassThru -NoNewWindow
+        $process = Start-Process -FilePath "$ninjaExePath" -ArgumentList "-disableUninstallPrevention" -Wait -PassThru -NoNewWindow | Out-Null
         # writeText -type "plain" -text "Disable process exited with Exit Code: $($process.ExitCode)" -lineBefore
 
         if ($process.ExitCode -ne 0 -and $process.ExitCode -ne 1) {
             throw "Couldn't disable Uninstall Prevention. Make sure the service actually stopped running."
         }
     
-        writeText -type "notice" -text "Uninstall prevention disabled." -lineBefore
+        writeText -type "notice" -text "Uninstall prevention disabled." -lineAfter
     } catch {
         writeText -type "error" -text "disableUninstallPrevention-$($_.InvocationInfo.ScriptLineNumber) | $($_.Exception.Message)" -lineAfter
     }
@@ -113,7 +113,7 @@ function deleteRegKeys {
     $registryPath = "HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall\NinjaRMMAgent"
     try {
         Remove-Item -Path $registryPath -Force -ErrorAction SilentlyContinue
-        writeText -type "success" -text "Successfully removed registry key: $registryPath"
+        writeText -type "plain" -text "Registry keys removed."
     } catch {
         writeText -type "error" -text "deleteRegKeys-$($_.InvocationInfo.ScriptLineNumber) | $($_.Exception.Message)" -lineAfter
     }
