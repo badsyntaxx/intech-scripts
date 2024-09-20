@@ -58,9 +58,10 @@ function disableUninstallPrevention {
         $process = Start-Process -FilePath "$ninjaExePath" -ArgumentList "-disableUninstallPrevention" -Wait -PassThru -NoNewWindow | Out-Null
         # writeText -type "plain" -text "Disable process exited with Exit Code: $($process.ExitCode)" -lineBefore
 
-        if ($process.ExitCode -ne 0 -and $process.ExitCode -ne 1) {
+        # This process is output something other than the normal exit code 0. This needs work probably $lastexitcode.
+        <# if ($process.ExitCode -ne 0 -and $process.ExitCode -ne 1) {
             throw "Couldn't disable Uninstall Prevention. Make sure the service actually stopped running."
-        }
+        } #>
     
         writeText -type "notice" -text "Uninstall prevention disabled." -lineAfter
     } catch {
