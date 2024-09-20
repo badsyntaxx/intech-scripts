@@ -53,14 +53,19 @@ function disableUninstallPrevention {
     )
 
     writeText -type "plain" -text "Attempting to disable uninstall prevention." -lineAfter
-    $process = Start-Process -FilePath "$ninjaExePath" -ArgumentList "-disableUninstallPrevention" -Wait -PassThru -NoNewWindow
-    # writeText -type "plain" -text "Disable process exited with Exit Code: $($process.ExitCode)" -lineBefore
 
-    if ($process.ExitCode -ne 0 -and $process.ExitCode -ne 1) {
-        throw "Couldn't disable Uninstall Prevention. Make sure the service actually stopped running."
-    }
+    try {
+        $process = Start-Process -FilePath "$ninjaExePath" -ArgumentList "-disableUninstallPrevention" -Wait -PassThru -NoNewWindow
+        # writeText -type "plain" -text "Disable process exited with Exit Code: $($process.ExitCode)" -lineBefore
+
+        if ($process.ExitCode -ne 0 -and $process.ExitCode -ne 1) {
+            throw "Couldn't disable Uninstall Prevention. Make sure the service actually stopped running."
+        }
     
-    writeText -type "notice" -text "Uninstall prevention disabled."
+        writeText -type "notice" -text "Uninstall prevention disabled." -lineBefore
+    } catch {
+        writeText -type "error" -text "disableUninstallPrevention-$($_.InvocationInfo.ScriptLineNumber) | $($_.Exception.Message)" -lineAfter
+    }
 }
 
 function runUninstaller {
@@ -70,13 +75,18 @@ function runUninstaller {
     )
 
     writeText -type "plain" -text "Uninstalling NinjaRMMAgent."
-    $process = Start-Process -FilePath $uninstallerPath -ArgumentList "--mode unattended" -Wait -PassThru -NoNewWindow
-    # writeText -type "plain" -text "Uninstaller Exited with Code: $($process.ExitCode)"
-    if ($process.ExitCode -ne 0) {
-        throw "Uninstall failed. Exit code $($process.ExitCode)"
-    }
 
-    writeText -type "plain" -text "Uninstaller ran successful. Performing Cleanup." 
+    try {
+        $process = Start-Process -FilePath $uninstallerPath -ArgumentList "--mode unattended" -Wait -PassThru -NoNewWindow
+        # writeText -type "plain" -text "Uninstaller Exited with Code: $($process.ExitCode)"
+        if ($process.ExitCode -ne 0) {
+            throw "Uninstall failed. Exit code $($process.ExitCode)"
+        }
+
+        writeText -type "plain" -text "Uninstaller ran successful. Performing Cleanup."
+    } catch {
+        writeText -type "error" -text "runUninstaller-$($_.InvocationInfo.ScriptLineNumber) | $($_.Exception.Message)" -lineAfter
+    }
 }
 
 function deleteDirs {
@@ -87,23 +97,24 @@ function deleteDirs {
 
     $NinjaDirectory = Split-Path -Parent $ninjaExePath
     writeText -type "plain" -text "Removing $($NinjaDirectory)"
-    Remove-Item $NinjaDirectory -Force -Recurse -ErrorAction SilentlyContinue
-    writeText -type "plain" -text "Removing $($env:ProgramData)\NinjaRMMAgent\"
-    Remove-Item "$($env:ProgramData)\NinjaRMMAgent\" -Force -Recurse -ErrorAction SilentlyContinue
+
+    try {
+        Remove-Item $NinjaDirectory -Force -Recurse -ErrorAction SilentlyContinue
+        writeText -type "plain" -text "Removing $($env:ProgramData)\NinjaRMMAgent\"
+        Remove-Item "$($env:ProgramData)\NinjaRMMAgent\" -Force -Recurse -ErrorAction SilentlyContinue
+    } catch {
+        writeText -type "error" -text "deleteDirs-$($_.InvocationInfo.ScriptLineNumber) | $($_.Exception.Message)" -lineAfter
+    }
+    
 }
 
 function deleteRegKeys {
     writeText -type "plain" -text "Deleting registry keys."
     $registryPath = "HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall\NinjaRMMAgent"
-    if (Test-Path $registryPath) {
-        writeText -type "plain" -text "Removing registry key: $registryPath"
+    try {
         Remove-Item -Path $registryPath -Force -ErrorAction SilentlyContinue
-        if (Test-Path $registryPath) {
-            writeText -type "error" -text "Failed to remove registry key: $registryPath"
-        } else {
-            writeText -type "success" -text "Successfully removed registry key: $registryPath"
-        }
-    } else {
-        writeText -type "notice" -text "Registry key not found: $registryPath"
+        writeText -type "success" -text "Successfully removed registry key: $registryPath"
+    } catch {
+        writeText -type "error" -text "deleteRegKeys-$($_.InvocationInfo.ScriptLineNumber) | $($_.Exception.Message)" -lineAfter
     }
 }
