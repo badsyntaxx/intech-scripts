@@ -7,7 +7,7 @@ function uninstallNinjaRMM {
         }
 
         writeText -type "plain" -text "Searching for NinjaRMMAgent"
-        
+
         $NinjaExe = findAgent
     
         if ($NinjaExe -eq "") {
@@ -28,15 +28,18 @@ function uninstallNinjaRMM {
 
         if ($process.ExitCode -eq 0) {
             writeText -type "success" -text "Successfully disabled Uninstall Prevention." -lineAfter
-            writeText -type "plain" -text "Checking for Uninstaller."
-            $Uninstaller = $NinjaExe.Replace("NinjaRMMAgent.exe", "uninstall.exe")
+            writeText -type "plain" -text "NinjaExe path: $NinjaExe"
+            $NinjaDir = Split-Path -Parent $NinjaExe
+            $Uninstaller = Join-Path $NinjaDir "uninstall.exe"
+            writeText -type "plain" -text "Uninstaller path: $Uninstaller"
+
             if (Test-Path -Path $Uninstaller) {
                 writeText -type "notice" -text "Uninstaller Exists, Continuing."
                 $process = Start-Process -FilePath $Uninstaller -ArgumentList "--mode unattended" -Wait -PassThru -NoNewWindow
                 writeText -type "plain" -text "Uninstaller Exited with Code: $($process.ExitCode)"
                 if ($process.ExitCode -eq 0) {
                     writeText -type "success" -text "Uninstall was successful. Performing Cleanup." 
-                    $NinjaDirectory = $NinjaExe.Replace("NinjaRMMAgent.exe", "")
+                    $NinjaDirectory = Split-Path -Parent $NinjaExe
                     writeText -type "plain" -text "Removing $($NinjaDirectory)"
                     Remove-Item $NinjaDirectory -Force -Recurse -ErrorAction SilentlyContinue
                     writeText -type "plain" -text "Removing $($env:ProgramData)\NinjaRMMAgent\"
@@ -45,7 +48,7 @@ function uninstallNinjaRMM {
                     writeText -type "error" -text "Uninstall failed."
                 }
             } else {
-                writeText -type "error" -text "Cant find uninstaller."
+                writeText -type "error" -text "Can't find uninstaller at $Uninstaller"
             }
         } else {
             writeText -type "error" -text "Couldn't disable Uninstall Prevention. Make sure the service actually stopped running."
