@@ -11,8 +11,8 @@ function removeNinjaService {
     ) 
 
     if (Get-Service -Name $service -ErrorAction SilentlyContinue) {
-        Stop-Service -Name $service -Force
-        Remove-Service -Name $service -Force
+        & "C:\Windows\System32\cmd.exe" net stop $service
+        & "C:\Windows\System32\cmd.exe" sc delete $service
     }
 }
 
