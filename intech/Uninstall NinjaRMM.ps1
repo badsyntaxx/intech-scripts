@@ -83,7 +83,7 @@ function runUninstaller {
             throw "Uninstall failed. Exit code $($process.ExitCode)"
         }
 
-        writeText -type "plain" -text "Uninstaller ran successful. Performing Cleanup."
+        writeText -type "plain" -text "Uninstaller successful. Performing Cleanup."
     } catch {
         writeText -type "error" -text "runUninstaller-$($_.InvocationInfo.ScriptLineNumber) | $($_.Exception.Message)" -lineAfter
     }
