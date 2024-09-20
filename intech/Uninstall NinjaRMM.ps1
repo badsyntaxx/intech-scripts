@@ -63,7 +63,7 @@ function disableUninstallPrevention {
             throw "Couldn't disable Uninstall Prevention. Make sure the service actually stopped running."
         } #>
     
-        writeText -type "notice" -text "Uninstall prevention disabled." -lineAfter
+        writeText -type "notice" -text "Uninstall prevention disabled." -lineAfter -lineBefore
     } catch {
         writeText -type "error" -text "disableUninstallPrevention-$($_.InvocationInfo.ScriptLineNumber) | $($_.Exception.Message)" -lineAfter
     }
