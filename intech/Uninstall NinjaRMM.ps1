@@ -41,12 +41,12 @@ function uninstallNinjaRMM {
             writeText -type "notice" -text "Waiting for NinjaRMMAgent Service to Stop."
         }
 
-        writeText -type "plain" -text "Executing $($NinjaExe) --disableUninstallPrevention"
+        writeText -type "plain" -text "Executing $($NinjaExe) --disableUninstallPrevention" -lineAfter
         $process = Start-Process -FilePath "$($NinjaExe)" -ArgumentList "--disableUninstallPrevention" -Wait -PassThru -NoNewWindow
-        writeText -type "plain" -text "Process exited with Exit Code: $($process.ExitCode)"
+        writeText -type "plain" -text "Disable process exited with Exit Code: $($process.ExitCode)" -lineBefore
 
         if ($process.ExitCode -eq 0) {
-            writeText -type "success" -text "Successfully disabled Uninstall Prevention." 
+            writeText -type "success" -text "Successfully disabled Uninstall Prevention." -lineAfter
             writeText -type "plain" -text "Checking for Uninstaller."
             $Uninstaller = $NinjaExe.Replace("NinjaRMMAgent.exe", "uninstall.exe")
             if (Test-Path -Path $Uninstaller) {

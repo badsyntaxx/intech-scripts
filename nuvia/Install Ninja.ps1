@@ -30,7 +30,12 @@ function installNinja {
                     Start-Sleep -Seconds 3
 
                     $service = Get-Service -Name "NinjaRMMAgent" -ErrorAction SilentlyContinue
-                    if ($null -eq $service -or $service.Status -ne "Running") { throw "NinjaOne did not successfully install." }
+                    if ($service.Status -ne "Running") { 
+                        Start-Service -Name "NinjaRMMAgent"
+                    }
+                    if ($service.Status -ne "Running") { 
+                        throw "NinjaOne did not successfully install." 
+                    }
 
                     Get-Item -ErrorAction SilentlyContinue "$env:SystemRoot\Temp\NinjaOne.msi" | Remove-Item -ErrorAction SilentlyContinue
 
