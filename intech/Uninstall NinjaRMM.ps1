@@ -41,6 +41,8 @@ function removeProgram {
         } else {
             writeText -type "plain" -text "No matching registry entries found."
         }
+
+        writeText -type "success" -text "NinjaRMM uninstalled."
     } else {
         writeText -type "plain" -text "NinjaRMMAgent.exe not found in C:\Program Files (x86)."
     }
