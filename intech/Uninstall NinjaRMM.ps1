@@ -1,75 +1,185 @@
 function uninstallNinjaRMM {
+
+    # This script will test our ability to reach keys for the uninstall script on different OSes - Win 7, Win 8.1 and Win 10
+
+    # Access to HKCR requires a temporary drive mapping
+    New-PSDrive -Name HKCR -PSProvider Registry -Root HKEY_CLASSES_ROOT
+
+    # Stop Ninja service
+    net stop NinjaRMMAgent
+
+    # Set current Ninja install and registry paths
+    if ([system.environment]::Is64BitOperatingSystem) { 
+        $ninjaSoftKey = 'HKLM:\SOFTWARE\WOW6432Node\NinjaRMM LLC\NinjaRMMAgent'
+        $uninstallKey = 'HKLM:\SOFTWARE\WOW6432Node\Microsoft\Windows\CurrentVersion\Uninstall'  
+    } else { 
+        $ninjaSoftKey = 'HKLM:\SOFTWARE\NinjaRMM LLC\NinjaRMMAgent'
+        $uninstallKey = 'HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall'    
+    }
     try {
-        $id = [System.Security.Principal.WindowsIdentity]::GetCurrent()
-        $p = New-Object System.Security.Principal.WindowsPrincipal($id)
-        if (-not $p.IsInRole([System.Security.Principal.WindowsBuiltInRole]::Administrator)) { 
-            throw "This script must be ran as an admin."
-        }
-
-        writeText -type "plain" -text "Searching for NinjaRMMAgent"
-
-        $NinjaExe = findAgent
-    
-        if ($NinjaExe -eq "") {
-            throw "Couldn't Find the Ninja Agent."
-        }
-
-        writeText -type "plain" -text "Ninja agent found, stopping service." 
-        Stop-Service -Name NinjaRMMAgent -Force
-        $service = Get-Service -Name NinjaRMMAgent
-        While ($service.Status -eq "Running") {
-            $service = Get-Service -Name NinjaRMMAgent
-            writeText -type "notice" -text "Waiting for NinjaRMMAgent service to stop."
-        }
-
-        writeText -type "plain" -text "Executing $($NinjaExe) --disableUninstallPrevention" -lineAfter
-        $process = Start-Process -FilePath "$($NinjaExe)" -ArgumentList "--disableUninstallPrevention" -Wait -PassThru -NoNewWindow
-        writeText -type "plain" -text "Disable process exited with Exit Code: $($process.ExitCode)" -lineBefore
-
-        if ($process.ExitCode -eq 0) {
-            writeText -type "success" -text "Successfully disabled Uninstall Prevention." -lineAfter
-            writeText -type "plain" -text "NinjaExe path: $NinjaExe"
-            $NinjaDir = Split-Path -Parent $NinjaExe
-            $Uninstaller = Join-Path $NinjaDir "uninstall.exe"
-            writeText -type "plain" -text "Uninstaller path: $Uninstaller"
-
-            if (Test-Path -Path $Uninstaller) {
-                writeText -type "notice" -text "Uninstaller Exists, Continuing."
-                $process = Start-Process -FilePath $Uninstaller -ArgumentList "--mode unattended" -Wait -PassThru -NoNewWindow
-                writeText -type "plain" -text "Uninstaller Exited with Code: $($process.ExitCode)"
-                if ($process.ExitCode -eq 0) {
-                    writeText -type "success" -text "Uninstall was successful. Performing Cleanup." 
-                    $NinjaDirectory = Split-Path -Parent $NinjaExe
-                    writeText -type "plain" -text "Removing $($NinjaDirectory)"
-                    Remove-Item $NinjaDirectory -Force -Recurse -ErrorAction SilentlyContinue
-                    writeText -type "plain" -text "Removing $($env:ProgramData)\NinjaRMMAgent\"
-                    Remove-Item "$($env:ProgramData)\NinjaRMMAgent\" -Force -Recurse -ErrorAction SilentlyContinue
-                } else {
-                    writeText -type "error" -text "Uninstall failed."
-                }
-            } else {
-                writeText -type "error" -text "Can't find uninstaller at $Uninstaller"
-            }
-        } else {
-            writeText -type "error" -text "Couldn't disable Uninstall Prevention. Make sure the service actually stopped running."
-        }
+        $ninjaDir = $((Get-ItemProperty -Path $ninjaSoftKey).Location)
+        $ninjaDir = $ninjaDir.Replace('/', '\') # repair path with slash instead of backslash
     } catch {
-        writeText -type "error" -text "uninstall-ninja-$($_.InvocationInfo.ScriptLineNumber) | $($_.Exception.Message)" -lineAfter
-    }    
-}
+        Write-Output "Ninja directory not present or could not be found."
+    }
+    $installerKey = 'HKCR:\Installer\Products'
+    $installerProductsKey = 'HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\Installer\UserData\S-1-5-18\Products\'
+    $installerComponentsKey = 'HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\Installer\UserData\S-1-5-18\Components'
+    $ninjaSoftKeyRoot = 'HKLM:\SOFTWARE\WOW6432Node\NinjaRMM LLC'
+    $servicesKey = 'HKLM:\SYSTEM\Setup\FirstBoot\Services'
+    $msiKey = 'HKLM:\SOFTWARE\WOW6432Node\EXEMSI.COM\MSI Wrapper\Installed'
+    function Test-RegistryValue {
 
-function findAgent {
-    $searchPaths = @("$env:ProgramFiles", ${env:ProgramFiles(x86)})
+        param (    
+            [parameter(Mandatory = $true)]
+            [ValidateNotNullOrEmpty()]$Path,
+            [parameter(Mandatory = $true)]
+            [ValidateNotNullOrEmpty()]$Value
+        )    
+        try {
+
+            Get-ItemProperty -Path $Path | Select-Object -ExpandProperty $Value -ErrorAction Stop | Out-Null
+            return $true
+        } catch {
+            return $false
+        }
     
-    foreach ($path in $searchPaths) {
-        $NinjaExe = Get-ChildItem -Path $path -Filter "NinjaRMMAgent.exe" -Recurse -ErrorAction SilentlyContinue |
-        Select-Object -First 1 -ExpandProperty FullName
+    }
+
+    # get packageCode and childName
+    Set-Location HKCR:
+    $keys = Get-ChildItem $installerKey | Get-ItemProperty -name 'ProductName' 
+    foreach ($key in $keys) {
+        if ($key.'ProductName' -eq 'NinjaRMMAgent') {
+            $foundHKCRKey = $key
+            $packageCode = (Get-Item $key.PSPath | Get-ItemProperty -name 'PackageCode').packageCode
+            $childName = (Get-ItemProperty $key.PSPath).PSChildName
         
-        if ($NinjaExe) {
-            writeText -type "notice" -text "Found NinjaRMMAgent at $NinjaExe"
-            return $NinjaExe
         }
     }
-    
-    return ""
+
+    # get installerProductsKey
+    Set-Location HKLM:
+    $foundInstallerProductsKey = Get-ChildItem $installerProductsKey\$childName
+
+    # get installerComponentsKey
+    $keys = Get-ChildItem $installerComponentsKey
+    foreach ($key in $keys) {
+        if (Test-RegistryValue -Path $key -Value $childName) {
+            $foundComponentKey = $key       
+        } 
+    }
+
+    # get servicesKey
+    $keys = Get-ChildItem $servicesKey |  Get-ItemProperty -name 'ServiceName'
+    foreach ($key in $keys) {
+        if ($key.'ServiceName' -eq 'NinjaRMMAgent') {
+            $foundServicesKey = $key       
+        } 
+    }
+
+    # get msiKey
+    $keys = Get-ChildItem $msiKey
+    foreach ($key in $keys) {
+        if ($key.PSChildName -like 'NinjaRMMAgent*') {
+            $foundMsiKey = $key       
+        } 
+    }
+
+
+    #Handle Removing agents that are uninstall protected
+    $uninstallProtectionFile = "C:\ProgramData\NinjaRMMAgent\storage\njfile.bin"
+
+    if ( Test-Path $uninstallProtectionFile ) {
+        if ( -not(Test-Path $ninjaDir\uninstall.exe) ) {
+            #disable uninstall prevention
+            Write-Host "Disabling uninstall prevention"
+            & "$ninjaDir\NinjaRMMAgent.exe" -disableUninstallPrevention
+        }	
+	
+        if ( -not(Test-Path $ninjaDir\uninstall.exe) ) {
+            Write-Host "Missing uninstall.exe! Exiting..."
+            exit 1 
+        }
+    }
+
+    # Executes uninstall.exe in Ninja install directory
+    #& '$ninjaDir\uninstall.exe' --% --mode unattended | out-null
+    try {
+        $filePath = Join-Path -Path $ninjaDir -ChildPath "uninstall.exe"
+        Start-Process -FilePath $filePath -ArgumentList '--mode unattended'
+    } catch {
+        Write-Output "Could not run Ninja agent uninstall. May have already been removed or cannot be found. Continuing removal."
+    }
+
+    Start-Sleep -Seconds 180
+
+    # Delete Ninja install directory and all contents
+    try {
+        & cmd.exe /c rd /s /q $ninjaDir
+    } catch {
+        Write-Output "Unable to delete Ninja directory as it has already been removed. Continuing cleanup."
+    }
+
+    # Removes the Ninja service
+    sc.exe DELETE NinjaRMMAgent
+
+    Start-Sleep -Seconds 90
+
+    #delete foundHKCRKey
+    try {
+        Remove-Item -Path $foundHKCRKey.PSPath -Recurse -Force
+        Write-Output "foundHKCRKey deleted"
+    } catch {
+        Write-Output "foundHKCRKey already deleted or was not found"
+    }
+    # delete installerProductsKey
+    try {
+        Remove-Item -Path $foundInstallerProductsKey.PSPath -Recurse -Force
+        Write-Output "foundInstallerProductsKey deleted"
+    } catch {
+        Write-Output "foundInstallerProductsKey already deleted or was not found"
+    }
+
+    # delete installerComponentsKey
+    try {
+        Remove-Item -Path $foundComponentKey.PSPath -Recurse -Force
+        Write-Output "foundComponentKey deleted"
+    } catch {
+        Write-Output "foundComponentKey already deleted or was not found"
+    }
+
+
+    # delete ninjaSoftKeyRoot
+    try {
+        Remove-Item -Path $ninjaSoftKeyRoot.PSPath -Recurse -Force
+        Write-Output "foundSoftKeyRoot deleted"
+    } catch {
+        Write-Output "foundSoftKeyRoot already deleted or was not found"
+    }
+
+
+    # delete servicesKey
+    try {
+        Remove-Item -Path $foundServicesKey.PSPath  -Recurse -Force
+        Write-Output "foundServicesKey deleted"
+    } catch {
+        Write-Output "foundServicesKey already deleted or was not found"
+    }
+
+    # delete msiKey
+    try {
+        Remove-Item -Path $foundMsiKey.PSPath -Recurse -Force
+        Write-Output "foundMsiKey deleted"
+    } catch {
+        Write-Output "foundMsiKey already deleted or was not found"
+    }
+
+    #remove drive mapping previously created to HKCR
+    Remove-PSDrive -Name HKCR
+
+    Write-Output "Script complete."
+
+    Exit
 }
+    
