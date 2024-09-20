@@ -3,7 +3,7 @@ function uninstallNinjaRMM {
         $id = [System.Security.Principal.WindowsIdentity]::GetCurrent()
         $p = New-Object System.Security.Principal.WindowsPrincipal($id)
         if (-not $p.IsInRole([System.Security.Principal.WindowsBuiltInRole]::Administrator)) { 
-            throw "This script must be ran as an admin."
+            throw "This script requires administrator privileges."
         }
 
         writeText -type "plain" -text "Searching for NinjaRMMAgent"
