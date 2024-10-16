@@ -10,7 +10,7 @@ function installJumpCloud {
             $download = getDownload -url $AGENT_INSTALLER_url -target $AGENT_INSTALLER_PATH -lineBefore
             if ($download) {             
                 $JumpCloudConnectKey = "fe8929df5bbccb8aceb58385b88aba034b7d69f7";
-                msiexec /i $AGENT_INSTALLER_PATH /quiet JCINSTALLERARGUMENTS=`"-k $JumpCloudConnectKey /VERYSILENT /NORESTART /NOCLOSEAPPLICATIONS /L*V "C:\Windows\Temp\jcUpdate.log"`"
+                & "C:\Windows\System32\cmd.exe" /c msiexec /i $AGENT_INSTALLER_PATH /quiet JCINSTALLERARGUMENTS=`"-k $JumpCloudConnectKey /VERYSILENT /NORESTART /NOCLOSEAPPLICATIONS /L*V "C:\Windows\Temp\jcUpdate.log"`"
 
                 $curPos = $host.UI.RawUI.CursorPosition
 
