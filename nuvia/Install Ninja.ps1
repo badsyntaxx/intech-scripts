@@ -27,19 +27,45 @@ function installNinja {
                 if ($download) { 
                     Start-Process -FilePath "msiexec" -ArgumentList "/i `"$env:SystemRoot\Temp\NinjaOne.msi`" /qn" -Wait
 
-                    Start-Sleep -Seconds 3
+                    # Initialize variables for service check
+                    $maxAttempts = 10  # Number of attempts to check service
+                    $waitSeconds = 5   # Time to wait between attempts
+                    $serviceRunning = $false
 
-                    $service = Get-Service -Name "NinjaRMMAgent" -ErrorAction SilentlyContinue
-                    if ($service.Status -ne "Running") { 
-                        Start-Service -Name "NinjaRMMAgent"
-                    }
-                    if ($service.Status -ne "Running") { 
-                        throw "NinjaOne did not successfully install." 
+                    writeText -type "notice" -text "Waiting for NinjaRMMAgent service to start..."
+
+                    # Loop to check service status
+                    for ($i = 1; $i -le $maxAttempts; $i++) {
+                        $service = Get-Service -Name "NinjaRMMAgent" -ErrorAction SilentlyContinue
+                        
+                        if ($null -ne $service) {
+                            if ($service.Status -eq "Running") {
+                                $serviceRunning = $true
+                                break
+                            }
+                            elseif ($service.Status -ne "Running") {
+                                writeText -type "notice" -text "Attempt $i of $maxAttempts: Service found but not running. Starting service..."
+                                Start-Service -Name "NinjaRMMAgent" -ErrorAction SilentlyContinue
+                            }
+                        } else {
+                            writeText -type "notice" -text "Waiting for Ninja service to start..."
+                        }
+
+                        if ($i -lt $maxAttempts) {
+                            Start-Sleep -Seconds $waitSeconds
+                        }
                     }
 
+                    # Cleanup
                     Get-Item -ErrorAction SilentlyContinue "$env:SystemRoot\Temp\NinjaOne.msi" | Remove-Item -ErrorAction SilentlyContinue
 
-                    writeText -type "success" -text "NinjaOne successfully installed." -lineAfter
+                    # Final status check
+                    if ($serviceRunning) {
+                        writeText -type "success" -text "NinjaOne successfully installed and service is running." -lineAfter
+                    }
+                    else {
+                        throw "NinjaOne installation completed but service failed to start after $($maxAttempts * $waitSeconds) seconds."
+                    }
                 }
             }
         }
@@ -47,4 +73,3 @@ function installNinja {
         writeText -type "error" -text "installNinja-$($_.InvocationInfo.ScriptLineNumber) - $($_.Exception.Message)"
     }
 }
-
