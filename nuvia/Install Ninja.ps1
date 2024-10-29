@@ -47,7 +47,7 @@ function installNinja {
                                 Start-Service -Name "NinjaRMMAgent" -ErrorAction SilentlyContinue
                             }
                         } else {
-                            writeText -type "notice" -text "Waiting for Ninja service to start..."
+                            writeText -type "notice" -text "Service not found yet. Attempting to find service $i of $maxAttempts."
                         }
 
                         if ($i -lt $maxAttempts) {
