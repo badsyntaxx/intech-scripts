@@ -42,8 +42,7 @@ function installNinja {
                             if ($service.Status -eq "Running") {
                                 $serviceRunning = $true
                                 break
-                            }
-                            elseif ($service.Status -ne "Running") {
+                            } elseif ($service.Status -ne "Running") {
                                 writeText -type "notice" -text "Attempt $i of $maxAttempts: Service found but not running. Starting service..."
                                 Start-Service -Name "NinjaRMMAgent" -ErrorAction SilentlyContinue
                             }
