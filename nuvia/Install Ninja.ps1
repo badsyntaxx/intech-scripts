@@ -15,10 +15,10 @@ function installNinja {
         }
 
         if ($choice -ne 3) {
-            $url = "https://app.ninjarmm.com/agent/installer/0274c0c3-3ec8-44fc-93cb-79e96f191e07/$location-5.9.1158-windows-installer.msi"
+            $url = "https://app.ninjarmm.com/agent/installer/0274c0c3-3ec8-44fc-93cb-79e96f191e07/$location-6.0.1901-windows-installer.msi"
             $service = Get-Service -Name "NinjaRMMAgent" -ErrorAction SilentlyContinue
 
-            writeText -type "notice" -text "$location-5.9.1158-windows-installer.msi"
+            writeText -type "notice" -text "$location-6.0.1901-windows-installer.msi"
         
             if ($null -ne $service -and $service.Status -eq "Running") {
                 writeText -type "success" -text "NinjaRMMAgent is already installed and running."

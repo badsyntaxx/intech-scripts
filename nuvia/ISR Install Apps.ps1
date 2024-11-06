@@ -59,78 +59,6 @@ function install-chrome {
     if (!$installed) { 
         Install-Program $url $appName "msi" "/qn" 
     }
-
-    $bookmarksChoice = readOption -options $([ordered]@{
-            "Install bookmarks" = "Add ISR bookmarks to Google Chrome now."
-            "Skip"              = "Skip ahead and do not add bookmarks to Google Chrome."
-        }) -prompt "Do you want to install ISR bookmarks for Chrome?" -lineBefore
-
-    if ($bookmarksChoice -eq 0) { 
-        isrAddBookmarks
-    }
-}
-function isrAddBookmarks {
-    try {
-        $profiles = [ordered]@{}
-        $chromeUserDataPath = "C:\Users\$($user["Name"])\AppData\Local\Google\Chrome\User Data"
-        if (!(Test-Path $chromeUserDataPath)) {
-            # throw "No user directory. It's likely the account has not had it's first sign-in yet." 
-            New-Item -ItemType Directory -Path $chromeUserDataPath
-        }
-        $profileFolders = Get-ChildItem -Path $chromeUserDataPath -Directory
-        if ($null -eq $profileFolders) { 
-            New-Item -ItemType Directory -Path "$chromeUserDataPath\Default" -Force
-        }
-        foreach ($profileFolder in $profileFolders) {
-            $preferencesFile = Join-Path -Path $profileFolder.FullName -ChildPath "Preferences"
-            if (Test-Path -Path $preferencesFile) {
-                $preferencesContent = Get-Content -Path $preferencesFile -Raw | ConvertFrom-Json
-                $profileName = $preferencesContent.account_info.email
-                if ($null -eq $preferencesContent.account_info.email) {
-                    $profileName = $preferencesContent.account_info.account_id
-                } 
-                $profiles["$profileName"] = $profileFolder.FullName
-            }
-        }
-
-        $choice = readOption -options $profiles -prompt "Select a Chrome profile:" -ReturnKey 
-        $account = $profiles["$choice"]
-        $boomarksurl = "https://drive.google.com/uc?export=download&id=1WmvSnxtDSLOt0rgys947sOWW-v9rzj9U"
-
-        $download = getDownload -url $boomarksurl -target "$env:SystemRoot\Temp\Bookmarks"
-        if ($download) { 
-            
-
-            ROBOCOPY $env:SystemRoot\Temp $account "Bookmarks" /NFL /NDL /NC /NS /NP | Out-Null
-
-            Remove-Item -Path "$env:SystemRoot\Temp\Bookmarks" -Force
-
-            $preferencesFilePath = Join-Path -Path $profiles["$choice"] -ChildPath "Preferences"
-            if (Test-Path -Path $preferencesFilePath) {
-                $preferences = Get-Content -Path $preferencesFilePath -Raw | ConvertFrom-Json
-                if (-not $preferences.PSObject.Properties.Match('bookmark_bar').Count) {
-                    $preferences | Add-Member -type NoteProperty -Name 'bookmark_bar' -Value @{}
-                }
-
-                if (-not $preferences.bookmark_bar.PSObject.Properties.Match('show_on_all_tabs').Count) {
-                    $preferences.bookmark_bar | Add-Member -type NoteProperty -Name 'show_on_all_tabs' -Value $true
-                } else {
-                    $preferences.bookmark_bar.show_on_all_tabs = $true
-                }
-
-                $preferences | ConvertTo-Json -Depth 100 | Set-Content -Path $preferencesFilePath
-            } else {
-                throw "Preferences file not found."
-            }
-
-            if (Test-Path -Path $account) {
-                writeText -type "success" -text "The bookmarks have been added."
-            }
-        }
-    } catch {
-        # Display error message and end the script
-        writeText -type "error" -text "isrAddBookmarks-$($_.InvocationInfo.ScriptLineNumber) | $($_.Exception.Message)"
-    }
 }
 function install-cliq {
     $paths = @(
@@ -191,11 +119,11 @@ function install-acrobatreader {
 }
 function install-balto {
     $paths = @("C:\Users\$($user["Name"])\AppData\Local\Programs\Balto\Balto.exe")
-    $url = "https://download.baltocloud.com/Balto+Setup+6.3.0.exe"
+    $url = "https://download.baltocloud.com/Balto+6.3.0.msi"
     $appName = "Balto"
     $installed = Find-ExistingInstall -Paths $paths -App $appName
     if (!$installed) { 
-        Install-Program $url $appName "exe" "/silent" 
+        Install-Program $url $appName "msi" "/qn" 
     }
 }
 function Initialize-Cleanup {
