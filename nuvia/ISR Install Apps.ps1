@@ -58,13 +58,6 @@ function install-chrome {
     $installed = Find-ExistingInstall -Paths $paths -App $appName
     if (!$installed) { 
         Install-Program $url $appName "msi" "/qn"
-
-        foreach ($path in $paths) {
-            if (Test-Path $path) {
-                Pin-ToTaskbar -Path $path
-                break
-            }
-        }
     }
 }
 function install-cliq {
@@ -77,11 +70,6 @@ function install-cliq {
     $installed = Find-ExistingInstall -Paths $paths -App $appName
     if (!$installed) { 
         Install-Program $url $appName "msi" "/qn" 
-
-        if (Test-Path "C:\Users\$env:USERNAME\AppData\Local\cliq\Cliq.exe") {
-            Pin-ToTaskbar -Path $path
-            break
-        }
     }
 }
 function install-zoom {
@@ -229,25 +217,5 @@ function Install-Program {
     } catch {
         writeText -type "error" -text "Installation error: $($_.Exception.Message)"
         writeText "Skipping $AppName installation."
-    }
-}
-function Pin-ToTaskbar {
-    param (
-        [parameter(Mandatory = $true)]
-        [string]$Path
-    )
-    
-    if (Test-Path $Path) {
-        $shell = New-Object -ComObject "Shell.Application"  
-        $folder = $shell.Namespace([System.IO.Path]::GetDirectoryName($Path))
-        $item = $folder.ParseName([System.IO.Path]::GetFileName($Path))
-        $verbs = $item.Verbs()
-        
-        # Look for the "Pin to Taskbar" verb and invoke it
-        $pinVerb = $verbs | Where-Object { $_.Name -match "Pin to Taskbar" }
-        if ($pinVerb) {
-            $pinVerb.DoIt()
-            Write-Host "Pinned $([System.IO.Path]::GetFileName($Path)) to taskbar"
-        }
     }
 }
