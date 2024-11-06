@@ -69,13 +69,19 @@ function install-chrome {
 }
 function install-cliq {
     $paths = @(
-        "C:\Program Files (x86)\Cliq Deployment\cliqDeploymentTool.exe"
+        "C:\Program Files (x86)\Cliq Deployment\cliqDeploymentTool.exe",
+        "C:\Users\$env:USERNAME\AppData\Local\cliq\Cliq.exe"
     )
     $url = "https://downloads.zohocdn.com/chat-desktop/windows/Cliq-1.7.4-x64.msi"
     $appName = "Cliq"
     $installed = Find-ExistingInstall -Paths $paths -App $appName
     if (!$installed) { 
         Install-Program $url $appName "msi" "/qn" 
+
+        if (Test-Path "C:\Users\$env:USERNAME\AppData\Local\cliq\Cliq.exe") {
+            Pin-ToTaskbar -Path $path
+            break
+        }
     }
 }
 function install-zoom {
