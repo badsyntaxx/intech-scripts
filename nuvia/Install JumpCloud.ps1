@@ -35,9 +35,9 @@ function installJumpCloud {
 
                 Write-Host "                                                     `r"
             }
+        } else {
+            writeText -type "success" -text "JumpCloud Agent Already Installed."
         }
-        
-        writeText -type "success" -text "JumpCloud Agent Already Installed."
     } catch {
         writeText -type "error" -text "installJumpCloud-$($_.InvocationInfo.ScriptLineNumber) - $($_.Exception.Message)"
     }
