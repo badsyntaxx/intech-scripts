@@ -9,6 +9,7 @@ function isrInstallApps {
                 "Revo Uninstaller" = "Install RevoUninstaller."
                 "Acrobat"          = "Install Adobe Acrobat reader."
                 "Balto"            = "Install Balto AI"
+                "JustCall" = "Install JustCall"
                 "Exit"             = "Exit this script and go back to main command line."
             }) -prompt "Select which apps to install:"
 
@@ -36,7 +37,10 @@ function isrInstallApps {
         if ($installChoice -eq 7 -or $installChoice -eq 0) { 
             install-balto
         }
-        if ($installChoice -eq 8) { 
+        if ($installChoice -eq 8 -or $installChoice -eq 0) { 
+            install-justcall
+        }
+        if ($installChoice -eq 9) { 
             readCommand
         }
 
@@ -125,6 +129,15 @@ function install-balto {
     $installed = Find-ExistingInstall -Paths $paths -App $appName
     if (!$installed) { 
         Install-Program $url $appName "msi" "/qn" 
+    }
+}
+function install-justcall {
+    $paths = @("C:\Program Files\justcall\justcall.exe")
+    $url = "https://cdn.justcall.io/app/desktop/win/JustCall-7.0.1.exe"
+    $appName = "JustCall"
+    $installed = Find-ExistingInstall -Paths $paths -App $appName
+    if (!$installed) { 
+        Install-Program $url $appName "exe" "/verysilent" 
     }
 }
 function Initialize-Cleanup {
