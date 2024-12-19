@@ -36,6 +36,8 @@ function installJumpCloud {
                 [Console]::SetCursorPosition($curPos.X, $curPos.Y)
 
                 Write-Host "                                                     `r"
+                Write-Host
+                Write-Host
             }
         } else {
             writeText -type "success" -text "JumpCloud Agent Already Installed."
