@@ -129,7 +129,8 @@ function filterCommands {
                 if ($command -ne "help" -and $command -ne "" -and $command -match "^(?-i)(\w+(-\w+)*)") {
                     if (Get-command $matches[1] -ErrorAction SilentlyContinue) {
                         if ($matches[1] -ne "intech" -and $matches[1] -ne "nuvia") {
-                            Invoke-Expression $command
+                            $output = Invoke-Expression -Command $command 
+                            $output | Format-Table | Out-String | ForEach-Object { Write-Host $_ }
                             readCommand
                         }
                     }
