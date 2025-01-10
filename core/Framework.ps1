@@ -48,16 +48,6 @@ function readCommand {
 
         $command = $command.ToLower()
         $command = $command.Trim()
-
-        if ($command -ne "help" -and $command -ne "" -and $command -match "^(?-i)(\w+(-\w+)*)") {
-            if (Get-command $matches[1] -ErrorAction SilentlyContinue) {
-                if ($matches[1] -ne "intech" -and $matches[1] -ne "nuvia") {
-                    Invoke-Expression $command
-                    readCommand
-                }
-            }
-        }
-
         $filteredCommand = filterCommands -command $command
         $commandDirectory = $filteredCommand[0]
         $commandFile = $filteredCommand[1]
@@ -106,6 +96,7 @@ function filterCommands {
             "edit user group" { $commandArray = $("windows", "Edit User", "editUserGroup") }
             "edit net adapter" { $commandArray = $("windows", "Edit Net Adapter", "editNetAdapter") }
             "get wifi creds" { $commandArray = $("windows", "Get Wifi Creds", "getWifiCreds") }
+            "get software" { $commandArray = $("windows", "Get Software", "getSoftware") }
             "schedule task" { $commandArray = $("windows", "Schedule Task", "scheduleTask") }
             "update windows" { $commandArray = $("windows", "Update Windows", "updateWindows") }
             "repair windows" { $commandArray = $("windows", "Repair Windows", "repairWindows") }
@@ -135,6 +126,14 @@ function filterCommands {
             "nuvia isr onboard" { $commandArray = $("nuvia", "ISR Onboard", "isrOnboard"); break }
             "isr onboard" { $commandArray = $("nuvia", "ISR Onboard", "isrOnboard"); break }
             default { 
+                if ($command -ne "help" -and $command -ne "" -and $command -match "^(?-i)(\w+(-\w+)*)") {
+                    if (Get-command $matches[1] -ErrorAction SilentlyContinue) {
+                        if ($matches[1] -ne "intech" -and $matches[1] -ne "nuvia") {
+                            Invoke-Expression $command
+                            readCommand
+                        }
+                    }
+                }
                 Write-Host "  Unrecognized command `"$command`". Try" -NoNewline
                 Write-Host " help" -ForegroundColor "Cyan" -NoNewline
                 Write-Host " or" -NoNewline
