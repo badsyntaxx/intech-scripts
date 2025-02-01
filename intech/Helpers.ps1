@@ -22,10 +22,6 @@ function readMenu {
             3 { readCommand }
         }
 
-        Write-Host
-        Write-Host ": "  -ForegroundColor "DarkCyan" -NoNewline
-        Write-Host " $command" -ForegroundColor "Gray"
-
         readCommand -command $command
     } catch {
         writeText -type "error" -text "intech-menu-$($_.InvocationInfo.ScriptLineNumber) | $($_.Exception.Message)" -lineAfter

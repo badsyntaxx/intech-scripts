@@ -362,127 +362,127 @@ function readOption {
         [switch]$lineAfter = $false
     )
 
-        try {
-            # Add a line break before the menu if lineBefore is specified
-            if ($lineBefore) { Write-Host }
+    try {
+        # Add a line break before the menu if lineBefore is specified
+        if ($lineBefore) { Write-Host }
 
-            # Get current cursor position
-            $promptPos = $host.UI.RawUI.CursorPosition
+        # Get current cursor position
+        $promptPos = $host.UI.RawUI.CursorPosition
 
-            Write-Host "? " -NoNewline -ForegroundColor "Green"
-            Write-Host "$prompt "
+        Write-Host "? " -NoNewline -ForegroundColor "Green"
+        Write-Host "$prompt "
 
-            # Initialize variables for user input handling
-            $vkeycode = 0
-            $pos = 0
-            $oldPos = 0
+        # Initialize variables for user input handling
+        $vkeycode = 0
+        $pos = 0
+        $oldPos = 0
 
-            # Get a list of keys from the options dictionary
-            $orderedKeys = $options.Keys | ForEach-Object { $_ }
+        # Get a list of keys from the options dictionary
+        $orderedKeys = $options.Keys | ForEach-Object { $_ }
 
-            # Get an array of all values
-            # $values = $options.Values
+        # Get an array of all values
+        # $values = $options.Values
 
-            # Find the length of the longest key for padding
-            $longestKeyLength = ($orderedKeys | ForEach-Object { "$_".Length } | Measure-Object -Maximum).Maximum
+        # Find the length of the longest key for padding
+        $longestKeyLength = ($orderedKeys | ForEach-Object { "$_".Length } | Measure-Object -Maximum).Maximum
 
-            # Find the length of the longest value
-            # $longestValueLength = ($values | ForEach-Object { "$_".Length } | Measure-Object -Maximum).Maximum
+        # Find the length of the longest value
+        # $longestValueLength = ($values | ForEach-Object { "$_".Length } | Measure-Object -Maximum).Maximum
 
-            # Display single option if only one exists
-            if ($orderedKeys.Count -eq 1) {
-                Write-Host "$([char]0x2192)" -ForegroundColor "DarkCyan" -NoNewline
-                Write-Host "  $($orderedKeys) $(" " * ($longestKeyLength - $orderedKeys.Length)) - $($options[$orderedKeys])" -ForegroundColor "DarkCyan"
-            } else {
-                # Loop through each option and display with padding and color
-                for ($i = 0; $i -lt $orderedKeys.Count; $i++) {
-                    $key = $orderedKeys[$i]
-                    $padding = " " * ($longestKeyLength - $key.Length)
-                    if ($i -eq $pos) { 
-                        Write-Host "$([char]0x2192)" -ForegroundColor "DarkCyan" -NoNewline  
-                        Write-Host " $key $padding - $($options[$key])" -ForegroundColor "DarkCyan"
-                    } else { 
-                        Write-Host "  $key $padding - $($options[$key])" -ForegroundColor "Gray" 
-                    }
-                }
-            }
-
-            # Get the current cursor position
-            $currPos = $host.UI.RawUI.CursorPosition
-
-            # Loop for user input to select an option
-            While ($vkeycode -ne 13) {
-                $press = $host.ui.rawui.readkey("NoEcho, IncludeKeyDown")
-                $vkeycode = $press.virtualkeycode
-                if ($orderedKeys.Count -ne 1) { 
-                    $oldPos = $pos;
-                    if ($vkeycode -eq 38) { $pos-- }
-                    if ($vkeycode -eq 40) { $pos++ }
-                    if ($pos -lt 0) { $pos = 0 }
-                    if ($pos -ge $orderedKeys.Count) { $pos = $orderedKeys.Count - 1 }
-
-                    # Calculate positions for redrawing menu items
-                    $menuLen = $orderedKeys.Count
-                    $menuOldPos = New-Object System.Management.Automation.Host.Coordinates($currPos.X, ($currPos.Y - ($menuLen - $oldPos)))
-                    $menuNewPos = New-Object System.Management.Automation.Host.Coordinates($currPos.X, ($currPos.Y - ($menuLen - $pos)))
-                    $oldKey = $orderedKeys[$oldPos]
-                    $newKey = $orderedKeys[$pos]
-                
-                    # Re-draw the previously selected and newly selected options
-                    $host.UI.RawUI.CursorPosition = $menuOldPos
-                    Write-Host "  $($orderedKeys[$oldPos]) $(" " * ($longestKeyLength - $oldKey.Length)) - $($options[$orderedKeys[$oldPos]])" -ForegroundColor "Gray"
-                    $host.UI.RawUI.CursorPosition = $menuNewPos
-                    Write-Host "$([char]0x2192)" -ForegroundColor "DarkCyan" -NoNewline
-                    Write-Host " $($orderedKeys[$pos]) $(" " * ($longestKeyLength - $newKey.Length)) - $($options[$orderedKeys[$pos]])" -ForegroundColor "DarkCyan"
-                    $host.UI.RawUI.CursorPosition = $currPos
-                }
-            }
-
-            # Clear the menu by overwriting it with spaces
-            $menuLines = $options.Count
-            $newY = $promptPos.Y + 1 # Calculate the new Y position
-            for ($i = 0; $i -lt $menuLines; $i++) {
-                # Ensure the Y position is within the terminal bounds
-                if ($newY -ge 0 -and $newY -lt $host.UI.RawUI.WindowSize.Height) {
-                    $host.UI.RawUI.CursorPosition = New-Object System.Management.Automation.Host.Coordinates($promptPos.X, $newY)
-                    Write-Host (" " * ($host.UI.RawUI.WindowSize.Width - 1)) # Clear each line with spaces
-                }
-                $newY++ # Move to the next line
-            }
-
-            # Move the cursor back to the prompt position
-            if ($promptPos.Y -ge 0 -and $promptPos.Y -lt $host.UI.RawUI.WindowSize.Height) {
-                $host.UI.RawUI.CursorPosition = $promptPos
-            }
-
-            # Display the selected option on the same line as the prompt
-            Write-Host "? " -NoNewline -ForegroundColor "Green"
-            Write-Host "$prompt " -NoNewline
-            Write-Host "$($orderedKeys[$pos])" -ForegroundColor "DarkCyan"
-
-            # Add a line break after the menu if lineAfter is specified
-            if ($lineAfter) { Write-Host }
-
-            # Handle function return values (key, value, menu position) based on parameters
-            if ($returnKey) { 
-                if ($orderedKeys.Count -eq 1) { 
-                    return $orderedKeys 
+        # Display single option if only one exists
+        if ($orderedKeys.Count -eq 1) {
+            Write-Host "$([char]0x2192)" -ForegroundColor "DarkCyan" -NoNewline
+            Write-Host "  $($orderedKeys) $(" " * ($longestKeyLength - $orderedKeys.Length)) - $($options[$orderedKeys])" -ForegroundColor "DarkCyan"
+        } else {
+            # Loop through each option and display with padding and color
+            for ($i = 0; $i -lt $orderedKeys.Count; $i++) {
+                $key = $orderedKeys[$i]
+                $padding = " " * ($longestKeyLength - $key.Length)
+                if ($i -eq $pos) { 
+                    Write-Host "$([char]0x2192)" -ForegroundColor "DarkCyan" -NoNewline  
+                    Write-Host " $key $padding - $($options[$key])" -ForegroundColor "DarkCyan"
                 } else { 
-                    return $orderedKeys[$pos] 
-                } 
-            } 
-            if ($returnValue) { 
-                if ($orderedKeys.Count -eq 1) { 
-                    return $options[$pos] 
-                } else { 
-                    return $options[$orderedKeys[$pos]] 
-                } 
-            } else { 
-                return $pos 
+                    Write-Host "  $key $padding - $($options[$key])" -ForegroundColor "Gray" 
+                }
             }
-        } catch {
-            writeText -type "error" -text "readOption-$($_.InvocationInfo.ScriptLineNumber) | $($_.Exception.Message)"
         }
+
+        # Get the current cursor position
+        $currPos = $host.UI.RawUI.CursorPosition
+
+        # Loop for user input to select an option
+        While ($vkeycode -ne 13) {
+            $press = $host.ui.rawui.readkey("NoEcho, IncludeKeyDown")
+            $vkeycode = $press.virtualkeycode
+            if ($orderedKeys.Count -ne 1) { 
+                $oldPos = $pos;
+                if ($vkeycode -eq 38) { $pos-- }
+                if ($vkeycode -eq 40) { $pos++ }
+                if ($pos -lt 0) { $pos = 0 }
+                if ($pos -ge $orderedKeys.Count) { $pos = $orderedKeys.Count - 1 }
+
+                # Calculate positions for redrawing menu items
+                $menuLen = $orderedKeys.Count
+                $menuOldPos = New-Object System.Management.Automation.Host.Coordinates($currPos.X, ($currPos.Y - ($menuLen - $oldPos)))
+                $menuNewPos = New-Object System.Management.Automation.Host.Coordinates($currPos.X, ($currPos.Y - ($menuLen - $pos)))
+                $oldKey = $orderedKeys[$oldPos]
+                $newKey = $orderedKeys[$pos]
+            
+                # Re-draw the previously selected and newly selected options
+                $host.UI.RawUI.CursorPosition = $menuOldPos
+                Write-Host "  $($orderedKeys[$oldPos]) $(" " * ($longestKeyLength - $oldKey.Length)) - $($options[$orderedKeys[$oldPos]])" -ForegroundColor "Gray"
+                $host.UI.RawUI.CursorPosition = $menuNewPos
+                Write-Host "$([char]0x2192)" -ForegroundColor "DarkCyan" -NoNewline
+                Write-Host " $($orderedKeys[$pos]) $(" " * ($longestKeyLength - $newKey.Length)) - $($options[$orderedKeys[$pos]])" -ForegroundColor "DarkCyan"
+                $host.UI.RawUI.CursorPosition = $currPos
+            }
+        }
+
+        # Clear the menu by overwriting it with spaces
+        $menuLines = $options.Count
+        $newY = $promptPos.Y + 1 # Calculate the new Y position
+        for ($i = 0; $i -lt $menuLines; $i++) {
+            # Ensure the Y position is within the terminal bounds
+            if ($newY -ge 0 -and $newY -lt $host.UI.RawUI.WindowSize.Height) {
+                $host.UI.RawUI.CursorPosition = New-Object System.Management.Automation.Host.Coordinates($promptPos.X, $newY)
+                Write-Host (" " * ($host.UI.RawUI.WindowSize.Width - 1)) # Clear each line with spaces
+            }
+            $newY++ # Move to the next line
+        }
+
+        # Move the cursor back to the prompt position
+        if ($promptPos.Y -ge 0 -and $promptPos.Y -lt $host.UI.RawUI.WindowSize.Height) {
+            $host.UI.RawUI.CursorPosition = $promptPos
+        }
+
+        # Display the selected option on the same line as the prompt
+        Write-Host "? " -NoNewline -ForegroundColor "Green"
+        Write-Host "$prompt " -NoNewline
+        Write-Host "$($orderedKeys[$pos])" -ForegroundColor "DarkCyan"
+
+        # Add a line break after the menu if lineAfter is specified
+        if ($lineAfter) { Write-Host }
+
+        # Handle function return values (key, value, menu position) based on parameters
+        if ($returnKey) { 
+            if ($orderedKeys.Count -eq 1) { 
+                return $orderedKeys 
+            } else { 
+                return $orderedKeys[$pos] 
+            } 
+        } 
+        if ($returnValue) { 
+            if ($orderedKeys.Count -eq 1) { 
+                return $options[$pos] 
+            } else { 
+                return $options[$orderedKeys[$pos]] 
+            } 
+        } else { 
+            return $pos 
+        }
+    } catch {
+        writeText -type "error" -text "readOption-$($_.InvocationInfo.ScriptLineNumber) | $($_.Exception.Message)"
+    }
 }
 function getDownload {
     param (

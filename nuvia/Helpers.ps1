@@ -24,10 +24,6 @@ function readMenu {
             4 { readCommand }
         }
 
-        Write-Host
-        Write-Host ": "  -ForegroundColor "DarkCyan" -NoNewline
-        Write-Host " $command" -ForegroundColor "Gray"
-
         readCommand -command $command
     } catch {
         writeText -type "error" -text "nuvia-menu: $($_.Exception.Message) $url/nuvia/$dependency.ps1" 
