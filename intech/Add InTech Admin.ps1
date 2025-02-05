@@ -1,11 +1,16 @@
 function addInTechAdmin {
     try {
         $accountName = "InTech Admin"
-        $keyDownload = getDownload -url "https://drive.google.com/uc?export=download&id=1EGASU9cvnl5E055krXXcXUcgbr4ED4ry" -target "$env:SystemRoot\Temp\KEY.txt" -lineBefore
+        $keyDownload = getDownload -url "https://drive.google.com/uc?export=download&id=1xch0P1dyNKEibMaLhybDy54SXh66ger0" -target "$env:SystemRoot\Temp\KEY.txt" -lineBefore
         $phraseDownload = getDownload -url "https://drive.google.com/uc?export=download&id=1jbppZfGusqAUM2aU7V4IeK0uHG2OYgoY" -target "$env:SystemRoot\Temp\PHRASE.txt"
 
         if ($keyDownload -eq $true -and $phraseDownload -eq $true) { 
-            $password = Get-Content -Path "$env:SystemRoot\Temp\PHRASE.txt" | ConvertTo-SecureString -Key (Get-Content -Path "$env:SystemRoot\Temp\KEY.txt")
+            # Read the key file and convert it to a byte array
+            $keyString = Get-Content -Path "$env:SystemRoot\Temp\KEY.txt"
+            $keyBytes = $keyString -split "," | ForEach-Object { [byte]$_ }
+
+            # Read the encrypted password and convert it to a secure string using the key
+            $password = Get-Content -Path "$env:SystemRoot\Temp\PHRASE.txt" | ConvertTo-SecureString -Key $keyBytes
 
             writeText -type "plain" -text "Phrase converted." -lineBefore
 
