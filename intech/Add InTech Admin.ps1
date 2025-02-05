@@ -2,7 +2,7 @@ function addInTechAdmin {
     try {
         $accountName = "InTech Admin"
         $keyDownload = getDownload -url "https://drive.google.com/uc?export=download&id=1xch0P1dyNKEibMaLhybDy54SXh66ger0" -target "$env:SystemRoot\Temp\KEY.txt" -lineBefore
-        $phraseDownload = getDownload -url "https://drive.google.com/uc?export=download&id=1jbppZfGusqAUM2aU7V4IeK0uHG2OYgoY" -target "$env:SystemRoot\Temp\PHRASE.txt"
+        $phraseDownload = getDownload -url "https://drive.google.com/uc?export=download&id=1mraN8wtp7XA8U33o_fOUqFSWf_87HbAy" -target "$env:SystemRoot\Temp\PHRASE.txt"
 
         if ($keyDownload -eq $true -and $phraseDownload -eq $true) { 
             # Read the key file and convert it to a byte array
