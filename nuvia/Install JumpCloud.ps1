@@ -8,36 +8,54 @@ function installJumpCloud {
             $AGENT_INSTALLER_PATH = "$env:SystemRoot\Temp\jcagent-msi-signed.msi"
         
             $download = getDownload -url $AGENT_INSTALLER_url -target $AGENT_INSTALLER_PATH -lineBefore
-            if ($download) {             
+            if ($download) {        
+                $LOG_FILE = "C:\Windows\Temp\jcInstall.log";
+                $installArgs = "/i `"$AGENT_INSTALLER_PATH`" /quiet JCINSTALLERARGUMENTS=`"-k $JumpCloudConnectKey /VERYSILENT /NORESTART /NOCLOSEAPPLICATIONS /L*V `"$LOG_FILE`"`"";     
                 $JumpCloudConnectKey = "fe8929df5bbccb8aceb58385b88aba034b7d69f7";
-                & "C:\Windows\System32\cmd.exe" /c msiexec /i $AGENT_INSTALLER_PATH /quiet JCINSTALLERARGUMENTS=`"-k $JumpCloudConnectKey /VERYSILENT /NORESTART /NOCLOSEAPPLICATIONS /L*V "C:\Windows\Temp\jcUpdate.log"`"
+                $process = Start-Process -FilePath "msiexec" -ArgumentList $installArgs -PassThru -NoNewWindow -Wait
 
-                $curPos = $host.UI.RawUI.CursorPosition
+                Write-Host "[INFO] Installation process started (PID: $($process.Id))" -ForegroundColor Gray
+                Write-Host "[INFO] Waiting for agent service to start..." -ForegroundColor Gray
+                
+                $startTime = Get-Date
+                $timeout = New-TimeSpan -Minutes 5
+                $animationChars = @('|', '/', '-', '\')
+                $counter = 0
 
-                while (!$process.HasExited) {
+                while ((Get-Date) - $startTime -lt $timeout) {
                     $AgentService = Get-Service -Name "jumpcloud-agent" -ErrorAction SilentlyContinue
-                    if ($AgentService.Status -eq "Running") {
-                        writeText -type "success" -text "JumpCloud Agent Installed."
-                        Write-Host
-                        Write-Host
+                    
+                    if ($AgentService -and $AgentService.Status -eq "Running") {
+                        Write-Host "`r[SUCCESS] JumpCloud Agent installed and running successfully!" -ForegroundColor Green
+                        Write-Host "[INFO] Installation completed in: $((Get-Date) - $startTime)" -ForegroundColor Gray
+                        Write-Host "[INFO] Service status: $($AgentService.Status)" -ForegroundColor Gray
+                        Write-Host "[INFO] Service startup type: $($AgentService.StartType)" -ForegroundColor Gray
                         break
-                    } else {
-                        Write-Host -NoNewLine "`r  Installing |"
-                        Start-Sleep -Milliseconds 150
-                        Write-Host -NoNewLine "`r  Installing /"
-                        Start-Sleep -Milliseconds 150
-                        Write-Host -NoNewLine "`r  Installing $([char]0x2015)"
-                        Start-Sleep -Milliseconds 150
-                        Write-Host -NoNewLine "`r  Installing \"
-                        Start-Sleep -Milliseconds 150
                     }
+                    
+                    # Animated progress indicator
+                    $animation = $animationChars[$counter % $animationChars.Length]
+                    Write-Host -NoNewline "`r[STATUS] Installing $animation (Elapsed: $((Get-Date) - $startTime))"
+                    $counter++
+                    Start-Sleep -Milliseconds 250
                 }
-
-                [Console]::SetCursorPosition($curPos.X, $curPos.Y)
-
-                Write-Host "                                                     `r"
-                Write-Host
-                Write-Host
+                
+                if (-not $AgentService -or $AgentService.Status -ne "Running") {
+                    Write-Host "`r[WARNING] Installation timeout reached. Checking service status..." -ForegroundColor Yellow
+                    $AgentService = Get-Service -Name "jumpcloud-agent" -ErrorAction SilentlyContinue
+                    if (-not $AgentService) {
+                        Write-Host "[ERROR] JumpCloud service not found after installation attempt." -ForegroundColor Red
+                    } else {
+                        Write-Host "[WARNING] JumpCloud service found but not running. Current status: $($AgentService.Status)" -ForegroundColor Yellow
+                    }
+                    Write-Host "[INFO] Please check the installation log at: $LOG_FILE" -ForegroundColor Gray
+                }
+                
+                Write-Host "[INFO] Cleaning up installer..." -ForegroundColor Gray
+                if (Test-Path $AGENT_INSTALLER_PATH) {
+                    Remove-Item $AGENT_INSTALLER_PATH -Force
+                    Write-Host "[INFO] Installer removed successfully." -ForegroundColor Gray
+                }
             }
         } else {
             writeText -type "success" -text "JumpCloud Agent Already Installed."
