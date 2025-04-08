@@ -10,8 +10,21 @@ function installJumpCloud {
             $download = getDownload -url $AGENT_INSTALLER_url -target $AGENT_INSTALLER_PATH -lineBefore
             if ($download) {        
                 $LOG_FILE = "C:\Windows\Temp\jcInstall.log";
-                $installArgs = "/i `"$AGENT_INSTALLER_PATH`" /quiet JCINSTALLERARGUMENTS=`"-k $JumpCloudConnectKey /VERYSILENT /NORESTART /NOCLOSEAPPLICATIONS /L*V `"$LOG_FILE`"`"";     
                 $JumpCloudConnectKey = "30f0dbe3ccdc563f1426f4138f2b9046cdc44dbd";
+                
+                # Correct MSIEXEC arguments - note the proper quoting
+                $installArgs = @(
+                    "/i",
+                    "`"$AGENT_INSTALLER_PATH`"",
+                    "/quiet",
+                    "/norestart",
+                    "/L*V",
+                    "`"$INSTALLER_LOG`"",
+                    "JCINSTALLERARGUMENTS=`"-k $JumpCloudConnectKey /VERYSILENT /NORESTART /NOCLOSEAPPLICATIONS`""
+                )
+                
+                "Starting installation with arguments: msiexec $installArgs" | Out-File -FilePath $LOG_FILE -Append
+                
                 $process = Start-Process -FilePath "msiexec" -ArgumentList $installArgs -PassThru -NoNewWindow -Wait
 
                 Write-Host "[INFO] Installation process started (PID: $($process.Id))" -ForegroundColor Gray
@@ -51,11 +64,11 @@ function installJumpCloud {
                     Write-Host "[INFO] Please check the installation log at: $LOG_FILE" -ForegroundColor Gray
                 }
                 
-                Write-Host "[INFO] Cleaning up installer..." -ForegroundColor Gray
+                <# Write-Host "[INFO] Cleaning up installer..." -ForegroundColor Gray
                 if (Test-Path $AGENT_INSTALLER_PATH) {
                     Remove-Item $AGENT_INSTALLER_PATH -Force
                     Write-Host "[INFO] Installer removed successfully." -ForegroundColor Gray
-                }
+                } #>
             }
         } else {
             writeText -type "success" -text "JumpCloud Agent Already Installed."
