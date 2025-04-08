@@ -4,7 +4,7 @@ function installJumpCloud {
         $AGENT_PATH = Join-Path ${env:ProgramFiles} "JumpCloud"
         $AGENT_BINARY_NAME = "jumpcloud-agent.exe"
         if (-not (Test-Path -Path "$($AGENT_PATH)\$($AGENT_BINARY_NAME)")) {
-            $AGENT_INSTALLER_url = "https://cdn02.jumpcloud.com/production/jcagent-msi-signed.msi"
+            $AGENT_INSTALLER_url = "https://cdn02.jumpcloud.com/production/versions/2.23.0/jcagent-msi-signed.msi"
             $AGENT_INSTALLER_PATH = "$env:SystemRoot\Temp\jcagent-msi-signed.msi"
         
             $download = getDownload -url $AGENT_INSTALLER_url -target $AGENT_INSTALLER_PATH -lineBefore
