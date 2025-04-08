@@ -11,7 +11,7 @@ function installJumpCloud {
             if ($download) {        
                 $LOG_FILE = "C:\Windows\Temp\jcInstall.log";
                 $installArgs = "/i `"$AGENT_INSTALLER_PATH`" /quiet JCINSTALLERARGUMENTS=`"-k $JumpCloudConnectKey /VERYSILENT /NORESTART /NOCLOSEAPPLICATIONS /L*V `"$LOG_FILE`"`"";     
-                $JumpCloudConnectKey = "fe8929df5bbccb8aceb58385b88aba034b7d69f7";
+                $JumpCloudConnectKey = "30f0dbe3ccdc563f1426f4138f2b9046cdc44dbd";
                 $process = Start-Process -FilePath "msiexec" -ArgumentList $installArgs -PassThru -NoNewWindow -Wait
 
                 Write-Host "[INFO] Installation process started (PID: $($process.Id))" -ForegroundColor Gray
