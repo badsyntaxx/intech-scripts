@@ -9,7 +9,7 @@ function installJumpCloud {
         
             $download = getDownload -url $AGENT_INSTALLER_url -target $AGENT_INSTALLER_PATH -lineBefore
             if ($download) {        
-                $LOG_FILE = "C:\Windows\Temp\jcInstall.log";
+                $LOG_FILE = "$env:SystemRoot\Temp\jcInstall.log";
                 $JumpCloudConnectKey = "30f0dbe3ccdc563f1426f4138f2b9046cdc44dbd";
                 
                 # Correct MSIEXEC arguments - note the proper quoting
