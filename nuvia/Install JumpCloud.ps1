@@ -27,8 +27,8 @@ function installJumpCloud {
                 
                 $process = Start-Process -FilePath "msiexec" -ArgumentList $installArgs -PassThru -NoNewWindow -Wait
 
-                Write-Host "[INFO] Installation process started (PID: $($process.Id))" -ForegroundColor Gray
-                Write-Host "[INFO] Waiting for agent service to start..." -ForegroundColor Gray
+                writeText -type "plain" -text "[INFO] Installation process started (PID: $($process.Id))"
+                writeText -type "plain" -text "[INFO] Waiting for agent service to start..."
                 
                 $startTime = Get-Date
                 $timeout = New-TimeSpan -Minutes 5
