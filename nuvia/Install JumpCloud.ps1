@@ -60,7 +60,7 @@ function installJumpCloud {
                     } else {
                         writeText -type 'notice' -text "JumpCloud service found but not running. Current status: $($AgentService.Status)"
                     }
-                    writeText -type 'plain' -text "Please check the installation log at: $LOG_FILE"
+                    writeText -type 'plain' -text "Please check the installation log at: $log"
                 }
                 
                 <# Write-Host "[INFO] Cleaning up installer..."
