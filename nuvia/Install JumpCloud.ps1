@@ -3,7 +3,7 @@ function installJumpCloud {
         & "C:\Windows\System32\cmd.exe" /c ipconfig /FlushDNS | Out-Null
         $agentPath = Join-Path ${env:ProgramFiles} "JumpCloud"
         if (-not (Test-Path -Path "$($agentPath)\jumpcloud-agent.exe")) {
-            $url = "https://cdn02.jumpcloud.com/production/versions/2.23.0/jcagent-msi-signed.msi"
+            $url = "https://cdn02.jumpcloud.com/production/jcagent-msi-signed.msi"
             $installerPath = "$env:SystemRoot\Temp\jcagent-msi-signed.msi"
         
             $download = getDownload -url $url -target $installerPath -lineBefore
