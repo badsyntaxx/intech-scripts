@@ -9,7 +9,7 @@ function installJumpCloud {
             $download = getDownload -url $url -target $installerPath -lineBefore
             if ($download) {        
                 $log = "$env:SystemRoot\Temp\jcInstall.log";
-                $JumpCloudConnectKey = "30f0dbe3ccdc563f1426f4138f2b9046cdc44dbd";
+                $JumpCloudConnectKey = "jcc_eyJwdWJsaWNLaWNrc3RhcnRVcmwiOiJodHRwczovL2tpY2tzdGFydC5qdW1wY2xvdWQuY29tIiwicHJpdmF0ZUtpY2tzdGFydFVybCI6Imh0dHBzOi8vcHJpdmF0ZS1raWNrc3RhcnQuanVtcGNsb3VkLmNvbSIsImNvbm5lY3RLZXkiOiIzMGYwZGJlM2NjZGM1NjNmMTQyNmY0MTM4ZjJiOTA0NmNkYzQ0ZGJkIn0g";
                 
                 # Correct MSIEXEC arguments - note the proper quoting
                 $installArgs = @(
@@ -30,7 +30,7 @@ function installJumpCloud {
                 writeText -type "plain" -text "Waiting for agent service to start..."
                 
                 $startTime = Get-Date
-                $timeout = New-TimeSpan -Minutes 5
+                $timeout = New-TimeSpan -Minutes 10
                 $animationChars = @('|', '/', '-', '\')
                 $counter = 0
 
@@ -38,35 +38,35 @@ function installJumpCloud {
                     $AgentService = Get-Service -Name "jumpcloud-agent" -ErrorAction SilentlyContinue
                     
                     if ($AgentService -and $AgentService.Status -eq "Running") {
-                        Write-Host "`r[SUCCESS] JumpCloud Agent installed and running successfully!" -ForegroundColor Green
-                        Write-Host "[INFO] Installation completed in: $((Get-Date) - $startTime)" -ForegroundColor Gray
-                        Write-Host "[INFO] Service status: $($AgentService.Status)" -ForegroundColor Gray
-                        Write-Host "[INFO] Service startup type: $($AgentService.StartType)" -ForegroundColor Gray
+                        writeText -type 'success' -text " JumpCloud Agent installed and running successfully!"
+                        writeText -type 'plain' -text "Installation completed in: $((Get-Date) - $startTime)"
+                        writeText -type 'plain' -text "Service status: $($AgentService.Status)"
+                        writeText -type 'plain' -text "Service startup type: $($AgentService.StartType)"
                         break
                     }
                     
                     # Animated progress indicator
                     $animation = $animationChars[$counter % $animationChars.Length]
-                    Write-Host -NoNewline "`r[STATUS] Installing $animation (Elapsed: $((Get-Date) - $startTime))"
+                    Write-Host "`rInstalling $animation (Elapsed: $((Get-Date) - $startTime))"
                     $counter++
                     Start-Sleep -Milliseconds 250
                 }
                 
                 if (-not $AgentService -or $AgentService.Status -ne "Running") {
-                    Write-Host "`r[WARNING] Installation timeout reached. Checking service status..." -ForegroundColor Yellow
+                    writeText -type 'notice' -text "Installation timeout reached. Checking service status..."
                     $AgentService = Get-Service -Name "jumpcloud-agent" -ErrorAction SilentlyContinue
                     if (-not $AgentService) {
-                        Write-Host "[ERROR] JumpCloud service not found after installation attempt." -ForegroundColor Red
+                        writeText -type 'error' -text "JumpCloud service not found after installation attempt."
                     } else {
-                        Write-Host "[WARNING] JumpCloud service found but not running. Current status: $($AgentService.Status)" -ForegroundColor Yellow
+                        writeText -type 'notice' -text "JumpCloud service found but not running. Current status: $($AgentService.Status)"
                     }
-                    Write-Host "[INFO] Please check the installation log at: $LOG_FILE" -ForegroundColor Gray
+                    writeText -type 'plain' -text "Please check the installation log at: $LOG_FILE"
                 }
                 
-                <# Write-Host "[INFO] Cleaning up installer..." -ForegroundColor Gray
+                <# Write-Host "[INFO] Cleaning up installer..."
                 if (Test-Path $installerPath) {
                     Remove-Item $installerPath -Force
-                    Write-Host "[INFO] Installer removed successfully." -ForegroundColor Gray
+                    Write-Host "[INFO] Installer removed successfully."
                 } #>
             }
         } else {
