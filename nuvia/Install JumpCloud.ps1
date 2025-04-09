@@ -18,8 +18,8 @@ function installJumpCloud {
                     "/quiet",
                     "/norestart",
                     "/L*V",
-                    "`"$INSTALLER_LOG`"",
-                    "JCINSTALLERARGUMENTS=`"-k $JumpCloudConnectKey /VERYSILENT /NORESTART /NOCLOSEAPPLICATIONS`""
+                    "`"$log`"",
+                    "JCINSTALLERARGUMENTS=`"-k $JumpCloudConnectKey`""
                 )
                 
                 "Starting installation with arguments: msiexec $installArgs" | Out-File -FilePath $log -Append
