@@ -38,10 +38,9 @@ function installJumpCloud {
                     $AgentService = Get-Service -Name "jumpcloud-agent" -ErrorAction SilentlyContinue
                     
                     if ($AgentService -and $AgentService.Status -eq "Running") {
-                        writeText -type 'success' -text " JumpCloud Agent installed and running successfully!"
                         writeText -type 'plain' -text "Installation completed in: $((Get-Date) - $startTime)"
                         writeText -type 'plain' -text "Service status: $($AgentService.Status)"
-                        writeText -type 'plain' -text "Service startup type: $($AgentService.StartType)"
+                        writeText -type 'success' -text " JumpCloud Agent installed and running successfully!"
                         break
                     }
                     
@@ -62,6 +61,8 @@ function installJumpCloud {
                     }
                     writeText -type 'plain' -text "Please check the installation log at: $log"
                 }
+
+                $JumpCloudConnectKey = $null;
                 
                 <# Write-Host "[INFO] Cleaning up installer..."
                 if (Test-Path $installerPath) {
