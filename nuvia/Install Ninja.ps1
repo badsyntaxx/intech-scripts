@@ -8,9 +8,9 @@ function installNinja {
         if ($null -ne $service -and $service.Status -eq "Running") {
             writeText -type "success" -text "NinjaRMMAgent is already installed and running."
         } else {
-            $download = getDownload -url $url -target "$env:SystemRoot\Temp\NinjaOne.msi" -lineBefore
+            $download = getDownload -url $url -target "$env:SystemRoot\Temp\NinjaOne-Agent-Nuvia-Unassigned-Auto.msi" -lineBefore
             if ($download) { 
-                Start-Process -FilePath "msiexec" -ArgumentList "/i `"$env:SystemRoot\Temp\NinjaOne.msi`" /qn" -Wait
+                Start-Process -FilePath "msiexec" -ArgumentList "/i `"$env:SystemRoot\Temp\NinjaOne-Agent-Nuvia-Unassigned-Auto.msi`" /qn" -Wait
 
                 # Initialize variables for service check
                 $maxAttempts = 10  # Number of attempts to check service
@@ -41,7 +41,7 @@ function installNinja {
                 }
 
                 # Cleanup
-                Get-Item -ErrorAction SilentlyContinue "$env:SystemRoot\Temp\NinjaOne.msi" | Remove-Item -ErrorAction SilentlyContinue
+                Get-Item -ErrorAction SilentlyContinue "$env:SystemRoot\Temp\NinjaOne-Agent-Nuvia-Unassigned-Auto.msi" | Remove-Item -ErrorAction SilentlyContinue
 
                 # Final status check
                 if ($serviceRunning) {
