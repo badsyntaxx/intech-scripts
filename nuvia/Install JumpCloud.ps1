@@ -40,7 +40,7 @@ function installJumpCloud {
                     if ($AgentService -and $AgentService.Status -eq "Running") {
                         writeText -type 'plain' -text "Installation completed in: $((Get-Date) - $startTime)"
                         writeText -type 'plain' -text "Service status: $($AgentService.Status)"
-                        writeText -type 'success' -text " JumpCloud Agent installed and running successfully!"
+                        writeText -type 'success' -text "JumpCloud Agent installed and running successfully!"
                         break
                     }
                     
