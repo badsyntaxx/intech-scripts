@@ -554,8 +554,10 @@ function getDownload {
             $progbar = $progbar.PadRight($barSize, [char]9617)
 
             if ($complete) {
+                Write-Host " $([char]0x250C)" -NoNewline -ForegroundColor "Gray"
                 Write-Host -NoNewLine "`r  $progbar Complete"
             } else {
+                Write-Host " $([char]0x250C)" -NoNewline -ForegroundColor "Gray"
                 Write-Host -NoNewLine "`r  $progbar $($percentComplete.ToString("##0.00").PadLeft(6))%"
             }          
         }
